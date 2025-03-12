@@ -55,10 +55,13 @@ If you have questions, blockers, or issues, talk to the responsible person first
   * No blindly copying and pasting - review, test, and think!
 - Security, data privacy, and performance are your responsibility when using auto-generated code.
 
-### 8. Commit Etiquette
+### 8. Git and GitHub Etiquette
 
 - Write clear, descriptive commit messages.
-- Follow the branch, issue, and PR guidelines.
+- New code should be pushed into the `dev` branch before merging into `main`.
+- Always create a new branch for your tasks from the `dev` branch.
+- Group branches depending on their purpose, e.g. feature branches should have the `feature/` prefix, documentation branches should have the `doc/` prefix. This way they automatically get placed in a "folder".
+- Pull requests should have the `PR: ` prefix, so it's easier to distinguish them in the project view.
 
 ---
 
