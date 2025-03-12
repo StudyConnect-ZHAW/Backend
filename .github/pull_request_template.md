@@ -11,4 +11,4 @@ Please make sure that the following items have been completed before submitting 
 - [ ] All code has been properly tested
 - [ ] All tests pass successfully
 - [ ] Code has been reviewed for clarity, readability, and maintainability
-- [ ] Code has been properly documented with JavaDoc comments
+- [ ] Code has been properly documented with comments
