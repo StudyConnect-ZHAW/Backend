@@ -1,5 +1,5 @@
 # Resolves
-
+closes #issue number
 ## Description
 
 Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context. List any dependencies that are required for this change.
@@ -11,4 +11,4 @@ Please make sure that the following items have been completed before submitting 
 - [ ] All code has been properly tested
 - [ ] All tests pass successfully
 - [ ] Code has been reviewed for clarity, readability, and maintainability
-- [ ] Code has been properly documented with JavaDoc comments
+- [ ] Code has been properly documented with comments
