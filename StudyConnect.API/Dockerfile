@@ -2,7 +2,6 @@
 
 # Diese Stufe wird verwendet, wenn sie von VS im Schnellmodus ausgeführt wird (Standardeinstellung für Debugkonfiguration).
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
@@ -14,7 +13,7 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["StudyConnect.API.csproj", "."]
 RUN dotnet restore "./StudyConnect.API.csproj"
-COPY . .
+COPY . .jnk
 WORKDIR "/src/."
 RUN dotnet build "./StudyConnect.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 

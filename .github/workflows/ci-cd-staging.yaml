@@ -1,0 +1,54 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # enables manual trigger
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and push backend image
+        run: |
+          docker build -t ghcr.io/StudyConnect-ZHAW/backend:latest .
+          docker push ghcr.io/StudyConnect-ZHAW/backend:latest
+
+      - name: Clone StudyConnect-ZHAW GitOps repository
+        run: |
+          git clone https://github.com/StudyConnect-ZHAW/StudyConnect-ZHAW.git ../gitops-repo
+          cd ../gitops-repo
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+
+      - name: Update deployment manifest
+        run: |
+          sed -i 's|image: ghcr.io/StudyConnect-ZHAW/backend:.*|image: ghcr.io/StudyConnect-ZHAW/backend:latest|' ../gitops-repo/deployment/backend/k8/staging/deployment.yaml
+
+      - name: Commit and push changes
+        run: |
+          cd ../gitops-repo
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add deployment/backend/k8/staging/deployment.yaml
+          git commit -m "Update backend image"
+          git push
+
+      - name: Trigger Frontend Workflow
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'StudyConnect-ZHAW',
+              repo: 'frontend',
+              workflow_id: 'ci-cd-staging.yaml',
+              ref: 'main'
+            });

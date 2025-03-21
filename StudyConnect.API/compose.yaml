@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  backend:
+    image: sc-backend
+    build: Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://0.0.0.0:8080
+      - BACKEND_API_URL=http://localhost:8080
+    ports:
+      - "8080:8080"

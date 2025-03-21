@@ -52,6 +52,7 @@ TestResults/
 ######################
 *.log
 *.sqlite
+######################
 # OS generated files #
 ######################
 .DS_Store
@@ -114,4 +115,7 @@ temp/
 # `dotnet restore` Cache
 packages/
 project.lock.json
+
+# Local configuration
+.env*
 
