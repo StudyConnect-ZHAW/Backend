@@ -18,8 +18,8 @@ jobs:
 
       - name: Build and push backend image
         run: |
-          docker build -t ghcr.io/StudyConnect-ZHAW/backend:latest .
-          docker push ghcr.io/StudyConnect-ZHAW/backend:latest
+          docker build -t ghcr.io/studyconnect-zhaw/backend:latest .
+          docker push ghcr.io/studyconnect-zhaw/backend:latest
 
       - name: Clone StudyConnect-ZHAW GitOps repository
         run: |
@@ -30,14 +30,14 @@ jobs:
 
       - name: Update deployment manifest
         run: |
-          sed -i 's|image: ghcr.io/StudyConnect-ZHAW/backend:.*|image: ghcr.io/StudyConnect-ZHAW/backend:latest|' ../gitops-repo/deployment/backend/k8/staging/deployment.yaml
+          sed -i 's|image: ghcr.io/studyconnect-zhaw/backend:.*|image: ghcr.io/studyconnect-zhaw/backend:latest|' ../gitops-repo/deployment/backend/K8s/staging/deployment.yaml
 
       - name: Commit and push changes
         run: |
           cd ../gitops-repo
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
-          git add deployment/backend/k8/staging/deployment.yaml
+          git add deployment/backend/K8s/staging/deployment.yaml
           git commit -m "Update backend image"
           git push
 
