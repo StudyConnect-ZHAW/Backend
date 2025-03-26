@@ -61,8 +61,13 @@ jobs:
         env: 
           NEW_VERSION: ${{ env.NEW_VERSION }}
         run: |
+<<<<<<< HEAD
           docker build -t ghcr.io/studyconnect-zhaw/backend/staging:${{ env.NEW_VERSION }} -f StudyConnect.API/Dockerfile .
           docker push ghcr.io/studyconnect-zhaw/backend/staging:${{ env.NEW_VERSION }}
+=======
+          docker build -t ghcr.io/studyconnect-zhaw/backend:latest .
+          docker push ghcr.io/studyconnect-zhaw/backend:latest
+>>>>>>> 3c72cb9 (ci: changing ghcr tag to lowercase [#15])
 
       - name: Create and push version tag
         env: 
@@ -80,7 +85,11 @@ jobs:
 
       - name: Update deployment manifest
         run: |
+<<<<<<< HEAD
           sed -i 's|image: ghcr.io/studyconnect-zhaw/backend/staging:.*|image: ghcr.io/studyconnect-zhaw/backend/staging:${{ env.NEW_VERSION }}|' gitops-repo/deployment/backend/K8s/staging/deployment.yaml
+=======
+          sed -i 's|image: ghcr.io/studyconnect-zhaw/backend:.*|image: ghcr.io/studyconnect-zhaw/backend:latest|' ../gitops-repo/deployment/backend/K8s/staging/deployment.yaml
+>>>>>>> 3c72cb9 (ci: changing ghcr tag to lowercase [#15])
 
       - name: Commit and push changes
         run: |
@@ -88,7 +97,11 @@ jobs:
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
           git add deployment/backend/K8s/staging/deployment.yaml
+<<<<<<< HEAD
           git commit -m "Update backend image to version ${{ env.NEW_VERSION }}"
+=======
+          git commit -m "Update backend image"
+>>>>>>> 3c72cb9 (ci: changing ghcr tag to lowercase [#15])
           git push
         env: 
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
