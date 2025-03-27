@@ -28,33 +28,28 @@ jobs:
           docker push ghcr.io/studyconnect-zhaw/backend/staging:latest
 
       - name: Clone StudyConnect-ZHAW GitOps repository
-        run: |
-          git clone https://${{ secrets.GITHUB_TOKEN }}@github.com/StudyConnect-ZHAW/StudyConnect-ZHAW.git ../gitops-repo
-          cd ../gitops-repo
-          git config --global user.email "actions@github.com"
-          git config --global user.name "GitHub Actions"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run:
+          git clone https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/StudyConnect-ZHAW/StudyConnect.git gitops-repo
 
       - name: Update deployment manifest
         run: |
-          sed -i 's|image: ghcr.io/studyconnect-zhaw/backend/staging:.*|image: ghcr.io/studyconnect-zhaw/backend/staging:latest|' ../gitops-repo/deployment/backend/K8s/staging/deployment.yaml
+          sed -i 's|image: ghcr.io/studyconnect-zhaw/backend/staging:.*|image: ghcr.io/studyconnect-zhaw/backend/staging:latest|' gitops-repo/deployment/backend/K8s/staging/deployment.yaml
 
       - name: Commit and push changes
         run: |
-          cd ../gitops-repo
+          cd gitops-repo
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
           git add deployment/backend/K8s/staging/deployment.yaml
           git commit -m "Update backend image"
           git push
         env: 
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       - name: Trigger Frontend Workflow
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.PAT_TOKEN }}
           script: |
             await github.rest.actions.createWorkflowDispatch({
               owner: 'StudyConnect-ZHAW',
