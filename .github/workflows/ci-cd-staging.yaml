@@ -1,6 +1,8 @@
 name: Backend CI/CD
 
 on:
+  pull_request:
+    types: [opened, synchronize, reopened]
   push:
     branches:
       - main
@@ -27,10 +29,12 @@ jobs:
 
       - name: Clone StudyConnect-ZHAW GitOps repository
         run: |
-          git clone https://github.com/StudyConnect-ZHAW/StudyConnect-ZHAW.git ../gitops-repo
+          git clone https://${{ secrets.GITHUB_TOKEN }}@github.com/StudyConnect-ZHAW/StudyConnect-ZHAW.git ../gitops-repo
           cd ../gitops-repo
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update deployment manifest
         run: |
@@ -44,6 +48,8 @@ jobs:
           git add deployment/backend/K8s/staging/deployment.yaml
           git commit -m "Update backend image"
           git push
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Trigger Frontend Workflow
         uses: actions/github-script@v6
