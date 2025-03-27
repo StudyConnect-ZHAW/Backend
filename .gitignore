@@ -115,3 +115,5 @@ temp/
 packages/
 project.lock.json
 
+# Local dev files
+*.env
