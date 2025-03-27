@@ -18,8 +18,8 @@ jobs:
 
       - name: Build and push backend image
         run: |
-          docker build -t ghcr.io/studyconnect-zhaw/backend:latest .
-          docker push ghcr.io/studyconnect-zhaw/backend:latest
+          docker build -t ghcr.io/studyconnect-zhaw/backend/staging:latest -f StudyConnect.API/Dockerfile .
+          docker push ghcr.io/studyconnect-zhaw/backend/staging:latest
 
       - name: Clone StudyConnect-ZHAW GitOps repository
         run: |
@@ -30,7 +30,7 @@ jobs:
 
       - name: Update deployment manifest
         run: |
-          sed -i 's|image: ghcr.io/studyconnect-zhaw/backend:.*|image: ghcr.io/studyconnect-zhaw/backend:latest|' ../gitops-repo/deployment/backend/K8s/staging/deployment.yaml
+          sed -i 's|image: ghcr.io/studyconnect-zhaw/backend/staging:.*|image: ghcr.io/studyconnect-zhaw/backend/staging:latest|' ../gitops-repo/deployment/backend/K8s/staging/deployment.yaml
 
       - name: Commit and push changes
         run: |
