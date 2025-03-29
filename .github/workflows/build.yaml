@@ -71,7 +71,7 @@ jobs:
       # --- Build, Test, Analyze ---
       - name: Begin SonarQube Analysis
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Still needed for potential future use or other integrations
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
@@ -79,26 +79,18 @@ jobs:
             "/k:StudyConnect",  # Your project key
             "/d:sonar.login=${{ env.SONAR_TOKEN }}",
             "/d:sonar.host.url=${{ env.SONAR_HOST_URL }}",
-            # ---------------------------------
-            "/d:sonar.verbose=true", # Enable verbose logs for debugging if needed
+            "/d:sonar.verbose=true",
             "/d:sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml"
-            # -------------------------------------------------------
+            # --- REMOVED PULL REQUEST PARAMETERS ---
+            # The following block sending PR parameters has been removed
+            # because the target SonarQube instance (Community Edition)
+            # does not support PR analysis.
+            # ----------------------------------------
           )
 
-          if ($env:GITHUB_EVENT_NAME -eq 'pull_request') {
-            $sonarArgs += "/d:sonar.pullrequest.key=${{ github.event.pull_request.number }}"
-            $sonarArgs += "/d:sonar.pullrequest.branch=${{ github.event.pull_request.head.ref }}"
-            $sonarArgs += "/d:sonar.pullrequest.base=${{ github.event.pull_request.base.ref }}"
-            $sonarArgs += "/d:sonar.pullrequest.github.repository=${{ github.repository }}"
-            $sonarArgs += "/d:sonar.pullrequest.provider=github"
-            # --- FIX: Removed extra quotes ---
-            $sonarArgs += "/d:sonar.pullrequest.github.token.secured=${{ env.GITHUB_TOKEN }}"
-            # ---------------------------------
-          }
+          # --- REMOVED THE if ($env:GITHUB_EVENT_NAME -eq 'pull_request') BLOCK ---
 
-          # Output the command being run FOR DEBUGGING (values from secrets will be masked)
           Write-Host "Starting SonarScanner with args: $($sonarArgs -join ' ')"
-          # Execute the command
           dotnet-sonarscanner begin $sonarArgs
         shell: pwsh
 
@@ -170,7 +162,8 @@ jobs:
 
           $TaskUrl = "${{ env.SONAR_HOST_URL }}/api/ce/task?id=$TaskId"
           Write-Host "Polling URL: $TaskUrl"
-          $Headers = @{ "Authorization" = "Bearer ${{ env.SONAR_TOKEN }}" } # Use Bearer token preferred
+          $EncodedAuth = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("${{ env.SONAR_TOKEN }}:"))
+          $Headers = @{ "Authorization" = "Basic $EncodedAuth" }
 
           $StartTime = Get-Date
           $Attempt = 1
@@ -300,7 +293,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            **Backend SonarQube Analysis Results**
+            **Backend SonarQube Analysis Results** (Branch Scan)
 
             *   **Quality Gate Status:** `${{ env.quality_gate_status }}`
 
@@ -309,7 +302,7 @@ jobs:
                 ${{ env.conditions }}
                 ```
 
-            [View Full Report on SonarQube](${{ secrets.SONAR_HOST_URL }}/dashboard?id=StudyConnect&pullRequest=${{ github.event.pull_request.number }})
+            [View Full Report on SonarQube](${{ secrets.SONAR_HOST_URL }}/dashboard?id=StudyConnect)
 
       - name: Check Quality Gate Status (Fail Workflow on Error)
         if: env.quality_gate_status != 'OK' && env.quality_gate_status != 'NONE' # NONE means no Quality Gate defined
