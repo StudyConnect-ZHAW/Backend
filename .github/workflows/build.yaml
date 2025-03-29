@@ -65,7 +65,7 @@ jobs:
         shell: pwsh
 
       - name: Install jq (for parsing SonarQube results)
-        run: choco install jq # Use Chocolatey package manager on Windows
+        run: choco install jq --version=1.7.1 # Use Chocolatey package manager on Windows
         shell: pwsh
 
       # --- Build, Test, Analyze ---
