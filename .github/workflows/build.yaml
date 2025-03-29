@@ -239,16 +239,13 @@ jobs:
           $SonarToken = "${{ env.SONAR_TOKEN }}"
           $ApiUrl = "$SonarHost/api/qualitygates/project_status?projectKey=$ProjectKey"
 
-          # Add pull request parameter if available
-          if ($env:GITHUB_EVENT_NAME -eq 'pull_request') {
-            $ApiUrl += "&pullRequest=${{ github.event.pull_request.number }}"
-          }
-
           Write-Host "Fetching Quality Gate status from: $ApiUrl"
-          $Headers = @{ "Authorization" = "Bearer $SonarToken" }
+          $EncodedAuth = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("${SonarToken}:"))
+          $Headers = @{ "Authorization" = "Basic $EncodedAuth" }
 
           try {
-            $analysisResultJson = Invoke-RestMethod -Uri $ApiUrl -Headers $Headers -Method Get -ErrorAction Stop
+            # Add -UseBasicParsing for potentially broader compatibility if Invoke-RestMethod has issues
+            $analysisResultJson = Invoke-RestMethod -Uri $ApiUrl -Headers $Headers -Method Get -ErrorAction Stop #-UseBasicParsing
           } catch {
              Write-Error "Failed to fetch SonarQube analysis results. Status Code: $($_.Exception.Response.StatusCode), Response: $($_.Exception.Response.Content)"
              exit 1
@@ -298,9 +295,7 @@ jobs:
             *   **Quality Gate Status:** `${{ env.quality_gate_status }}`
 
             *   **Conditions:**
-                ```
                 ${{ env.conditions }}
-                ```
 
             [View Full Report on SonarQube](${{ secrets.SONAR_HOST_URL }}/dashboard?id=StudyConnect)
 
