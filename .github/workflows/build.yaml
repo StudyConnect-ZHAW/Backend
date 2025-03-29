@@ -5,49 +5,315 @@ on:
     types: [opened, synchronize, reopened]
   workflow_dispatch: # enables manual trigger
 
+permissions:
+  issues: write
+  pull-requests: write
+  contents: read
+  security-events: write
+
   
 jobs:
-  build:
-    name: Build
-    runs-on: windows-latest
+  build-and-analyze:
+    name: Build, Test & Analyze Backend
+    runs-on: windows-latest # Stays on Windows for .NET
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Needed for better analysis
-      
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
+          fetch-depth: 0  # Required for SonarQube PR analysis
+
+      - name: Set up JDK 21 # Sonar Scanner needs Java
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21' # LTS version compatible with recent SonarQube
       
       - name: Set up .NET SDK
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '6.0.x'  # Adjust based on your project
-      
-      - name: Cache SonarQube packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
+          dotnet-version: '6.0.x'
 
-      - name: Cache SonarQube scanner
-        id: cache-sonar-scanner
-        uses: actions/cache@v3
+      - name: Cache SonarQube scanner tool
+        id: cache-sonar-scanner-tool # Different ID from packages
+        uses: actions/cache@v4
         with:
-          path: ~/.dotnet/tools
-          key: ${{ runner.os }}-sonar-scanner
-          restore-keys: ${{ runner.os }}-sonar-scanner
+          # Cache the installed tool location
+          path: C:\Users\runneradmin\.dotnet\tools # Default global tool path on Windows runner
+          key: ${{ runner.os }}-sonar-scanner-tool-v1 # Increment version if tool changes
+          restore-keys: |
+            ${{ runner.os }}-sonar-scanner-tool-
 
-      - name: Install SonarQube scanner
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages # NuGet package cache location
+          # Key based on OS and the packages.lock.json or project files
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      # --- Setup Tools ---
+      - name: Install SonarQube scanner tool (if not cached)
+        # Only run if cache wasn't restored (cache-hit is 'false' or empty)
+        if: steps.cache-sonar-scanner-tool.outputs.cache-hit != 'true'
         run: dotnet tool install --global dotnet-sonarscanner
-      
-      - name: Build and analyze
+        shell: pwsh # Use PowerShell for consistency
+
+      # Add .dotnet tools folder to PATH
+      - name: Add .NET tools to PATH
+        run: echo "$HOME\.dotnet\tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        shell: pwsh
+
+      - name: Install jq (for parsing SonarQube results)
+        run: choco install jq # Use Chocolatey package manager on Windows
+        shell: pwsh
+
+      # --- Build, Test, Analyze ---
+      - name: Begin SonarQube Analysis
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
-          dotnet-sonarscanner begin /k:"StudyConnect" /d:sonar.projectBaseDir="$(pwd)" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
-          dotnet build
-          dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+          $sonarArgs = @(
+            "/k:StudyConnect",  # Your project key
+            "/d:sonar.login=${{ env.SONAR_TOKEN }}",
+            "/d:sonar.host.url=${{ env.SONAR_HOST_URL }}",
+            # ---------------------------------
+            "/d:sonar.verbose=true", # Enable verbose logs for debugging if needed
+            "/d:sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml"
+            # -------------------------------------------------------
+          )
+
+          if ($env:GITHUB_EVENT_NAME -eq 'pull_request') {
+            $sonarArgs += "/d:sonar.pullrequest.key=${{ github.event.pull_request.number }}"
+            $sonarArgs += "/d:sonar.pullrequest.branch=${{ github.event.pull_request.head.ref }}"
+            $sonarArgs += "/d:sonar.pullrequest.base=${{ github.event.pull_request.base.ref }}"
+            $sonarArgs += "/d:sonar.pullrequest.github.repository=${{ github.repository }}"
+            $sonarArgs += "/d:sonar.pullrequest.provider=github"
+            # --- FIX: Removed extra quotes ---
+            $sonarArgs += "/d:sonar.pullrequest.github.token.secured=${{ env.GITHUB_TOKEN }}"
+            # ---------------------------------
+          }
+
+          # Output the command being run FOR DEBUGGING (values from secrets will be masked)
+          Write-Host "Starting SonarScanner with args: $($sonarArgs -join ' ')"
+          # Execute the command
+          dotnet-sonarscanner begin $sonarArgs
+        shell: pwsh
+
+      - name: Restore dependencies
+        run: dotnet restore
+        shell: pwsh
+
+      - name: Build solution
+        run: dotnet build --no-restore --configuration Release # Build in Release for analysis
+        shell: pwsh
+
+      - name: Run Tests and Collect Coverage
+        # Adjust the test project path and coverage command as needed
+        # Ensure your test projects reference Coverlet.Collector NuGet package
+        run: dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory TestResults --logger "trx;LogFileName=testresults.trx" `
+             /p:CollectCoverage=true `
+             /p:CoverletOutputFormat=opencover `
+             /p:CoverletOutput=./TestResults/coverage.opencover.xml # Output path matches sonar.cs.opencover.reportsPaths
+        shell: pwsh
+
+      - name: End SonarQube Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: dotnet-sonarscanner end /d:sonar.login=${{ env.SONAR_TOKEN }}
+        shell: pwsh
+
+      # --- Wait and Fetch Results ---
+      - name: Wait for SonarQube Analysis Task Completion
+        id: wait_for_sonar_task
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        # Use PowerShell for the script on Windows
+        run: |
+          # --- Configuration ---
+          # .NET Scanner often puts report task in .sonarqube/out/.sonar/
+          $TaskReportFile = ".sonarqube/out/.sonar/report-task.txt"
+          $TotalTimeoutSec = 600 # Max time to wait (10 minutes)
+          $PollIntervalSec = 10  # Time between checks
+
+          # --- Script ---
+          Write-Host "Waiting for SonarQube analysis task to complete..."
+
+          if (-not (Test-Path $TaskReportFile)) {
+            Write-Error "Task report file '$TaskReportFile' not found. Was the SonarQube Scan successful?"
+            # Try looking in default location as fallback
+            $TaskReportFile = ".scannerwork/report-task.txt"
+            if (-not (Test-Path $TaskReportFile)) {
+               Write-Error "Also checked fallback '$TaskReportFile' - not found."
+               exit 1
+            } else {
+               Write-Warning "Using fallback task report file: $TaskReportFile"
+            }
+          }
+
+          $TaskContent = Get-Content $TaskReportFile -Raw
+          $TaskId = ($TaskContent | Select-String -Pattern "ceTaskId=(.*)" | Select-Object -ExpandProperty Matches).Groups[1].Value
+          # $AnalysisId = ($TaskContent | Select-String -Pattern "analysisId=(.*)" | Select-Object -ExpandProperty Matches).Groups[1].Value
+
+          if (-not $TaskId) {
+            Write-Error "Could not extract Task ID (ceTaskId) from '$TaskReportFile'."
+            Write-Host "File Content:"
+            Write-Host $TaskContent
+            exit 1
+          }
+
+          Write-Host "Found SonarQube Task ID: $TaskId"
+          # if ($AnalysisId) { Write-Host "Found SonarQube Analysis ID: $AnalysisId" }
+
+          $TaskUrl = "${{ env.SONAR_HOST_URL }}/api/ce/task?id=$TaskId"
+          Write-Host "Polling URL: $TaskUrl"
+          $Headers = @{ "Authorization" = "Bearer ${{ env.SONAR_TOKEN }}" } # Use Bearer token preferred
+
+          $StartTime = Get-Date
+          $Attempt = 1
+          while ($true) {
+            $CurrentTime = Get-Date
+            $ElapsedTime = New-TimeSpan -Start $StartTime -End $CurrentTime
+
+            if ($ElapsedTime.TotalSeconds -ge $TotalTimeoutSec) {
+              Write-Error "Timeout waiting for SonarQube task $TaskId to complete after $($ElapsedTime.TotalSeconds) seconds."
+              exit 1
+            }
+
+            Write-Host "Checking task status (attempt $Attempt)..."
+            try {
+              $response = Invoke-RestMethod -Uri $TaskUrl -Headers $Headers -Method Get -ErrorAction Stop
+              $status = $response.task.status
+            } catch {
+              Write-Warning "Failed to fetch task status: $($_.Exception.Message). Retrying..."
+              Start-Sleep -Seconds $PollIntervalSec
+              $Attempt++
+              continue # Retry the loop
+            }
+
+            if (-not $status) {
+               Write-Warning "Could not extract task status from API response. Retrying..."
+               Write-Host "Raw response:"
+               Write-Host ($response | ConvertTo-Json -Depth 5)
+               Start-Sleep -Seconds $PollIntervalSec
+               $Attempt++
+               continue # Retry the loop
+            }
+
+            Write-Host "Current task status: $status"
+
+            switch ($status) {
+              "SUCCESS" {
+                Write-Host "SonarQube analysis task $TaskId completed successfully."
+                exit 0 # Success!
+              }
+              "FAILED" {
+                Write-Error "SonarQube analysis task $TaskId failed (Status: $status)."
+                exit 1 # Failure!
+              }
+              "CANCELED" {
+                  Write-Error "SonarQube analysis task $TaskId was canceled (Status: $status)."
+                  exit 1 # Failure!
+              }
+              "PENDING" {
+                Write-Host "Analysis is $status. Waiting ${PollIntervalSec}s..."
+                Start-Sleep -Seconds $PollIntervalSec
+              }
+              "IN_PROGRESS" {
+                 Write-Host "Analysis is $status. Waiting ${PollIntervalSec}s..."
+                 Start-Sleep -Seconds $PollIntervalSec
+              }
+              default {
+                Write-Warning "Unknown task status '$status' received. Treating as 'in progress'."
+                Start-Sleep -Seconds $PollIntervalSec
+              }
+            }
+            $Attempt++
+          }
+        shell: pwsh # Ensure PowerShell Core is used
+
+      - name: Fetch SonarQube Analysis Results
+        id: fetch_sonar_results
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          $ProjectKey = "StudyConnect" # Your project key
+          $SonarHost = "${{ env.SONAR_HOST_URL }}"
+          $SonarToken = "${{ env.SONAR_TOKEN }}"
+          $ApiUrl = "$SonarHost/api/qualitygates/project_status?projectKey=$ProjectKey"
+
+          # Add pull request parameter if available
+          if ($env:GITHUB_EVENT_NAME -eq 'pull_request') {
+            $ApiUrl += "&pullRequest=${{ github.event.pull_request.number }}"
+          }
+
+          Write-Host "Fetching Quality Gate status from: $ApiUrl"
+          $Headers = @{ "Authorization" = "Bearer $SonarToken" }
+
+          try {
+            $analysisResultJson = Invoke-RestMethod -Uri $ApiUrl -Headers $Headers -Method Get -ErrorAction Stop
+          } catch {
+             Write-Error "Failed to fetch SonarQube analysis results. Status Code: $($_.Exception.Response.StatusCode), Response: $($_.Exception.Response.Content)"
+             exit 1
+          }
+
+          if (-not $analysisResultJson) {
+              Write-Error "Failed to fetch SonarQube analysis results. Response was empty."
+              exit 1
+          }
+
+          # Convert PS object to JSON string for jq
+          $analysisResultText = $analysisResultJson | ConvertTo-Json -Depth 10
+          # Write-Host "Raw analysis result JSON: $analysisResultText" # Debugging
+
+          # Use jq to extract data
+          $quality_gate_status = $analysisResultText | jq -r '.projectStatus.status'
+          if ($quality_gate_status -eq "null" -or -not $quality_gate_status) {
+             Write-Error "Could not extract Quality Gate status from SonarQube response."
+             Write-Host "Response JSON: $analysisResultText"
+             exit 1
+          }
+
+          # Format conditions using jq
+          $conditions = $analysisResultText | jq -r '.projectStatus.conditions | map("- \(.metricKey) (\(.status)): \(.actualValue // "N/A") (required \(.errorThreshold // "-"))") | join("\n")'
+
+          # Store extracted values in GitHub environment
+          Write-Host "Quality Gate Status: $quality_gate_status"
+          "quality_gate_status=$quality_gate_status" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          # Handle multiline conditions - Use a unique delimiter
+          $delimiter = "ghadelimiter_$(Get-Random)"
+          "conditions<<$delimiter" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $conditions | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "$delimiter" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        shell: pwsh # Use PowerShell
+
+      # --- Report Results ---
+      - name: Post Comment on PR
+        # Only run for pull request events
+        if: github.event_name == 'pull_request'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            **Backend SonarQube Analysis Results**
+
+            *   **Quality Gate Status:** `${{ env.quality_gate_status }}`
+
+            *   **Conditions:**
+                ```
+                ${{ env.conditions }}
+                ```
+
+            [View Full Report on SonarQube](${{ secrets.SONAR_HOST_URL }}/dashboard?id=StudyConnect&pullRequest=${{ github.event.pull_request.number }})
+
+      - name: Check Quality Gate Status (Fail Workflow on Error)
+        if: env.quality_gate_status != 'OK' && env.quality_gate_status != 'NONE' # NONE means no Quality Gate defined
+        run: |
+          Write-Error "SonarQube Quality Gate status is ${{ env.quality_gate_status }}. Failing the workflow."
+          exit 1
+        shell: pwsh # Use PowerShell for exit code
