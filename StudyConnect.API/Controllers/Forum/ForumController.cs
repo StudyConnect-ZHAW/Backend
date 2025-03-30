@@ -1,10 +1,17 @@
 using Microsoft.AspNetCore.Mvc;
 
 namespace StudyConnect.API.Controllers.Forum;
-
+/// <summary>
+/// Controller for managing the forum 
+/// Provides endpoints to create, retrieve, update, and delete discussions and posts.
+/// </summary>
 [ApiController]
 public class ForumController: ControllerBase
 {
+    /// <summary>
+    /// Creates a new discussion
+    /// </summary>
+    /// <return> HTTP 200 OK response on success </return>
     [Route("v1/forum")]
     [HttpPost]
     public IActionResult AddDiscussion() 
@@ -12,6 +19,11 @@ public class ForumController: ControllerBase
         return Ok();
     }
 
+    /// <summary>
+    /// Get a discussion by its ID
+    /// </summary>
+    /// <param name="did"> unique identifier of the discussion </param>
+    /// <return> the discussion details in JSON </return>
     [Route("v1/forum/{did}")]
     [HttpGet]
     public IActionResult GetDiscussion([FromRoute] Guid did ) 
@@ -35,6 +47,11 @@ public class ForumController: ControllerBase
         return Ok(mockDiscussion);
     }
 
+    /// <summary>
+    /// Update existing discussion
+    /// </summary>
+    /// <param name="did"> unique identifier of the discussion </param>
+    /// <return> HTTP 200 OK response on success </return>
     [Route("v1/forum/{did}")]
     [HttpPut]
     public IActionResult UpdateDiscussion([FromRoute] Guid did)
@@ -42,6 +59,11 @@ public class ForumController: ControllerBase
         return Ok();
     }
 
+    /// <summary>
+    /// Deletes an existing discussion
+    /// </summary>
+    /// <param name="did"> unique identifier of the discussion </param>
+    /// <return> HTTP 200 OK response on success </return>
     [Route("v1/forum/{did}")]
     [HttpDelete]
     public IActionResult DeleteDiscussion([FromRoute] Guid did)
@@ -49,6 +71,11 @@ public class ForumController: ControllerBase
         return Ok();
     }
 
+    /// <summary>
+    /// Get all posts of a discussion
+    /// </summary>
+    /// <param name="did"> unique identifier of the discussion </param>
+    /// <return> HTTP 200 OK response on success </return>
     [Route("v1/forum/{did}/posts")]
     [HttpGet]
     public IActionResult GetAllPostOfDiscussion([FromRoute] Guid did)
@@ -56,6 +83,12 @@ public class ForumController: ControllerBase
         return Ok();
     }
 
+    /// <summary>
+    /// Get post of a discussion by its ID
+    /// </summary>
+    /// <param name="did"> unique identifier of the discussion </param>
+    /// <param name="pid"> unique identifier of the post </param>
+    /// <return> the post details in JSON </return>
     [Route("v1/forum/{did}/posts/{pid}")]
     [HttpGet]
     public IActionResult GetPostById([FromRoute] Guid did, [FromRoute] Guid pid)
@@ -72,6 +105,11 @@ public class ForumController: ControllerBase
         return Ok(mockPost);
     }
 
+    /// <summary>
+    /// Creates a new post
+    /// </summary>
+    /// <param name="did"> unique identifier of the discussion </param>
+    /// <return> HTTP 200 OK response on success </return>
     [Route("v1/forum/{did}/posts")]
     [HttpPost]
     public IActionResult CreatePost([FromRoute] Guid did)
@@ -79,6 +117,12 @@ public class ForumController: ControllerBase
         return Ok();
     }
 
+    /// <summary>
+    /// Updates an existing post
+    /// </summary>
+    /// <param name="did"> unique identifier of the discussion </param>
+    /// <param name="pid"> unique inheritdoc of the posts </param>
+    /// <return> HTTP 200 OK response on success </return>
     [Route("v1/forum/{did}/posts{pid}")]
     [HttpPut]
     public IActionResult UpdatePost([FromRoute] Guid did, [FromRoute] Guid pid)
@@ -86,6 +130,12 @@ public class ForumController: ControllerBase
         return Ok();
     }
 
+    /// <summary>
+    /// Deletes an existing post
+    /// </summary>
+    /// <param name="did"> unique identifier of the discussion </param>
+    /// <param name="pid"> unique inheritdoc of the posts </param>
+    /// <return> HTTP 200 OK response on success </return>
     [Route("v1/forum/{did}/posts/{pid}")]
     [HttpDelete]
     public IActionResult DeletePost([FromRoute] Guid did, [FromRoute] Guid pid)
