@@ -62,7 +62,7 @@ namespace StudyConnect.API
 
         public void SetLike(Guid author)
         {
-            if(!likedByUsers.Contains(author))
+            if(!likedByUsers.Contains(author) && author != this.Author)
             {
                 likedByUsers.Add(author);
             }

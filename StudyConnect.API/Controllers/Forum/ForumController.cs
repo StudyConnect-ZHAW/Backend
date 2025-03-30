@@ -86,7 +86,7 @@ public class ForumController: ControllerBase
         return Ok();
     }
 
-    [Route("vi/forum/{did}/posts/{pid}")]
+    [Route("v1/forum/{did}/posts/{pid}")]
     [HttpDelete]
     public IActionResult DeletePost([FromRoute] Guid did, [FromRoute] Guid pid)
     {
