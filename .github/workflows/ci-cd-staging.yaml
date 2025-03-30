@@ -1,0 +1,106 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # enables manual trigger
+
+permissions:
+  packages: write
+  contents: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Required to fetch tags for versioning
+
+
+      - name: Get Latest Version
+        id: get_version
+        run: |
+          # Fetch latest tag and sanitize
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/[^0-9.]//g' || echo "0.0.0")
+      
+          # Extract version components with defaults
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$LATEST_TAG"
+          MAJOR=${MAJOR:-0}
+          MINOR=${MINOR:-0}
+          PATCH=${PATCH:-0}
+      
+          # Fetch the latest closed PR labels
+          PR_LABEL=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/pulls?state=closed" | \
+          jq -r '.[0].labels[].name // empty' | grep -E 'major|minor' | head -n 1)
+      
+          # Determine version bump
+          if echo "$PR_LABEL" | grep -q "major"; then
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+          elif echo "$PR_LABEL" | grep -q "minor"; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+          else
+            PATCH=$((PATCH + 1))
+          fi
+      
+          # Set new version
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "New version: $NEW_VERSION"
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and push backend image
+        env: 
+          NEW_VERSION: ${{ env.NEW_VERSION }}
+        run: |
+          docker build -t ghcr.io/studyconnect-zhaw/backend/staging:${{ env.NEW_VERSION }} -f StudyConnect.API/Dockerfile .
+          docker push ghcr.io/studyconnect-zhaw/backend/staging:${{ env.NEW_VERSION }}
+
+      - name: Create and push version tag
+        env: 
+          NEW_VERSION: ${{ env.NEW_VERSION }}
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git tag ${{ env.NEW_VERSION }}
+          git push origin ${{ env.NEW_VERSION }}
+
+      - name: Clone StudyConnect-ZHAW GitOps repository
+        run:
+          git clone https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/StudyConnect-ZHAW/StudyConnect.git gitops-repo
+
+      - name: Update deployment manifest
+        run: |
+          sed -i 's|image: ghcr.io/studyconnect-zhaw/backend/staging:.*|image: ghcr.io/studyconnect-zhaw/backend/staging:${{ env.NEW_VERSION }}|' gitops-repo/deployment/backend/K8s/staging/deployment.yaml
+
+      - name: Commit and push changes
+        run: |
+          cd gitops-repo
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add deployment/backend/K8s/staging/deployment.yaml
+          git commit -m "Update backend image to version ${{ env.NEW_VERSION }}"
+          git push
+        env: 
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+
+      - name: Trigger Frontend Workflow
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.PAT_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'StudyConnect-ZHAW',
+              repo: 'frontend',
+              workflow_id: 'ci-cd-staging.yaml',
+              ref: 'main'
+            });
