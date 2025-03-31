@@ -15,17 +15,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Required to fetch tags for versioning
-
 
       - name: Get Latest Version
         id: get_version
         run: |
           # Fetch latest tag and sanitize
-          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/[^0-9.]//g' || echo "0.0.0")
-      
+          LATEST_TAG=$(git tag --sort=-v:refname | head -n 1 || echo "0.0.0")
+          LATEST_TAG=$(echo "$LATEST_TAG" | sed 's/[^0-9.]//g') # Sanitize again just in case
+          echo "LATEST_TAG: $LATEST_TAG"
+
           # Extract version components with defaults
           IFS='.' read -r MAJOR MINOR PATCH <<< "$LATEST_TAG"
           MAJOR=${MAJOR:-0}
@@ -36,7 +37,8 @@ jobs:
           PR_LABEL=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           "https://api.github.com/repos/${{ github.repository }}/pulls?state=closed" | \
           jq -r '.[0].labels[].name // empty' | grep -E 'major|minor' | head -n 1)
-      
+          echo "PR_LABEL: $PR_LABEL"
+
           # Determine version bump
           if echo "$PR_LABEL" | grep -q "major"; then
             MAJOR=$((MAJOR + 1))
@@ -55,7 +57,7 @@ jobs:
           echo "New version: $NEW_VERSION"
 
       - name: Log in to GitHub Container Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        run: echo "${{ secrets.PAT_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Build and push backend image
         env: 
@@ -81,7 +83,7 @@ jobs:
       - name: Update deployment manifest
         run: |
           sed -i 's|image: ghcr.io/studyconnect-zhaw/backend/staging:.*|image: ghcr.io/studyconnect-zhaw/backend/staging:${{ env.NEW_VERSION }}|' gitops-repo/deployment/backend/K8s/staging/deployment.yaml
-
+     
       - name: Commit and push changes
         run: |
           cd gitops-repo
@@ -94,7 +96,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       - name: Trigger Frontend Workflow
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.PAT_TOKEN }}
           script: |
