@@ -29,8 +29,7 @@ namespace StudyConnect.API.Controllers.Users
         [HttpGet]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         public IActionResult GetUserById([FromRoute] Guid id ){
-            string user = "{\r\n  \"name\": \"Anna M�ller\",\r\n  \"email\": \"anna.mueller@example.com\",\r\n  \"family_name\": \"M�ller\",\r\n  \"given_name\": \"Anna\" \t \r\n}\r\n";
-
+            string user = "{\r\n  \"name\": \"Anna Müller\",\r\n  \"email\": \"anna.mueller@example.com\",\r\n  \"family_name\": \"Müller\",\r\n  \"given_name\": \"Anna\" \t \r\n}\r\n";
             return Ok(user);
         }
 
