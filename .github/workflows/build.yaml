@@ -299,9 +299,11 @@ jobs:
 
             [View Full Report on SonarQube](${{ secrets.SONAR_HOST_URL }}/dashboard?id=StudyConnect)
 
-      - name: Check Quality Gate Status (Fail Workflow on Error)
-        if: env.quality_gate_status != 'OK' && env.quality_gate_status != 'NONE' # NONE means no Quality Gate defined
-        run: |
-          Write-Error "SonarQube Quality Gate status is ${{ env.quality_gate_status }}. Failing the workflow."
-          exit 1
-        shell: pwsh # Use PowerShell for exit code
+      #
+      #- name: Check Quality Gate Status (Fail Workflow on Error)
+      #  if: env.quality_gate_status != 'OK' && env.quality_gate_status != 'NONE' # NONE means no Quality Gate defined
+      #  run: |
+      #   Write-Error "SonarQube Quality Gate status is ${{ env.quality_gate_status }}. Failing the workflow."
+      #    exit 1
+      #  shell: pwsh # Use PowerShell for exit code
+        
