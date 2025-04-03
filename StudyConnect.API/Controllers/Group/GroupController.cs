@@ -3,17 +3,27 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace StudyConnect.API.Controllers.Groups
 {
+    /// <summary>
+    /// The group endpoint is used to make modifications to a group.
+    /// </summary>
     [ApiController]
-    public class GroupsController : ControllerBase
+    public class GroupsController : BaseController
     {
-        /// create Groups
+        /// <summary>
+        /// Create group
+        /// </summary>
+        /// <returns></returns>
         [Route("v1/groups")]
         [HttpPost]
         public IActionResult AddGroup(){
             return Ok();
         }
 
-        /// delete Groups by id
+        /// <summary>
+        /// Delete group
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
          [Route("v1/groups/{id}")]
          [HttpDelete]
         public IActionResult DeleteGroups([FromRoute] Guid id)
@@ -21,7 +31,11 @@ namespace StudyConnect.API.Controllers.Groups
              return Ok();
          }
 
-        /// info Group
+        /// <summary>
+        /// Returns value of group
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
          [Route("v1/groups/{id}")]
          [HttpGet]
         public IActionResult GetGroup([FromRoute] Guid id)
@@ -29,15 +43,23 @@ namespace StudyConnect.API.Controllers.Groups
             return Ok();
         }
 
-        /// update Group
+        /// <summary>
+        /// Update group
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
          [Route("v1/groups/update/{id}")]
          [HttpPut]
-        public IActionResult UpdateGroup([FromRoute] Guid id) /// name , description, public/private
+        public IActionResult UpdateGroup([FromRoute] Guid id)
         {
             return Ok();
         }
 
-        /// join Group
+        /// <summary>
+        /// Join group
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
          [Route("v1/groups/join/{id}")]
          [HttpPost]
         public IActionResult JoinGroup([FromRoute] Guid id)
@@ -45,7 +67,11 @@ namespace StudyConnect.API.Controllers.Groups
             return Ok();
         }
 
-        /// leave Group
+        /// <summary>
+        /// Leave group
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
          [Route("v1/groups/{id}")]
          [HttpPost]
         public IActionResult LeaveGroup([FromRoute] Guid id)
