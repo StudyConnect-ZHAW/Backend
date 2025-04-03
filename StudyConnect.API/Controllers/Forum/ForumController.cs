@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace StudyConnect.API.Controllers.Forum;
 /// <summary>
 /// Controller for managing the forum 
-/// Provides endpoints to create, retrieve, update, and delete discussions and posts.
+/// Provides endpoints to create, retrieve, update, and delete posts and comments.
 /// </summary>
 [ApiController]
 public class ForumController: ControllerBase
@@ -139,6 +139,73 @@ public class ForumController: ControllerBase
     [Route("v1/forum/{did}/posts/{pid}")]
     [HttpDelete]
     public IActionResult DeletePost([FromRoute] Guid did, [FromRoute] Guid pid)
+    {
+        return Ok();
+    }
+
+    /// <summary>
+    /// Get all comments of a post
+    /// </summary>
+    /// <param name="did"> unique identifier of the post </param>
+    /// <return> HTTP 200 OK response on success </return>
+    [HttpGet("{did}/comments")]
+    public IActionResult GetAllCommentsOfPost([FromRoute] Guid did)
+    {
+        return Ok();
+    }
+
+    /// <summary>
+    /// Get comment of a post by its ID
+    /// </summary>
+    /// <param name="did"> unique identifier of the post </param>
+    /// <param name="pid"> unique identifier of the comment </param>
+    /// <return> the comment details in JSON </return>
+    [HttpGet("{did}/comments/{pid}")]
+    public IActionResult GetCommentbyId([FromRoute] Guid did, [FromRoute] Guid pid)
+    {
+        var mockComment = @"
+        { 
+                ""CommentId"": ""d2b516f0-d3f5-4a02-8191-5d122c375b2d"",
+                ""PostId"": ""d2b876f0-d6h9-4a02-8965-5d248b573j8l"",
+                ""Author"": ""John Doe"",
+                ""Content"": ""This is a mock content for a mock post."",
+                ""MadeAt"": ""2025-03-29T12:34:56""
+        }";
+
+        return Ok(mockComment);
+    }
+
+    /// <summary>
+    /// Creates a new comment
+    /// </summary>
+    /// <param name="did"> unique identifier of the post </param>
+    /// <return> HTTP 200 OK response on success </return>
+    [HttpPost("{did}/comments")]
+    public IActionResult CreateComment([FromRoute] Guid did)
+    {
+        return Ok();
+    }
+
+    /// <summary>
+    /// Updates an existing comment
+    /// </summary>
+    /// <param name="did"> unique identifier of the post </param>
+    /// <param name="pid"> unique identifier of the comment </param>
+    /// <return> HTTP 200 OK response on success </return>
+    [HttpPut("{did}/comments/{pid}")]
+    public IActionResult UpdateComment([FromRoute] Guid did, [FromRoute] Guid pid)
+    {
+        return Ok();
+    }
+
+    /// <summary>
+    /// Deletes an existing comment
+    /// </summary>
+    /// <param name="did"> unique identifier of the post </param>
+    /// <param name="pid"> unique inheritdoc of the comment </param>
+    /// <return> HTTP 200 OK response on success </return>
+    [HttpDelete("{did}/comments/{pid}")]
+    public IActionResult DeleteComment([FromRoute] Guid did, [FromRoute] Guid pid)
     {
         return Ok();
     }
