@@ -7,7 +7,7 @@ namespace StudyConnect.API.Controllers.Groups
     /// The group endpoint is used to make modifications to a group.
     /// </summary>
     [ApiController]
-    public class GroupsController : BaseController
+    public class GroupController : BaseController
     {
         /// <summary>
         /// Create group
