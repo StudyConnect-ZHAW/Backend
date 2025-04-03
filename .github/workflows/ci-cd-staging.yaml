@@ -94,15 +94,3 @@ jobs:
           git push
         env: 
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-
-      - name: Trigger Frontend Workflow
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.PAT_TOKEN }}
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: 'StudyConnect-ZHAW',
-              repo: 'frontend',
-              workflow_id: 'ci-cd-staging.yaml',
-              ref: 'main'
-            });
