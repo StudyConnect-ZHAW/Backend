@@ -38,7 +38,7 @@ namespace StudyConnect.API
             foreach (var tag in tags) {
                 AddTag(tag);
             }
-            this.Posts.Add(new ForumPost(this.DiscussionId,author, content));
+            this.Comments.Add(new ForumComments(this.PostId, author, content));
         }
 
         /// <summary> a function to add a tag to the post, if it does not exist </summary>
@@ -52,7 +52,7 @@ namespace StudyConnect.API
         /// <summary> a function to add a Comment to the post </summary> 
         public void AddComment(Guid author, string content)
         {
-            this.Posts.Add(new ForumPost(this.DiscussionId, author, content));
+            this.Comments.Add(new ForumComments(this.PostId, author, content));
         }
     }
     
@@ -72,7 +72,7 @@ namespace StudyConnect.API
         /// <summary> the time of creation of the comment </summary> 
         public DateTime MadeAt { get; private set; }
         /// <summary> the list of users, who have left a like to this comment </summary>j
-        private HashSet<Guid> likedByUsers;
+        private readonly HashSet<Guid> likedByUsers;
 
         /// <summary>
         /// the constuctor of this mock Comment
@@ -108,10 +108,7 @@ namespace StudyConnect.API
         /// <summary> a function to remove a like from this comment </summary>
         public void RemoveLike(Guid author)
         {
-            if (likedByUsers.Contains(author))
-            {
-                likedByUsers.Remove(author);
-            }
+            likedByUsers.Remove(author);
         }
     }
 }
