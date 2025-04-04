@@ -1,10 +1,11 @@
+name: studyconnectZHAW
 services:
   backend:
     image: sc-backend
     build: 
       context: .
       dockerfile: Dockerfile
-    container_name: backend
+    container_name: "${COMPOSE_PROJECT_NAME}-backend"
     environment:
       - BACKEND_API_URL=http://localhost:8080
       - ASPNETCORE_ENVIRONMENT=Development
