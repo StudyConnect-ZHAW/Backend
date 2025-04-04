@@ -1,4 +1,4 @@
-name: studyconnectZHAW
+name: studyconnect
 services:
   backend:
     image: sc-backend
