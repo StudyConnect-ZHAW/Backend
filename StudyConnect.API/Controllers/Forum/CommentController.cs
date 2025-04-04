@@ -7,14 +7,14 @@ namespace StudyConnect.API.Controllers.Forum;
 /// Provides endpoints to create, retrieve, update, and delete comments.
 /// </summary>
 [ApiController]
-public class CommitController : BaseController
+public class CommentController : BaseController
 {
     /// <summary>
     /// Get all comments of a post
     /// </summary>
     /// <param name="pid"> unique identifier of the post </param>
     /// <returns> HTTP 200 OK response on success </returns>
-    [Route("v1/fourm/{pid}/comments")]
+    [Route("v1/forum/{pid}/comments")]
     [HttpGet]
     public IActionResult GetAllCommentsOfPost([FromRoute] Guid pid)
     {
@@ -37,7 +37,7 @@ public class CommitController : BaseController
                 ""PostId"": ""d2b876f0-d6h9-4a02-8965-5d248b573j8l"",
                 ""Author"": ""John Doe"",
                 ""Content"": ""This is a mock content for a mock post."",
-                ""MadeAt"": ""2025-03-29T12:34:56"",
+                ""MadeAt"": ""2025-03-29T12:34:56""
         }";
 
         return Ok(mockComment);
@@ -48,7 +48,7 @@ public class CommitController : BaseController
     /// </summary>
     /// <param name="pid"> unique identifier of the post </param>
     /// <returns> HTTP 200 OK response on success </returns>
-    [Route("v1/fourm/{pid}/comments")]
+    [Route("v1/forum/{pid}/comments")]
     [HttpPost]
     public IActionResult CreateComment([FromRoute] Guid pid)
     {

@@ -44,7 +44,7 @@ public class PostController: BaseController
                     ""Content"": ""This is a mock content for a mock post."",
                     ""MadeAt"": ""2025-03-29T12:34:56""
                 }
-            ],
+            ]
         }";
 
         return Ok(mockPost);
