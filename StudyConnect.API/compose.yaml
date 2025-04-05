@@ -1,11 +1,13 @@
-version: '3.8'
-
+name: studyconnect
 services:
   backend:
     image: sc-backend
-    build: Dockerfile
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: "${COMPOSE_PROJECT_NAME}-backend"
     environment:
-      - ASPNETCORE_URLS=http://0.0.0.0:8080
       - BACKEND_API_URL=http://localhost:8080
+      - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "8080:8080"
