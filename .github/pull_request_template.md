@@ -1,6 +1,5 @@
-## Resolves
+## Resolves #IssueNumber
 
-Closes #issue number
 
 ## Description
 
