@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
@@ -16,6 +17,8 @@ builder.Services.AddSwaggerGen(
             options.IncludeXmlComments(xmlPath);
         }
     );
+builder.Services.AddDbContext<StudyConnectDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 

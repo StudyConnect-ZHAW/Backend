@@ -9,5 +9,21 @@ services:
     environment:
       - BACKEND_API_URL=http://localhost:8080
       - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=mssql-server;Database=studyconnect;User Id=sa;Password=${MSSQL_SA_PASSWORD};
     ports:
       - "8080:8080"
+    depends_on:
+      - mssql-server
+
+  mssql-server:
+    image: mcr.microsoft.com/mssql/server:2022-latest # Or your desired version
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+    volumes:
+      - mssql-data:/var/opt/mssql/data
+      - ./database:/docker-entrypoint-initdb.d
+volumes:
+  mssql-data:

@@ -1,0 +1,8 @@
+CREATE DATABASE studyconnect;
+USE studyconnect;
+CREATE TABLE Users (
+    user_guid UNIQUEIDENTIFIER PRIMARY KEY,
+    FirstName VARCHAR(255) NOT NULL,
+    LastName VARCHAR(255) NOT NULL,
+    Email VARCHAR(255) NOT NULL
+);
