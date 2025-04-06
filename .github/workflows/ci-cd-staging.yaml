@@ -5,6 +5,10 @@ on:
     branches:
       - main
   workflow_dispatch: # enables manual trigger
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
 
 permissions:
   packages: write
@@ -63,7 +67,7 @@ jobs:
         env: 
           NEW_VERSION: ${{ env.NEW_VERSION }}
         run: |
-          docker build -t ghcr.io/studyconnect-zhaw/backend/staging:${{ env.NEW_VERSION }} -f StudyConnect.API/Dockerfile .
+          docker build -t ghcr.io/studyconnect-zhaw/backend/staging:${{ env.NEW_VERSION }} -f StudyConnect.API/Dockerfile StudyConnect.API/
           docker push ghcr.io/studyconnect-zhaw/backend/staging:${{ env.NEW_VERSION }}
 
       - name: Create and push version tag
