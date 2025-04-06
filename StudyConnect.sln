@@ -5,6 +5,8 @@ VisualStudioVersion = 17.13.35825.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudyConnect.API", "StudyConnect.API\StudyConnect.API.csproj", "{6CA58E18-0119-3F61-C3D2-2EDEE7F7E7B7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudyConnect.Tests", "StudyConnect.Tests\StudyConnect.Tests.csproj", "{F9CACD3E-2B87-45C9-BF0D-3C3EFC2999D1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{6CA58E18-0119-3F61-C3D2-2EDEE7F7E7B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6CA58E18-0119-3F61-C3D2-2EDEE7F7E7B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6CA58E18-0119-3F61-C3D2-2EDEE7F7E7B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9CACD3E-2B87-45C9-BF0D-3C3EFC2999D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9CACD3E-2B87-45C9-BF0D-3C3EFC2999D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9CACD3E-2B87-45C9-BF0D-3C3EFC2999D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9CACD3E-2B87-45C9-BF0D-3C3EFC2999D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
