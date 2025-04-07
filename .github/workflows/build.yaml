@@ -81,7 +81,9 @@ jobs:
             "/d:sonar.login=${{ env.SONAR_TOKEN }}",
             "/d:sonar.host.url=${{ env.SONAR_HOST_URL }}",
             "/d:sonar.verbose=true",
-            "/d:sonar.cs.opencover.reportsPaths=./TestResults/coverage.opencover.xml" # Use the path from sonar-project.properties
+            "/d:sonar.cs.opencover.reportsPaths=./TestResults/coverage.opencover.xml", # Use the path from sonar-project.properties
+            "/d:sonar.sources=StudyConnect.API", # Source directory
+            "/d:sonar.tests=StudyConnect.Tests" # Test directory
           )
 
           Write-Host "Starting SonarScanner with args: $($sonarArgs -join ' ')"
