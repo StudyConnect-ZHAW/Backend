@@ -3,6 +3,6 @@
     "projectKey": "StudyConnect",
     "projectName": "StudyConnect",
     "projectVersion": "1.0.0",
-    "sources": "StudyConnect.API",
-    "tests": "StudyConnect.Tests"
+    "sources": "StudyConnect.API, StudyConnect.Data, StudyConnect.Core",
+    "tests": "StudyConnect.API.Tests, StudyConnect.Data.Tests, StudyConnect.Core.Tests"
 }
