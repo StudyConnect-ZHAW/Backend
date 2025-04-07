@@ -75,20 +75,13 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
+          Write-Host "Current Directory: $(Get-Location)"
           $sonarArgs = @(
-            "/k:StudyConnect",  # Your project key
             "/d:sonar.login=${{ env.SONAR_TOKEN }}",
             "/d:sonar.host.url=${{ env.SONAR_HOST_URL }}",
             "/d:sonar.verbose=true",
-            "/d:sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml"
-            # --- REMOVED PULL REQUEST PARAMETERS ---
-            # The following block sending PR parameters has been removed
-            # because the target SonarQube instance (Community Edition)
-            # does not support PR analysis.
-            # ----------------------------------------
+            "/d:sonar.cs.opencover.reportsPaths=TestResults/coverage.opencover.xml" # Use the path from sonar-project.properties
           )
-
-          # --- REMOVED THE if ($env:GITHUB_EVENT_NAME -eq 'pull_request') BLOCK ---
 
           Write-Host "Starting SonarScanner with args: $($sonarArgs -join ' ')"
           dotnet-sonarscanner begin $sonarArgs
@@ -108,7 +101,7 @@ jobs:
         run: dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory TestResults --logger "trx;LogFileName=testresults.trx" `
              /p:CollectCoverage=true `
              /p:CoverletOutputFormat=opencover `
-             /p:CoverletOutput=./TestResults/coverage.opencover.xml # Output path matches sonar.cs.opencover.reportsPaths
+             /p:CoverletOutput=./TestResults/coverage.opencover.xml # Output path matches sonar-project.properties and sonar-scanner begin
         shell: pwsh
 
       - name: End SonarQube Analysis
@@ -286,6 +279,9 @@ jobs:
         # Only run for pull request events
         if: github.event_name == 'pull_request'
         uses: peter-evans/create-or-update-comment@v4
+        env: 
+          quality_gate_status: ${{ env.quality_gate_status }}
+          conditions: ${{ env.conditions }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.pull_request.number }}
