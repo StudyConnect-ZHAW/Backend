@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using StudyConnect.Core.Entities;
 
 namespace StudyConnect.Data;
 
@@ -36,7 +37,7 @@ public class StudyConnectDbContext : DbContext
     }
 
     /// <summary>
-    /// Gets or sets the Users DbSet.
+    /// DbSet representing the Users table in the database.
     /// </summary>
     public DbSet<User> Users { get; set; }
 }

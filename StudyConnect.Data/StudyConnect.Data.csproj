@@ -12,4 +12,8 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="../StudyConnect.Core/StudyConnect.Core.csproj" />
+  </ItemGroup>
+
 </Project>

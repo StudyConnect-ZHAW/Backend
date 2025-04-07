@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
+namespace StudyConnect.Core.Entities;
+
 /// <summary>
 /// Represents a user in the StudyConnect application.
 /// </summary>
