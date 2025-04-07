@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using StudyConnect.Data;
 
+namespace StudyConnect.Data.Tests.Integration;
+
 /// <summary>
 /// Integration tests for the User entity
 /// using an in-memory database to simulate the database environment.
