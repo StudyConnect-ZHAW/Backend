@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
+using StudyConnect.Data;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using StudyConnect.Data;
 
 /// <summary>
 /// Integration tests for the User entity

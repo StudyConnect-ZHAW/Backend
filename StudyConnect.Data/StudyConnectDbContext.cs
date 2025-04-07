@@ -1,4 +1,7 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+
+namespace StudyConnect.Data;
 
 /// <summary>
 /// Represents the database context for the StudyConnect application.

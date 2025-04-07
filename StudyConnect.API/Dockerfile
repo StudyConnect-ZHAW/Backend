@@ -25,4 +25,11 @@ RUN dotnet publish "StudyConnect.API.csproj" -c $BUILD_CONFIGURATION -o /app/pub
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+RUN addgroup --gid 1000 appuser \
+    && adduser --uid 1000 --ingroup appuser --home /app appuser \
+    && chown -R appuser:appuser /app
+
+USER appuser
+
 ENTRYPOINT ["dotnet", "StudyConnect.API.dll"]

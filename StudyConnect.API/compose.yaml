@@ -14,6 +14,8 @@ services:
       - "8080:8080"
     depends_on:
       - mssql-server
+    networks:
+      - studyconnect-network
 
   mssql-server:
     image: mcr.microsoft.com/mssql/server:2022-latest # Or your desired version
@@ -23,7 +25,9 @@ services:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
     volumes:
-      - mssql-data:/var/opt/mssql/data
       - ./database:/docker-entrypoint-initdb.d
-volumes:
-  mssql-data:
+    networks:
+      - studyconnect-network
+
+networks:
+  studyconnect-network:
