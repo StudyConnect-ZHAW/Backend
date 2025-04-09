@@ -14,7 +14,7 @@ public class CommentController : BaseController
     /// </summary>
     /// <param name="pid"> unique identifier of the post </param>
     /// <returns> HTTP 200 OK response on success </returns>
-    [Route("v1/forum/{pid}/comments")]
+    [Route("v1/post/{pid}/comments")]
     [HttpGet]
     public IActionResult GetAllCommentsOfPost([FromRoute] Guid pid)
     {
@@ -48,7 +48,7 @@ public class CommentController : BaseController
     /// </summary>
     /// <param name="pid"> unique identifier of the post </param>
     /// <returns> HTTP 200 OK response on success </returns>
-    [Route("v1/forum/{pid}/comments")]
+    [Route("v1/post/{pid}/comments")]
     [HttpPost]
     public IActionResult CreateComment([FromRoute] Guid pid)
     {
