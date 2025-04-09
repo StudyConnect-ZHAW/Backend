@@ -7,7 +7,7 @@ namespace StudyConnect.API.Controllers.Forum;
 /// Provides endpoints to create, retrieve, update, and delete posts.
 /// </summary>
 [ApiController]
-[Route("v1/forum")]
+[Route("api/v1/post")]
 public class PostController: BaseController
 {
     /// <summary>
