@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StudyConnect.Core.Entities;
 
@@ -12,6 +13,18 @@ public class User
     /// </summary>
     [Key]
     public Guid UserGuid { get; set; }
+
+    /// <summary>
+    /// Foreign key to the UserRole entity.
+    /// </summary>
+    [Required]
+    public Guid URole_ID { get; set; }
+
+    /// <summary>
+    /// Navigation property for the user's role.
+    /// </summary>
+    [ForeignKey("URoleId")]
+    public virtual UserRole? Role { get; set; }
 
     /// <summary>
     /// First name of the user.
