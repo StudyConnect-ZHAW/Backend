@@ -33,35 +33,6 @@ public class PostController: BaseController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult GetPostByFilter([FromQuery] string? category, [FromQuery] string? title, [FromQuery] string? Author, [FromQuery] List<string>? tags)
     {
-        // if (string.IsNullOrEmpty(category) && (tags == null || !tags.Any()) && string.IsNullOrEmpty(Author) && string.IsNullOrEmpty(title))
-        // {
-        //     return BadRequest("At least one search parameter (category, tags, author, or title) must be provided.");
-        // }
-        //
-        // var query = _context.Posts.AsQueryable();
-        //
-        // if (!string.IsNullOrEmpty(category))
-        // {
-        //     query = query.Where(p => p.Category.Title == category);
-        // }
-        //
-        // if (tags != null && tags.Any())
-        // {
-        //     query = query.Where(p => p.Tags.Any(t => tags.Contains(t.Name)));
-        // }
-        //
-        // if (!string.IsNullOrEmpty(Author))
-        // {
-        //     query = query.Where(p => p.User_GUID.Email == Author);
-        // }
-        //
-        // if (!string.IsNullOrEmpty(title))
-        // {
-        //     query = query.Where(p => p.Title.Contains(title, StringComparison.OrdinalIgnoreCase));
-        // }
-
-        // var posts = query.ToListAsync();
-
         return Ok("posts");
     }
 
