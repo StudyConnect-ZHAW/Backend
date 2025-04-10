@@ -4,7 +4,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace StudyConnect.Data.Entities;
 
 /// <summary>
-/// Represents a user in the StudyConnect application.
+/// Represents a user in the system.
+/// The GUID is from the associated Microsoft Identity.
 /// </summary>
 public class User
 {

@@ -3,7 +3,7 @@ using StudyConnect.Data.Entities;
 namespace StudyConnect.Data.Interfaces;
 
 /// <summary>
-/// Interface for user repository operations.
+/// Interface for accessing and manipulating user data in the database.
 /// </summary>
 public interface IUserRepository
 {

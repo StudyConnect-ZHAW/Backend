@@ -5,6 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+/// <summary>
+/// Interface for accessing and manipulating forum categories.
+/// </summary>
 public interface IForumCategoryRepository
 {
     Task<ForumCategory?> GetByIdAsync(Guid id);

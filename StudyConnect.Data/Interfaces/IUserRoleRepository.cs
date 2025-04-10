@@ -3,7 +3,7 @@ namespace StudyConnect.Data.Interfaces;
 using StudyConnect.Data.Entities;
 
 /// <summary>
-/// Interface for the UserRole repository.
+/// Interface for accessing and manipulating general user roles in the database.
 /// </summary>
 public interface IUserRoleRepository
 {

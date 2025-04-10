@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StudyConnect.Data.Entities;
 
+/// <summary>
+/// Represents a comment in the forum, which can be a reply to a post or another comment.
+/// </summary>
 public class ForumComment
 {
     [Key]

@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StudyConnect.Data.Entities;
 
+/// <summary>
+/// Represents a group in the system, which can be associated with a user and contains various properties such as name, description, and visibility.
+/// </summary>
 public class Group
 {
 

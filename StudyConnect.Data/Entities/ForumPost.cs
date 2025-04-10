@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StudyConnect.Data.Entities;
 
+/// <summary>
+/// Represents a post in the forum, which can contain discussions and comments from users.
+/// </summary>
 public class ForumPost
 {
 

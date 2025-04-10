@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace StudyConnect.Data.Entities;
 
 /// <summary>
-/// Represents a user role in the StudyConnect application.
+/// Represents a role that a member can have within the system, such as admin, lecturer, or student.
 /// </summary>
 public class UserRole
 {

@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StudyConnect.Data.Entities;
 
+/// <summary>
+/// Represents a role that a member can have within a group, such as admin, moderator, or member.
+/// </summary>
 public class MemberRole
 {
     /// <summary>

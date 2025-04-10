@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StudyConnect.Data.Entities;
 
+/// <summary>
+/// Represents a member of a group, including their role and status within the group.
+/// </summary>
 public class GroupMembers
 {
     [Key]

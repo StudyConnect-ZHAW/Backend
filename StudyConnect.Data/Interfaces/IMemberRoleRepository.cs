@@ -5,6 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+/// <summary>
+/// Interface for accessing and manipulating roles of group members.
+/// </summary>
 public interface IMemberRoleRepository
 {
     Task<MemberRole?> GetByIdAsync(Guid id);

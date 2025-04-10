@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace StudyConnect.Data.Entities;
 
+/// <summary>
+/// Represents a category in the forum, which can contain multiple posts and discussions.
+/// </summary>
 public class ForumCategory
 {
     [Key]
