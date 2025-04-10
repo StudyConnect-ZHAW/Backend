@@ -1,5 +1,5 @@
-using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
+using Microsoft.EntityFrameworkCore;
+using StudyConnect.Data;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +16,8 @@ builder.Services.AddSwaggerGen(
             options.IncludeXmlComments(xmlPath);
         }
     );
+builder.Services.AddDbContext<StudyConnectDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
@@ -26,6 +28,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "StudyConnect.API V1"));
 }
 
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<StudyConnectDbContext>();
+    dbContext.Database.Migrate();
+}
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
@@ -33,3 +41,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
