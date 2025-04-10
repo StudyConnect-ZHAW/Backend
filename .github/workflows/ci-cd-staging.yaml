@@ -5,6 +5,10 @@ on:
     branches:
       - main
   workflow_dispatch: # enables manual trigger
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
 
 permissions:
   packages: write
