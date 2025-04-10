@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace StudyConnect.Core.Entities;
+namespace StudyConnect.Data.Entities;
 
 /// <summary>
 /// Represents a user role in the StudyConnect application.

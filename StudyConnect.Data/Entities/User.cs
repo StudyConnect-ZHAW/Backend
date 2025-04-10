@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace StudyConnect.Core.Entities;
+namespace StudyConnect.Data.Entities;
 
 /// <summary>
 /// Represents a user in the StudyConnect application.

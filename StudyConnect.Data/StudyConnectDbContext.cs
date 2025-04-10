@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using StudyConnect.Core.Entities;
+using StudyConnect.Data.Entities;
 
 namespace StudyConnect.Data;
 
@@ -37,7 +37,68 @@ public class StudyConnectDbContext : DbContext
     }
 
     /// <summary>
+    /// Configures the model for the database.
+    /// </summary>
+    /// <param name="modelBuilder"></param>
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        // Configure User entity
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.Role)
+            .WithMany(r => r.Users)
+            .HasForeignKey(u => u.URole_ID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure table names to match SQL schema
+        modelBuilder.Entity<User>().ToTable("User");
+        modelBuilder.Entity<UserRole>().ToTable("UserRole");
+        modelBuilder.Entity<Group>().ToTable("Group");
+        modelBuilder.Entity<GroupMembers>().ToTable("GroupMembers");
+        modelBuilder.Entity<MemberRole>().ToTable("MemberRole");
+        modelBuilder.Entity<ForumCategory>().ToTable("ForumCategory");
+        modelBuilder.Entity<ForumPost>().ToTable("ForumPost");
+        modelBuilder.Entity<ForumComment>().ToTable("ForumComment");
+    }
+
+    /// <summary>
     /// DbSet representing the Users table in the database.
     /// </summary>
     public DbSet<User> Users { get; set; }
+
+    /// <summary>
+    /// DbSet representing the UserRoles table in the database.
+    /// </summary>
+    public DbSet<UserRole> UserRoles { get; set; }
+
+    /// <summary>
+    /// DbSet representing the Groups table in the database.
+    /// </summary>
+    public DbSet<Group> Groups { get; set; }
+
+    /// <summary>
+    /// DbSet representing the GroupMembers table in the database.
+    /// </summary>
+    public DbSet<GroupMembers> GroupMembers { get; set; }
+
+    /// <summary>
+    /// DbSet representing the MemberRoles table in the database.
+    /// </summary>
+    public DbSet<MemberRole> MemberRoles { get; set; }
+
+    /// <summary>
+    /// DbSet representing the ForumCategories table in the database.
+    /// </summary>
+    public DbSet<ForumCategory> ForumCategories { get; set; }
+
+    /// <summary>
+    /// DbSet representing the ForumPosts table in the database.
+    /// </summary>
+    public DbSet<ForumPost> ForumPosts { get; set; }
+
+    /// <summary>
+    /// DbSet representing the ForumComments table in the database.
+    /// </summary>
+    public DbSet<ForumComment> ForumComments { get; set; }
 }

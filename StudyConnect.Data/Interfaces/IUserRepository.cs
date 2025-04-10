@@ -1,6 +1,6 @@
-using StudyConnect.Core.Entities;
+using StudyConnect.Data.Entities;
 
-namespace StudyConnect.Core.Interfaces;
+namespace StudyConnect.Data.Interfaces;
 
 /// <summary>
 /// Interface for user repository operations.

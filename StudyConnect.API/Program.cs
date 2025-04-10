@@ -1,8 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using StudyConnect.Core.Interfaces;
-using StudyConnect.Core.Services;
 using StudyConnect.Data;
-using StudyConnect.Data.Repositories;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,10 +18,6 @@ builder.Services.AddSwaggerGen(
     );
 builder.Services.AddDbContext<StudyConnectDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// Dependency Injection for repositories and services
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 

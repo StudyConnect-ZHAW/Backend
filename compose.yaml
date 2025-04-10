@@ -9,21 +9,29 @@ services:
     environment:
       - BACKEND_API_URL=http://localhost:8080
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=mssql-server;Database=studyconnect;User Id=sa;Password=${MSSQL_SA_PASSWORD};
+      - ConnectionStrings__DefaultConnection=Server=mssql-server;Database=studyconnect;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
     ports:
       - "8080:8080"
     depends_on:
-      - mssql-server
+      mssql-server:
+        condition: service_started
     networks:
       - studyconnect-network
+    healthcheck:
+      test: ["CMD", "sqlcmd", "-S", "localhost,1433", "-U", "sa", "-P", "$MSSQL_SA_PASSWORD", "-Q", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   mssql-server:
     image: mcr.microsoft.com/mssql/server:2022-latest # Or your desired version
-    ports:
-      - "1433:1433"
+    platform: linux/amd64
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+      - MSSQL_SA_PASSWORD=ReallyComplexPassword123!@
+    ports:
+      - "1433:1433"
     volumes:
       - ./database:/docker-entrypoint-initdb.d
     networks:
