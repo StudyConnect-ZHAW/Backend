@@ -1,4 +1,4 @@
-namespace StudyConnect.API.Tests.Unit;
+namespace StudyConnect.Core.Tests.Unit;
 
 /// <summary>
 ///  This is a dummy unit test class for the StudyConnect application.
