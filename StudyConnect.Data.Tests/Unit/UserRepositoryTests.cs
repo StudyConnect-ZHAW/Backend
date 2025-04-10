@@ -1,12 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using Xunit;
-using StudyConnect.Data;
 using StudyConnect.Data.Entities;
-using StudyConnect.Data.Interfaces;
 using StudyConnect.Data.Repositories;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

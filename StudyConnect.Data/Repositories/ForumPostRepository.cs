@@ -1,9 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using StudyConnect.Data.Entities;
 using StudyConnect.Data.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace StudyConnect.Data.Repositories
 {
