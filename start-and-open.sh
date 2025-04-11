@@ -1,7 +1,7 @@
 #!/bin/bash
 # Attempt to detect OS and open URL
 
-docker-compose -f StudyConnect.API/compose.yaml up --build -d
+docker-compose -f ./compose.yaml up --build -d
 
 # Wait for the container to be ready
 sleep 5
