@@ -36,7 +36,6 @@ public class Group
     /// <summary>
     /// Collection of members in the group.
     /// </summary>
-    [InverseProperty("Member")]
     public virtual ICollection<GroupMembers> GroupMembers { get; set; } = [];
 
 
