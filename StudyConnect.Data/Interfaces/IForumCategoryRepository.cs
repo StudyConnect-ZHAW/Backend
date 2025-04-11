@@ -5,14 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-/// <summary>
-/// Interface for accessing and manipulating forum categories.
-/// </summary>
+
 public interface IForumCategoryRepository
 {
-    Task<ForumCategory?> GetByIdAsync(Guid id);
+    Task<ForumCategory?> GetByIdAsync(Guid guid);
     Task<IEnumerable<ForumCategory>> GetAllAsync();
     Task AddAsync(ForumCategory entity);
     Task UpdateAsync(ForumCategory entity);
-    Task DeleteAsync(ForumCategory entity);
+    Task DeleteAsync(Guid guid);
 }

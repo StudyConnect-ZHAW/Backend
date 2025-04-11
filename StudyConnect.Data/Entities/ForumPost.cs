@@ -4,28 +4,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace StudyConnect.Data.Entities;
 
 /// <summary>
-/// Represents a post in the forum, which can contain discussions and comments from users.
+/// Represents a post in the forum, which can contain comments and is associated with a specific category and user.
 /// </summary>
 public class ForumPost
 {
-
     [Key]
     public Guid ForumPostId { get; set; }
 
     [Required]
-    public Guid ForumCategoryId { get; set; }
-
-    [ForeignKey("ForumCategoryId")]
-    public virtual required ForumCategory ForumCategory { get; set; }
-
-    [Required]
-    public Guid UserGuid { get; set; }
-
-    [ForeignKey("UserGuid")]
-    public virtual required User User { get; set; }
-
-    [Required]
-    [MaxLength(255)]
     public required string Title { get; set; }
 
     [Required]
@@ -57,4 +43,19 @@ public class ForumPost
 
     [Required]
     public int DislikeCount { get; set; } = 0;
+
+    /// <summary>
+    /// Forum category this post belongs to.
+    /// </summary>
+    public required ForumCategory ForumCategory { get; set; }
+
+    /// <summary>
+    /// User who created the post.
+    /// </summary>
+    public required User User { get; set; }
+
+    /// <summary>
+    /// Collection of comments associated with this post.
+    /// </summary>
+    public virtual ICollection<ForumComment> ForumComments { get; set; } = new List<ForumComment>();
 }

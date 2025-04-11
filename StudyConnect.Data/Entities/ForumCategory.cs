@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace StudyConnect.Data.Entities;
 
 /// <summary>
-/// Represents a category in the forum, which can contain multiple posts and discussions.
+/// Represents a category in the forum, which can contain multiple posts.
 /// </summary>
 public class ForumCategory
 {
@@ -11,10 +11,12 @@ public class ForumCategory
     public Guid ForumCategoryId { get; set; }
 
     [Required]
-    [MaxLength(255)]
     public required string Name { get; set; }
 
-    [Required]
-    [MaxLength(255)]
-    public required string Description { get; set; }
+    public string? Description { get; set; }
+
+    /// <summary>
+    /// Collection of posts associated with this category.
+    /// </summary>
+    public ICollection<ForumPost> ForumPosts { get; set; } = new List<ForumPost>();
 }

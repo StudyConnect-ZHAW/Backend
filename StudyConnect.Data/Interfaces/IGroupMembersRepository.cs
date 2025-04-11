@@ -5,14 +5,16 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-/// <summary>
-/// Interface for accessing and manipulating group and user relationship.
-/// </summary>
+
 public interface IGroupMembersRepository
 {
-    Task<GroupMembers?> GetByIdAsync(Guid id);
+    Task<GroupMembers?> GetByIdAsync(Guid guid);
     Task<IEnumerable<GroupMembers>> GetAllAsync();
     Task AddAsync(GroupMembers entity);
     Task UpdateAsync(GroupMembers entity);
-    Task DeleteAsync(GroupMembers entity);
+    Task DeleteAsync(Guid guid);
+    Task<IEnumerable<GroupMembers>> GetByGroupIdAsync(Guid groupId);
+    Task<IEnumerable<GroupMembers>> GetByMemberIdAsync(Guid memberId);
+    Task<IEnumerable<GroupMembers>> GetByRoleIdAsync(Guid roleId);
+    Task<IEnumerable<GroupMembers>> GetByGroupIdAndRoleIdAsync(Guid groupId, Guid roleId);
 }

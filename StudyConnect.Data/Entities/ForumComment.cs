@@ -1,10 +1,13 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StudyConnect.Data.Entities;
 
 /// <summary>
-/// Represents a comment in the forum, which can be a reply to a post or another comment.
+/// Represents a comment made by a user on a forum post.
+/// This class includes properties for the comment's content, creation and update timestamps,
+/// like/dislike counts, reply count, and various flags for comment status (pinned, edited, deleted).
+/// It also includes navigation properties to the user who made the comment and the forum post it belongs to.
+/// The class supports hierarchical comments, allowing for replies to other comments.
 /// </summary>
 public class ForumComment
 {
@@ -12,21 +15,7 @@ public class ForumComment
     public Guid ForumCommentId { get; set; }
 
     [Required]
-    public Guid ForumPostId { get; set; }
-
-    [ForeignKey("ForumPostId")]
-    public virtual required ForumPost ForumPost { get; set; }
-
-    [Required]
-    public Guid UserGuid { get; set; }
-
-    [ForeignKey("UserGuid")]
-    public virtual required User User { get; set; }
-
-    public Guid ParentCommentId { get; set; } = Guid.Empty;
-
-    [Required]
-    public string Content { get; set; }
+    public required string Content { get; set; }
 
     [Required]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -54,4 +43,26 @@ public class ForumComment
 
     [Required]
     public Boolean IsDeleted { get; set; } = false;
+
+    /// <summary>
+    /// User who created the comment.
+    /// </summary>
+    public required User User { get; set; }
+
+    /// <summary>
+    /// Forum post this comment belongs to.
+    /// </summary>
+    public required ForumPost ForumPost { get; set; }
+
+    /// <summary>
+    /// Parent comment this comment is replying to.
+    /// This property is nullable to allow for top-level comments that do not have a parent.
+    /// </summary>
+    public ForumComment? ParentComment { get; set; } = null!;
+
+    /// <summary>
+    /// Collection of replies to this comment.
+    /// This property is initialized to an empty list to avoid null reference exceptions.
+    /// </summary>
+    public ICollection<ForumComment> Replies { get; set; } = new List<ForumComment>();
 }

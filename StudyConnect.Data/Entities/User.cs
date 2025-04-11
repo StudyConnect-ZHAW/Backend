@@ -4,50 +4,51 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace StudyConnect.Data.Entities;
 
 /// <summary>
-/// Represents a user in the system.
-/// The GUID is from the associated Microsoft Identity.
+/// Represents a user in the system, including their personal information and roles.
+/// The user can own groups, participate in discussions, and have various roles within the system.
+/// The user is identified by a unique GUID from his Microsoft Identity.
 /// </summary>
 public class User
 {
-    /// <summary>
-    /// Unique identifier for the user from microsoft identity.
-    /// </summary>
     [Key]
     public Guid UserGuid { get; set; }
 
-    /// <summary>
-    /// Foreign key to the UserRole entity.
-    /// </summary>
     [Required]
-    public Guid URole_ID { get; set; }
+    public Guid URoleId { get; set; }
 
-    /// <summary>
-    /// Navigation property for the user's role.
-    /// </summary>
-    [ForeignKey("URole_ID")]
-    public virtual required UserRole Role { get; set; }
-
-    /// <summary>
-    /// First name of the user.
-    /// </summary>
     [Required]
-    [MaxLength(255)]
     public required string FirstName { get; set; }
 
-    /// <summary>
-    /// Last name of the user
-    /// </summary>
     [Required]
-    [MaxLength(255)]
     public required string LastName { get; set; }
 
-    /// <summary>
-    /// Email address of the user from microsoft identity.
-    /// This property is required and must be a valid email format.
-    /// The maximum length of the email address is 255 characters.
-    /// </summary>
     [Required]
     [EmailAddress]
-    [MaxLength(255)]
     public required string Email { get; set; }
+
+    /// <summary>
+    /// User role in the system.
+    /// </summary>
+    [ForeignKey("URoleId")]
+    public required UserRole URole { get; set; }
+
+    /// <summary>
+    /// Collection of groups owned by the user.
+    /// </summary>
+    public virtual ICollection<Group> Groups { get; set; } = [];
+
+    /// <summary>
+    /// Collection of groups the user is a member of.
+    /// </summary>
+    public virtual ICollection<GroupMembers> GroupMembers { get; set; } = [];
+
+    /// <summary>
+    /// Collection of forum posts made by the user.
+    /// </summary>
+    public virtual ICollection<ForumPost> ForumPosts { get; set; } = [];
+
+    /// <summary>
+    /// Collection of forum comments made by the user.
+    /// </summary>
+    public virtual ICollection<ForumComment> ForumComments { get; set; } = [];
 }

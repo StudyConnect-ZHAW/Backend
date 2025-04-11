@@ -4,35 +4,21 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace StudyConnect.Data.Entities;
 
 /// <summary>
-/// Represents a group in the system, which can be associated with a user and contains various properties such as name, description, and visibility.
+/// Represents a group in the system, which can have multiple members and categories.
+/// The group is owned by a user and can have various properties such as name, description, and visibility.
 /// </summary>
 public class Group
 {
-
-    /// <summary>
-    /// Unique identifier for the group.
-    /// This property is the primary key and is generated using a GUID.
-    /// </summary>
     [Key]
     public Guid GroupId { get; set; }
 
-
-    /// <summary>
-    /// Foreign key to the User entity.
-    /// This property is required and represents the user who owns the group.
-    /// </summary>
     [Required]
-    public Guid UserGuid { get; set; }
-
-    [ForeignKey("UserGuid")]
-    public virtual required User User { get; set; }
+    public Guid OwnerId { get; set; }
 
     [Required]
-    [MaxLength(255)]
     public required string Name { get; set; }
 
     [Required]
-    [MaxLength(255)]
     public required string Description { get; set; }
 
     [Required]
@@ -40,6 +26,20 @@ public class Group
 
     [Required]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
+    /// Owner of the group.
+    /// </summary>
+    [ForeignKey("OwnerId")]
+    public required virtual User Owner { get; set; }
+
+    /// <summary>
+    /// Collection of members in the group.
+    /// </summary>
+    [InverseProperty("Member")]
+    public virtual ICollection<GroupMembers> GroupMembers { get; set; } = [];
+
+
 
 
 

@@ -5,14 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-/// <summary>
-/// Interface for accessing and manipulating comments under posts or in comment chains.
-/// </summary>
+
 public interface IForumCommentRepository
 {
-    Task<ForumComment?> GetByIdAsync(Guid id);
+    Task<ForumComment?> GetByIdAsync(Guid guid);
     Task<IEnumerable<ForumComment>> GetAllAsync();
     Task AddAsync(ForumComment entity);
     Task UpdateAsync(ForumComment entity);
-    Task DeleteAsync(ForumComment entity);
+    Task DeleteAsync(Guid guid);
+    Task<IEnumerable<ForumComment>> GetByPostIdAsync(Guid postId);
+    Task<IEnumerable<ForumComment>> GetByUserId(Guid userId);
+    Task<IEnumerable<ForumComment>> GetByParentIdAsync(Guid parentId);
 }

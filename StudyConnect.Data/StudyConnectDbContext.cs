@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Dynamic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using StudyConnect.Data.Entities;
@@ -7,8 +8,8 @@ namespace StudyConnect.Data;
 
 /// <summary>
 /// Represents the database context for the StudyConnect application.
-/// This context is used to interact with the database.
-/// It inherits from DbContext and is configured to use SQL Server.
+/// /// This context is responsible for managing the connection to the database and providing access to the entities in the application.
+/// It includes DbSet properties for each entity type, allowing for CRUD operations and LINQ queries.
 /// </summary>
 public class StudyConnectDbContext : DbContext
 {
@@ -17,8 +18,8 @@ public class StudyConnectDbContext : DbContext
     /// <summary>
     /// Initializes a new instance of the <see cref="StudyConnectDbContext"/> class.
     /// </summary>
-    /// <param name="options"></param>
-    /// <param name="configuration"></param>
+    /// <param name="options"> The options to configure the context.</param>
+    /// <param name="configuration"> The configuration used to set up the context.</param>
     public StudyConnectDbContext(DbContextOptions<StudyConnectDbContext> options, IConfiguration configuration) : base(options)
     {
         _configuration = configuration;
@@ -28,7 +29,7 @@ public class StudyConnectDbContext : DbContext
     /// Configures the database context options.
     /// If the options have not been configured, it sets the connection string to the default connection string from the configuration.
     /// </summary>
-    /// <param name="optionsBuilder"></param>
+    /// <param name="optionsBuilder"> The options builder used to configure the context.</param>
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
@@ -38,23 +39,70 @@ public class StudyConnectDbContext : DbContext
     }
 
     /// <summary>
-    /// Configures the model for the database.
+    /// Configures the model for the database context.
+    /// This includes setting up relationships, keys, and indexes for the entities in the context.
+    /// It also configures the table names to match the SQL schema.
     /// </summary>
-    /// <param name="modelBuilder"></param>
+    /// <param name="modelBuilder"> The model builder used to configure the model.</param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // Configure User entity
+        // Configure User-Role relationship
         modelBuilder.Entity<User>()
-            .HasOne(u => u.Role)
-            .WithMany(r => r.Users)
-            .HasForeignKey(u => u.URole_ID)
+            .HasOne(u => u.URole)
+            .WithMany(ur => ur.Users)
+            .HasForeignKey("URoleId")
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure User-Group relationship
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.Groups)
+            .WithOne(g => g.Owner)
+            .HasForeignKey(g => g.OwnerId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // Configure Group member composite key
         modelBuilder.Entity<GroupMembers>()
-            .HasKey(gm => new { gm.GroupId, gm.UserGuid });
+        .HasKey(gm => new { gm.MemberId, gm.GroupId });
+
+        // Configure Group-GroupMembers relationship
+        modelBuilder.Entity<Group>()
+            .HasMany(g => g.GroupMembers)
+            .WithOne(gm => gm.Group)
+            .HasForeignKey(gm => gm.GroupId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure User-GroupMembers relationship
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.GroupMembers)
+            .WithOne(gm => gm.Member)
+            .HasForeignKey(gm => gm.MemberId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<GroupMembers>()
+            .HasOne(gm => gm.MemberRole)
+            .WithMany(mr => mr.GroupMembers)
+            .HasForeignKey(gm => gm.MemberRoleId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure User-ForumPost relationship
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.ForumPosts)
+            .WithOne(fp => fp.User)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure Category-ForumPost relationship
+        modelBuilder.Entity<ForumPost>()
+            .HasOne(fp => fp.ForumCategory)
+            .WithMany(fc => fc.ForumPosts)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure ForumPost-ForumComment relationship
+        modelBuilder.Entity<ForumPost>()
+            .HasMany(fp => fp.ForumComments)
+            .WithOne(fc => fc.ForumPost)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // Configure Unique non-key indexes
         modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
@@ -73,43 +121,12 @@ public class StudyConnectDbContext : DbContext
         modelBuilder.Entity<ForumComment>().ToTable("ForumComment");
     }
 
-    /// <summary>
-    /// DbSet representing the Users table in the database.
-    /// </summary>
     public DbSet<User> Users { get; set; }
-
-    /// <summary>
-    /// DbSet representing the UserRoles table in the database.
-    /// </summary>
     public DbSet<UserRole> UserRoles { get; set; }
-
-    /// <summary>
-    /// DbSet representing the Groups table in the database.
-    /// </summary>
     public DbSet<Group> Groups { get; set; }
-
-    /// <summary>
-    /// DbSet representing the GroupMembers table in the database.
-    /// </summary>
     public DbSet<GroupMembers> GroupMembers { get; set; }
-
-    /// <summary>
-    /// DbSet representing the MemberRoles table in the database.
-    /// </summary>
     public DbSet<MemberRole> MemberRoles { get; set; }
-
-    /// <summary>
-    /// DbSet representing the ForumCategories table in the database.
-    /// </summary>
     public DbSet<ForumCategory> ForumCategories { get; set; }
-
-    /// <summary>
-    /// DbSet representing the ForumPosts table in the database.
-    /// </summary>
     public DbSet<ForumPost> ForumPosts { get; set; }
-
-    /// <summary>
-    /// DbSet representing the ForumComments table in the database.
-    /// </summary>
     public DbSet<ForumComment> ForumComments { get; set; }
 }

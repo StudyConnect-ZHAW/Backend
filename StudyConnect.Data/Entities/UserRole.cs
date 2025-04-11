@@ -3,29 +3,21 @@ using System.ComponentModel.DataAnnotations;
 namespace StudyConnect.Data.Entities;
 
 /// <summary>
-/// Represents a role that a member can have within the system, such as admin, lecturer, or student.
+/// Represents a role that a user can have in the system, such as admin, lecturer, or student.
+/// The role defines the permissions and responsibilities of the user within the system.
 /// </summary>
 public class UserRole
 {
-    /// <summary>
-    /// Unique identifier for the user role.
-    /// </summary>
     [Key]
     public Guid URoleId { get; set; }
 
-    /// <summary>
-    /// Name of the role.
-    /// </summary>
     [Required]
     public required string Name { get; set; }
 
-    /// <summary>
-    /// Description of the role.
-    /// </summary>
     public string? Description { get; set; }
 
     /// <summary>
     /// Collection of users with this role.
     /// </summary>
-    public virtual ICollection<User>? Users { get; set; }
+    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

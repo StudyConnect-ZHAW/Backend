@@ -5,6 +5,7 @@ namespace StudyConnect.Data.Entities;
 
 /// <summary>
 /// Represents a role that a member can have within a group, such as admin, moderator, or member.
+/// The role defines the permissions and responsibilities of the member within the group context.
 /// </summary>
 public class MemberRole
 {
@@ -15,10 +16,13 @@ public class MemberRole
     public Guid MemberRoleId { get; set; }
 
     [Required]
-    [MaxLength(255)]
     public required string Name { get; set; }
 
     [Required]
-    [MaxLength(255)]
     public required string Description { get; set; }
+
+    /// <summary>
+    /// Collection of group members associated with this role.
+    /// </summary>
+    public virtual ICollection<GroupMembers> GroupMembers { get; set; } = [];
 }
