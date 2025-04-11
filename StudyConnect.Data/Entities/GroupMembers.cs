@@ -15,19 +15,19 @@ public class GroupMembers
     public Guid GroupId { get; set; }
 
     [ForeignKey("GroupId")]
-    public virtual Group? Group { get; set; }
+    public virtual required Group Group { get; set; }
 
     [Required]
     public Guid UserGuid { get; set; }
 
     [ForeignKey("UserGuid")]
-    public virtual User? User { get; set; }
+    public virtual required User User { get; set; }
 
     [Required]
     public Guid MemberRoleId { get; set; }
 
     [ForeignKey("MemberRoleId")]
-    public virtual MemberRole? MemberRole { get; set; }
+    public virtual required MemberRole MemberRole { get; set; }
 
     [Required]
     public DateTime JoinedAt { get; set; } = DateTime.UtcNow;

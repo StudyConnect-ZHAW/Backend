@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using StudyConnect.Data.Entities;
 
@@ -50,6 +51,16 @@ public class StudyConnectDbContext : DbContext
             .WithMany(r => r.Users)
             .HasForeignKey(u => u.URole_ID)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure Group member composite key
+        modelBuilder.Entity<GroupMembers>()
+            .HasKey(gm => new { gm.GroupId, gm.UserGuid });
+
+        // Configure Unique non-key indexes
+        modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
+        modelBuilder.Entity<UserRole>().HasIndex(u => u.Name).IsUnique();
+        modelBuilder.Entity<MemberRole>().HasIndex(m => m.Name).IsUnique();
+        modelBuilder.Entity<ForumCategory>().HasIndex(f => f.Name).IsUnique();
 
         // Configure table names to match SQL schema
         modelBuilder.Entity<User>().ToTable("User");

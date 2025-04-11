@@ -24,8 +24,8 @@ public class User
     /// <summary>
     /// Navigation property for the user's role.
     /// </summary>
-    [ForeignKey("URoleId")]
-    public virtual UserRole? Role { get; set; }
+    [ForeignKey("URole_ID")]
+    public virtual required UserRole Role { get; set; }
 
     /// <summary>
     /// First name of the user.

@@ -15,18 +15,18 @@ public class ForumComment
     public Guid ForumPostId { get; set; }
 
     [ForeignKey("ForumPostId")]
-    public virtual ForumPost? ForumPost { get; set; }
+    public virtual required ForumPost ForumPost { get; set; }
 
     [Required]
     public Guid UserGuid { get; set; }
 
     [ForeignKey("UserGuid")]
-    public virtual User? User { get; set; }
+    public virtual required User User { get; set; }
 
     public Guid ParentCommentId { get; set; } = Guid.Empty;
 
     [Required]
-    public string? Content { get; set; }
+    public string Content { get; set; }
 
     [Required]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

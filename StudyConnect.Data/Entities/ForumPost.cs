@@ -16,13 +16,13 @@ public class ForumPost
     public Guid ForumCategoryId { get; set; }
 
     [ForeignKey("ForumCategoryId")]
-    public virtual ForumCategory? ForumCategory { get; set; }
+    public virtual required ForumCategory ForumCategory { get; set; }
 
     [Required]
     public Guid UserGuid { get; set; }
 
     [ForeignKey("UserGuid")]
-    public virtual User? User { get; set; }
+    public virtual required User User { get; set; }
 
     [Required]
     [MaxLength(255)]

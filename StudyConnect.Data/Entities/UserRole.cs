@@ -17,15 +17,12 @@ public class UserRole
     /// Name of the role.
     /// </summary>
     [Required]
-    [MaxLength(255)]
     public required string Name { get; set; }
 
     /// <summary>
     /// Description of the role.
     /// </summary>
-    [Required]
-    [MaxLength(255)]
-    public required string Description { get; set; }
+    public string? Description { get; set; }
 
     /// <summary>
     /// Collection of users with this role.

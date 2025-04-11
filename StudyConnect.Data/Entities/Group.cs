@@ -25,7 +25,7 @@ public class Group
     public Guid UserGuid { get; set; }
 
     [ForeignKey("UserGuid")]
-    public virtual User? User { get; set; }
+    public virtual required User User { get; set; }
 
     [Required]
     [MaxLength(255)]
