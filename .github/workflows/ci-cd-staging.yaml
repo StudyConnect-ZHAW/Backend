@@ -5,6 +5,14 @@ on:
     branches:
       - main
   workflow_dispatch: # enables manual trigger
+  pull_request:
+    branches:
+      - main
+    types: [
+      opened,
+      synchronize,
+      reopened
+    ]
 
 permissions:
   packages: write
@@ -63,7 +71,7 @@ jobs:
         env: 
           NEW_VERSION: ${{ env.NEW_VERSION }}
         run: |
-          docker build -t ghcr.io/studyconnect-zhaw/backend/staging:${{ env.NEW_VERSION }} -f StudyConnect.API/Dockerfile StudyConnect.API/
+          docker build -t ghcr.io/studyconnect-zhaw/backend/staging:${{ env.NEW_VERSION }} -f Dockerfile .
           docker push ghcr.io/studyconnect-zhaw/backend/staging:${{ env.NEW_VERSION }}
 
       - name: Create and push version tag
@@ -81,10 +89,15 @@ jobs:
           git clone https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/StudyConnect-ZHAW/StudyConnect.git gitops-repo
 
       - name: Update deployment manifest
+        env: 
+          NEW_VERSION: ${{ env.NEW_VERSION }}
         run: |
           sed -i 's|image: ghcr.io/studyconnect-zhaw/backend/staging:.*|image: ghcr.io/studyconnect-zhaw/backend/staging:${{ env.NEW_VERSION }}|' gitops-repo/deployment/backend/K8s/staging/deployment.yaml
      
       - name: Commit and push changes
+        env: 
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          NEW_VERSION: ${{ env.NEW_VERSION }}
         run: |
           cd gitops-repo
           git config --global user.email "actions@github.com"
@@ -92,5 +105,3 @@ jobs:
           git add deployment/backend/K8s/staging/deployment.yaml
           git commit -m "Update backend image to version ${{ env.NEW_VERSION }}"
           git push
-        env: 
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
