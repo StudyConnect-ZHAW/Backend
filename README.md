@@ -1,8 +1,13 @@
 # StudyConnect Back-End
+
 This repository holds the backend of the StudyConnect Application.
 For now only a demo API is available to interface with from the frontend.
 
 ## Setup Docker Environment
+
+**Make sure you have created an .env file in the root directory.**
+
+Take the variables from .example.env as a template.
 Rebuild and start the backend with the following docker Build commands from the root of the repository:
 > docker-compose -f ./compose.yaml up --build --force-recreate
 

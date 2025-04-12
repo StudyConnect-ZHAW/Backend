@@ -47,7 +47,7 @@ public class ForumComment
     /// <summary>
     /// User who created the comment.
     /// </summary>
-    public required User User { get; set; }
+    public User? User { get; set; }
 
     /// <summary>
     /// Forum post this comment belongs to.

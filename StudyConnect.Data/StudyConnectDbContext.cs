@@ -78,7 +78,7 @@ public class StudyConnectDbContext : DbContext
             .HasMany(u => u.GroupMembers)
             .WithOne(gm => gm.Member)
             .HasForeignKey(gm => gm.MemberId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<GroupMembers>()
             .HasOne(gm => gm.MemberRole)
@@ -98,11 +98,23 @@ public class StudyConnectDbContext : DbContext
             .WithMany(fc => fc.ForumPosts)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // Configure ForumPost-ForumCategory relationship
+        modelBuilder.Entity<ForumCategory>()
+            .HasMany(fc => fc.ForumPosts)
+            .WithOne(fp => fp.ForumCategory)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // Configure ForumPost-ForumComment relationship
         modelBuilder.Entity<ForumPost>()
             .HasMany(fp => fp.ForumComments)
             .WithOne(fc => fc.ForumPost)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure User-ForumComment relationship
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.ForumComments)
+            .WithOne(fc => fc.User)
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Configure Unique non-key indexes
         modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
