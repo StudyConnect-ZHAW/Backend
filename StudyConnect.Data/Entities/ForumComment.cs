@@ -64,5 +64,5 @@ public class ForumComment
     /// Collection of replies to this comment.
     /// This property is initialized to an empty list to avoid null reference exceptions.
     /// </summary>
-    public ICollection<ForumComment> Replies { get; set; } = new List<ForumComment>();
+    public ICollection<ForumComment> Replies { get; set; } = [];
 }
