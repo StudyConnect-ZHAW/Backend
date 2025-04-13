@@ -13,7 +13,4 @@ public interface IForumCommentRepository
     Task AddAsync(ForumComment entity);
     Task UpdateAsync(ForumComment entity);
     Task DeleteAsync(Guid guid);
-    Task<IEnumerable<ForumComment>> GetByPostIdAsync(Guid postId);
-    Task<IEnumerable<ForumComment>> GetByUserId(Guid userId);
-    Task<IEnumerable<ForumComment>> GetByParentIdAsync(Guid parentId);
 }

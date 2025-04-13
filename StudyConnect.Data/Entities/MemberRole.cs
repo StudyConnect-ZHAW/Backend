@@ -13,6 +13,8 @@ public class MemberRole
     /// Unique identifier for the group role.
     /// </summary>
     [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Required]
     public Guid MemberRoleId { get; set; }
 
     [Required]

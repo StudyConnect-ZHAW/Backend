@@ -116,6 +116,13 @@ public class StudyConnectDbContext : DbContext
             .WithOne(fc => fc.User)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // Configure ForumComment-ForumComment relationship
+        modelBuilder.Entity<ForumComment>()
+            .HasOne(fc => fc.ParentComment)
+            .WithMany(fc => fc.Replies)
+            .HasForeignKey(fc => fc.ParentCommentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // Configure Unique non-key indexes
         modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
         modelBuilder.Entity<UserRole>().HasIndex(u => u.Name).IsUnique();

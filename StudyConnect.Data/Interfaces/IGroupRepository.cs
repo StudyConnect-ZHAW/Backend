@@ -13,6 +13,4 @@ public interface IGroupRepository
     Task AddAsync(Group entity);
     Task UpdateAsync(Group entity);
     Task DeleteAsync(Guid guid);
-    Task<IEnumerable<Group>> GetByOwnerIdAsync(Guid ownerId);
-    Task<IEnumerable<Group>> GetByMemberIdAsync(Guid memberId);
 }

@@ -10,5 +10,4 @@ public interface IUserRoleRepository
     Task AddAsync(UserRole entity);
     Task UpdateAsync(UserRole entity);
     Task DeleteAsync(Guid guid);
-    Task<IEnumerable<UserRole>> GetByUserIdAsync(Guid userId);
 }

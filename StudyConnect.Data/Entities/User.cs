@@ -11,6 +11,7 @@ namespace StudyConnect.Data.Entities;
 public class User
 {
     [Key]
+    [Required]
     public Guid UserGuid { get; set; }
 
     [Required]

@@ -9,12 +9,18 @@ namespace StudyConnect.Data.Entities;
 public class ForumPost
 {
     [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Required]
     public Guid ForumPostId { get; set; }
 
     [Required]
+    [MaxLength(200)]
+    [DataType(DataType.Text)]
     public required string Title { get; set; }
 
     [Required]
+    [MaxLength(500)]
+    [DataType(DataType.MultilineText)]
     public string? Content { get; set; }
 
     [Required]
@@ -23,25 +29,18 @@ public class ForumPost
     [Required]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-    [Required]
-    public Boolean IsActive { get; set; } = true;
+    public bool IsActive { get; set; } = true;
 
-    [Required]
-    public Boolean IsPinned { get; set; } = false;
+    public bool IsPinned { get; set; } = false;
 
-    [Required]
-    public Boolean IsLocked { get; set; } = false;
+    public bool IsLocked { get; set; } = false;
 
-    [Required]
     public int ViewCount { get; set; } = 0;
 
-    [Required]
     public int CommentCount { get; set; } = 0;
 
-    [Required]
     public int LikeCount { get; set; } = 0;
 
-    [Required]
     public int DislikeCount { get; set; } = 0;
 
     /// <summary>

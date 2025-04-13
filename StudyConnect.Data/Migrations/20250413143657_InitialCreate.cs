@@ -17,7 +17,7 @@ namespace StudyConnect.Data.Migrations
                 {
                     ForumCategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -43,7 +43,7 @@ namespace StudyConnect.Data.Migrations
                 {
                     URoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -76,8 +76,8 @@ namespace StudyConnect.Data.Migrations
                 columns: table => new
                 {
                     ForumPostId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -135,6 +135,7 @@ namespace StudyConnect.Data.Migrations
                 {
                     ForumCommentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ParentCommentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LikeCount = table.Column<int>(type: "int", nullable: false),
@@ -145,17 +146,17 @@ namespace StudyConnect.Data.Migrations
                     IsEdited = table.Column<bool>(type: "bit", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     UserGuid = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ForumPostId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ParentCommentForumCommentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    ForumPostId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ForumComment", x => x.ForumCommentId);
                     table.ForeignKey(
-                        name: "FK_ForumComment_ForumComment_ParentCommentForumCommentId",
-                        column: x => x.ParentCommentForumCommentId,
+                        name: "FK_ForumComment_ForumComment_ParentCommentId",
+                        column: x => x.ParentCommentId,
                         principalTable: "ForumComment",
-                        principalColumn: "ForumCommentId");
+                        principalColumn: "ForumCommentId",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ForumComment_ForumPost_ForumPostId",
                         column: x => x.ForumPostId,
@@ -215,9 +216,9 @@ namespace StudyConnect.Data.Migrations
                 column: "ForumPostId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ForumComment_ParentCommentForumCommentId",
+                name: "IX_ForumComment_ParentCommentId",
                 table: "ForumComment",
-                column: "ParentCommentForumCommentId");
+                column: "ParentCommentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ForumComment_UserGuid",

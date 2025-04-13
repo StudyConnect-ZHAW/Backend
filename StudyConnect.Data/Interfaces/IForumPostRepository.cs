@@ -13,6 +13,4 @@ public interface IForumPostRepository
     Task AddAsync(ForumPost entity);
     Task UpdateAsync(ForumPost entity);
     Task DeleteAsync(Guid guid);
-    Task<IEnumerable<ForumPost>> GetByCategoryIdAsync(Guid categoryId);
-    Task<IEnumerable<ForumPost>> GetByUserId(Guid userId);
 }

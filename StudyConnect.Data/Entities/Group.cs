@@ -10,6 +10,8 @@ namespace StudyConnect.Data.Entities;
 public class Group
 {
     [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Required]
     public Guid GroupId { get; set; }
 
     [Required]
@@ -21,8 +23,7 @@ public class Group
     [Required]
     public required string Description { get; set; }
 
-    [Required]
-    public Boolean Visibility { get; set; }
+    public bool Visibility { get; set; } = true;
 
     [Required]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

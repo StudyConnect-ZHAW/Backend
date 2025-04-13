@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StudyConnect.Data.Entities;
 
@@ -9,11 +10,15 @@ namespace StudyConnect.Data.Entities;
 public class UserRole
 {
     [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Required]
     public Guid URoleId { get; set; }
 
     [Required]
     public required string Name { get; set; }
 
+    [MaxLength(500)]
+    [DataType(DataType.MultilineText)]
     public string? Description { get; set; }
 
     /// <summary>

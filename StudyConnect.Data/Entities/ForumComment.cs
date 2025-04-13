@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StudyConnect.Data.Entities;
 
@@ -12,37 +13,32 @@ namespace StudyConnect.Data.Entities;
 public class ForumComment
 {
     [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Required]
     public Guid ForumCommentId { get; set; }
 
     [Required]
     public required string Content { get; set; }
 
-    [Required]
+    public Guid? ParentCommentId { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    [Required]
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; }
 
-    [Required]
     public int LikeCount { get; set; } = 0;
 
-    [Required]
     public int DislikeCount { get; set; } = 0;
 
-    [Required]
     public int ReplyCount { get; set; } = 0;
 
-    [Required]
-    public Boolean IsPinned { get; set; } = false;
+    public bool IsPinned { get; set; } = false;
 
-    [Required]
     public int ViewCount { get; set; } = 0;
 
-    [Required]
-    public Boolean IsEdited { get; set; } = false;
+    public bool IsEdited { get; set; } = false;
 
-    [Required]
-    public Boolean IsDeleted { get; set; } = false;
+    public bool IsDeleted { get; set; } = false;
 
     /// <summary>
     /// User who created the comment.
@@ -58,6 +54,7 @@ public class ForumComment
     /// Parent comment this comment is replying to.
     /// This property is nullable to allow for top-level comments that do not have a parent.
     /// </summary>
+    [ForeignKey("ParentCommentId")]
     public ForumComment? ParentComment { get; set; } = null!;
 
     /// <summary>

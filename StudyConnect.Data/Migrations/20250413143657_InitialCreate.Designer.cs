@@ -12,7 +12,7 @@ using StudyConnect.Data;
 namespace StudyConnect.Data.Migrations
 {
     [DbContext(typeof(StudyConnectDbContext))]
-    [Migration("20250412185059_InitialCreate")]
+    [Migration("20250413143657_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -32,7 +32,8 @@ namespace StudyConnect.Data.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -77,7 +78,7 @@ namespace StudyConnect.Data.Migrations
                     b.Property<int>("LikeCount")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("ParentCommentForumCommentId")
+                    b.Property<Guid?>("ParentCommentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("ReplyCount")
@@ -96,7 +97,7 @@ namespace StudyConnect.Data.Migrations
 
                     b.HasIndex("ForumPostId");
 
-                    b.HasIndex("ParentCommentForumCommentId");
+                    b.HasIndex("ParentCommentId");
 
                     b.HasIndex("UserGuid");
 
@@ -114,7 +115,8 @@ namespace StudyConnect.Data.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -139,7 +141,8 @@ namespace StudyConnect.Data.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -275,7 +278,8 @@ namespace StudyConnect.Data.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -299,7 +303,8 @@ namespace StudyConnect.Data.Migrations
 
                     b.HasOne("StudyConnect.Data.Entities.ForumComment", "ParentComment")
                         .WithMany("Replies")
-                        .HasForeignKey("ParentCommentForumCommentId");
+                        .HasForeignKey("ParentCommentId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("StudyConnect.Data.Entities.User", "User")
                         .WithMany("ForumComments")

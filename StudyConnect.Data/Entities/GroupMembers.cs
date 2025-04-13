@@ -10,19 +10,19 @@ namespace StudyConnect.Data.Entities;
 public class GroupMembers
 {
     [Required]
+    [Key]
     public Guid MemberId { get; set; }
 
     [Required]
+    [Key]
     public Guid GroupId { get; set; } = Guid.NewGuid();
 
     [Required]
     public Guid MemberRoleId { get; set; } = Guid.NewGuid();
 
-    [Required]
     public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
 
-    [Required]
-    public Boolean IsActive { get; set; } = true;
+    public bool IsActive { get; set; } = true;
 
     /// <summary>
     /// Unique identifier for the group member.
