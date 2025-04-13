@@ -5,6 +5,16 @@ VisualStudioVersion = 17.13.35825.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudyConnect.API", "StudyConnect.API\StudyConnect.API.csproj", "{6CA58E18-0119-3F61-C3D2-2EDEE7F7E7B7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudyConnect.API.Tests", "StudyConnect.API.Tests\StudyConnect.API.Tests.csproj", "{F9CACD3E-2B87-45C9-BF0D-3C3EFC2999D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudyConnect.Core", "StudyConnect.Core\StudyConnect.Core.csproj", "{A3E4CED2-3E6A-487F-85D0-9E203819E75A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudyConnect.Data", "StudyConnect.Data\StudyConnect.Data.csproj", "{A30017DB-FE4D-46B9-9E27-1952C4136934}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudyConnect.Core.Tests", "StudyConnect.Core.Tests\StudyConnect.Core.Tests.csproj", "{B753838C-2762-4EEB-BAA2-F9505A7C3BD2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudyConnect.Data.Tests", "StudyConnect.Data.Tests\StudyConnect.Data.Tests.csproj", "{400522D4-0739-4D0C-A976-A7B9E5695E7D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +25,26 @@ Global
 		{6CA58E18-0119-3F61-C3D2-2EDEE7F7E7B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6CA58E18-0119-3F61-C3D2-2EDEE7F7E7B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6CA58E18-0119-3F61-C3D2-2EDEE7F7E7B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9CACD3E-2B87-45C9-BF0D-3C3EFC2999D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9CACD3E-2B87-45C9-BF0D-3C3EFC2999D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9CACD3E-2B87-45C9-BF0D-3C3EFC2999D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9CACD3E-2B87-45C9-BF0D-3C3EFC2999D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3E4CED2-3E6A-487F-85D0-9E203819E75A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3E4CED2-3E6A-487F-85D0-9E203819E75A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3E4CED2-3E6A-487F-85D0-9E203819E75A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3E4CED2-3E6A-487F-85D0-9E203819E75A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A30017DB-FE4D-46B9-9E27-1952C4136934}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A30017DB-FE4D-46B9-9E27-1952C4136934}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A30017DB-FE4D-46B9-9E27-1952C4136934}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A30017DB-FE4D-46B9-9E27-1952C4136934}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B753838C-2762-4EEB-BAA2-F9505A7C3BD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B753838C-2762-4EEB-BAA2-F9505A7C3BD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B753838C-2762-4EEB-BAA2-F9505A7C3BD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B753838C-2762-4EEB-BAA2-F9505A7C3BD2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{400522D4-0739-4D0C-A976-A7B9E5695E7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{400522D4-0739-4D0C-A976-A7B9E5695E7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{400522D4-0739-4D0C-A976-A7B9E5695E7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{400522D4-0739-4D0C-A976-A7B9E5695E7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
