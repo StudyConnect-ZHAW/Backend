@@ -28,9 +28,3 @@ public class OperationResult<T>
 
     public static OperationResult<T> Failure(string errorMessage) => new OperationResult<T>(false, default!, errorMessage);    
 }
-
-public class Result
-{
-    public bool IsSuccess { get; set; }
-    public string? Error { get; set; }
-}
