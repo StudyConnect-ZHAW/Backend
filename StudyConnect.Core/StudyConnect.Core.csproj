@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../StudyConnect.Data/StudyConnect.Data.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Interfaces/" />
     <Folder Include="Repositories/" />
     <Folder Include="Services/" />
