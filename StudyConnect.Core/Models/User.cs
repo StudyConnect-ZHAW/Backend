@@ -12,5 +12,4 @@ public class User
 
     public required string Email { get; set; }
 
-    public required UserRole URole { get; set; }
 }
