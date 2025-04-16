@@ -4,16 +4,10 @@ using System.ComponentModel.DataAnnotations;
 namespace StudyConnect.API.Dtos.Requests.User;
 
 /// <summary>
-/// Data transfer object for creating a new user.
+/// Data transfer object for updating an existing user.
 /// </summary>
-public class UserCreateDto
-{   
-    /// <summary>
-    /// The unique identifier for the user.
-    /// </summary>
-    [Required(ErrorMessage = "User GUID is required.")]
-    public required Guid UserGuid { get; set; }
-
+public class UserUpdateDto
+{
     /// <summary>
     /// The first name of the user.
     /// </summary>
