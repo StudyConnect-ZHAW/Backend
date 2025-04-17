@@ -1,0 +1,31 @@
+name: Cleanup SonarQube PR Projects
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Every night at 2 AM UTC
+  workflow_dispatch:      # Also allow manual triggering
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fetch all PRs
+        id: fetch_prs
+        run: |
+          gh pr list --state all --json number > prs.json
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cleanup SonarQube Projects for Closed PRs
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          CLOSED_PRS=$(jq '.[] | select(.state != "OPEN") | .number' prs.json)
+          for pr in $CLOSED_PRS; do
+            projectKey="StudyConnect-pr-$pr"
+            echo "Deleting SonarQube project: $projectKey"
+            curl -X POST "$SONAR_HOST_URL/api/projects/delete?project=$projectKey" \
+              -u "$SONAR_TOKEN:"
+          done
