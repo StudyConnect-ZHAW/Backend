@@ -4,6 +4,9 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
   workflow_dispatch: # enables manual trigger
+  push:
+    branches:
+      - main
 
 permissions:
   issues: write
@@ -76,14 +79,20 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
           Write-Host "Current Directory: $(Get-Location)"
+          if ("${{ github.event_name }}" -eq "pull_request") {
+              $projectKey = "StudyConnect-pr-${{ github.event.pull_request.number }}"
+          } else {
+              $projectKey = "StudyConnect-backend"
+          }
           $sonarArgs = @(
-            "/k:StudyConnect",
+            "/k:$projectKey", # Project key for SonarQube
             "/d:sonar.login=${{ env.SONAR_TOKEN }}",
             "/d:sonar.host.url=${{ env.SONAR_HOST_URL }}",
             "/d:sonar.verbose=true",
             "/d:sonar.cs.opencover.reportsPaths=./TestResults/coverage.opencover.xml", # Use the path from sonar-project.properties
             "/d:sonar.sources=StudyConnect.API, StudyConnect.Data, StudyConnect.Core", # Source directories
-            "/d:sonar.tests=StudyConnect.API.Tests, StudyConnect.Data.Tests, StudyConnect.Core.Tests" # Test directories
+            "/d:sonar.tests=StudyConnect.API.Tests, StudyConnect.Data.Tests, StudyConnect.Core.Tests", # Test directories
+            "/d:sonar.exclusions=StudyConnect.Data/Migrations/**/*,**/obj/**/*,**/bin/**/*,**/AssemblyInfo.cs,**/TemporaryGeneratedFile_*.cs,**/AssemblyAttributes.cs" # Exclude migrations and generated files
           )
 
           Write-Host "Starting SonarScanner with args: $($sonarArgs -join ' ')"
@@ -230,10 +239,14 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
-          $ProjectKey = "StudyConnect" # Your project key
+          if ("${{ github.event_name }}" -eq "pull_request") {
+              $projectKey = "StudyConnect-pr-${{ github.event.pull_request.number }}"
+          } else {
+              $projectKey = "StudyConnect-backend"
+          }
           $SonarHost = "${{ env.SONAR_HOST_URL }}"
           $SonarToken = "${{ env.SONAR_TOKEN }}"
-          $ApiUrl = "$SonarHost/api/qualitygates/project_status?projectKey=$ProjectKey"
+          $ApiUrl = "$SonarHost/api/qualitygates/project_status?projectKey=$projectKey"
 
           Write-Host "Fetching Quality Gate status from: $ApiUrl"
           $EncodedAuth = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("${SonarToken}:"))
@@ -272,10 +285,19 @@ jobs:
           "quality_gate_status=$quality_gate_status" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           # Handle multiline conditions - Use a unique delimiter
           $delimiter = "ghadelimiter_$(Get-Random)"
-          "conditions<<$delimiter" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          $conditions | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "$delimiter" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $envFile = $env:GITHUB_ENV
+          Add-Content -Path $envFile -Value "quality_gate_status=$quality_gate_status"
+          Add-Content -Path $envFile -Value "conditions<<$delimiter"
+          Add-Content -Path $envFile -Value $conditions
+          Add-Content -Path $envFile -Value $delimiter
         shell: pwsh # Use PowerShell
+
+      - name: Debug Output
+        run: |
+          echo "Status: $env:quality_gate_status"
+          echo "Conditions:"
+          echo "$env:conditions"
+        shell: pwsh
 
       # --- Report Results ---
       - name: Post Comment on PR
@@ -294,11 +316,11 @@ jobs:
             *   **Quality Gate Status:** `${{ env.quality_gate_status }}`
 
             *   **Conditions:**
-                ${{ env.conditions }}
 
-            [View Full Report on SonarQube](${{ secrets.SONAR_HOST_URL }}/dashboard?id=StudyConnect)
+            ${{ env.conditions }}
+            [View Full Report on SonarQube](${{ secrets.SONAR_HOST_URL }}/dashboard?id=StudyConnect-pr-${{ github.event.pull_request.number }})
 
-      #
+      
       #- name: Check Quality Gate Status (Fail Workflow on Error)
       #  if: env.quality_gate_status != 'OK' && env.quality_gate_status != 'NONE' # NONE means no Quality Gate defined
       #  run: |
@@ -306,3 +328,4 @@ jobs:
       #    exit 1
       #  shell: pwsh # Use PowerShell for exit code
         
+

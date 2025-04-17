@@ -1,4 +1,10 @@
 name: studyconnect
+
+networks:
+  studyconnect-network:
+    external: true
+    name: studyconnect-network
+
 services:
   backend:
     image: sc-backend
@@ -36,6 +42,3 @@ services:
       interval: 10s
       timeout: 20s
       retries: 6
-
-networks:
-  studyconnect-network:

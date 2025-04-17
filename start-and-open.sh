@@ -1,10 +1,16 @@
 #!/bin/bash
 # Attempt to detect OS and open URL
 
+if ! docker network ls --format '{{.Name}}' | grep -q "^studyconnect-network$"; then
+    docker network create studyconnect-network
+fi
 docker-compose -f ./compose.yaml up --build -d
 
-# Wait for the container to be ready
-sleep 5
+# Wait for the backend to be healthy
+until curl --fail http://localhost:8080/health 2>/dev/null; do
+  echo "Waiting for backend to be healthy..."
+  sleep 3
+done
 
 # OS Detection and URL Opening
 if [[ "$OSTYPE" == "darwin"* ]]; then
