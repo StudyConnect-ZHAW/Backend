@@ -24,7 +24,7 @@ jobs:
 
       - name: Cleanup SonarQube Projects for Closed PRs
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONARQUBE_BACKEND_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
           echo "📋 Scanning PRs for cleanup..."
