@@ -1,8 +1,8 @@
 name: Build
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  #pull_request:
+  #  types: [opened, synchronize, reopened]
   workflow_dispatch: # enables manual trigger
   push:
     branches:
