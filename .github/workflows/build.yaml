@@ -17,6 +17,7 @@ permissions:
   
 jobs:
   build-and-analyze:
+    if: github.event.pull_request.state == 'open' && github.event.pull_request.draft == false
     name: Build, Test & Analyze Backend
     runs-on: windows-latest # Stays on Windows for .NET
     steps:
