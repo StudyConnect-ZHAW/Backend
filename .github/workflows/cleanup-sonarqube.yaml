@@ -4,6 +4,8 @@ on:
   schedule:
     - cron: '0 2 * * *'  # Every night at 2 AM UTC
   workflow_dispatch:      # Also allow manual triggering
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   cleanup:
@@ -19,6 +21,7 @@ jobs:
 
       - name: Cleanup SonarQube Projects for Closed PRs
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
