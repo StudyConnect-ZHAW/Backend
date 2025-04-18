@@ -13,7 +13,7 @@ jobs:
       - name: Fetch all PRs
         id: fetch_prs
         run: |
-          gh pr list --state all --json number > prs.json
+          gh pr list --state all --json number --repo ${{ github.repository }} > prs.json
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
