@@ -15,6 +15,7 @@ jobs:
       - name: Fetch all PRs
         id: fetch_prs
         run: |
+          gh pr list --state all --json number,state --repo ${{ github.repository }}
           gh pr list --state all --json number --repo ${{ github.repository }} > prs.json
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -29,6 +30,17 @@ jobs:
           for pr in $CLOSED_PRS; do
             projectKey="StudyConnect-pr-$pr"
             echo "Deleting SonarQube project: $projectKey"
-            curl -X POST "$SONAR_HOST_URL/api/projects/delete?project=$projectKey" \
-              -u "$SONAR_TOKEN:"
+            response=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+              "$SONAR_HOST_URL/api/projects/delete?project=$projectKey" \
+              -u "$SONAR_TOKEN:")
+
+            if [ "$response" -eq 204 ]; then
+              echo "✅ Deleted: $projectKey"
+            elif [ "$response" -eq 403 ]; then
+              echo "❌ Skipped (No permission): $projectKey"
+            elif [ "$response" -eq 404 ]; then
+              echo "ℹ️ Not found (already deleted?): $projectKey"
+            else
+              echo "⚠️ Unknown error deleting $projectKey (HTTP $response)"
+            fi
           done
