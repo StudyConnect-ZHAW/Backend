@@ -4,8 +4,6 @@ on:
   schedule:
     - cron: '0 2 * * *'  # Every night at 2 AM UTC
   workflow_dispatch:      # Also allow manual triggering
-  pull_request:
-    types: [opened, synchronize, reopened]
 
 jobs:
   cleanup:
