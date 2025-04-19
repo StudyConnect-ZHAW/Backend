@@ -54,6 +54,14 @@ public class StudyConnectDbContext : DbContext
             .WithMany(ur => ur.Users)
             .HasForeignKey("URoleId")
             .OnDelete(DeleteBehavior.Restrict);
+        
+        // Create a Default UserRole Student
+        modelBuilder.Entity<UserRole>().HasData(new UserRole
+        {   
+            URoleId = new Guid("00000000-0000-0000-0000-000000000001"),
+            Name = "Student",
+            Description = "Student is the default role with no rights."
+        });
 
         // Configure User-Group relationship
         modelBuilder.Entity<User>()

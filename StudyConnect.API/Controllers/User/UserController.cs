@@ -74,12 +74,6 @@ namespace StudyConnect.API.Controllers.Users
             
             var result = await _userRepository.GetByIdAsync(id);
 
-            // Check if the operation was successful
-            if (!result.IsSuccess)
-            {
-                return BadRequest(result.ErrorMessage);
-            }
-
             // Check if the user was found
             if (result.Data == null)
             {
