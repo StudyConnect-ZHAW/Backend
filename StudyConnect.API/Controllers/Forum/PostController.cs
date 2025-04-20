@@ -60,7 +60,15 @@ public class PostController: BaseController
                     ""Content"": ""This is a mock content for a mock post."",
                     ""MadeAt"": ""2025-03-29T12:34:56""
                 }
+<<<<<<< HEAD
+<<<<<<< HEAD
             ]
+=======
+            ],
+>>>>>>> 898a5ca (refactor: split controller into two & adjusted some routes [#38])
+=======
+            ]
+>>>>>>> ac2e6cc (refactor: changes based on feedback [#38])
         }";
 
         return Ok(mockPost);
