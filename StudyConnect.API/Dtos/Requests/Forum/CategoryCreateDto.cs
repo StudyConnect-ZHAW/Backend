@@ -8,12 +8,7 @@ namespace StudyConnect.API.Dtos.Requests.Forum;
 /// </summary>
 public class CategoryCreateDto
 {
-    /// <summary>
-    /// The unique identifier for the forumcategory.
-    /// </summary>
-    [Required(ErrorMessage = "ForumCategory GUID is required.")]
-    public required Guid ForumCategoryId { get; set; }
-
+    
     /// <summary>
     /// The Name of the category.
     /// </summary>

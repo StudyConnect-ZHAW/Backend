@@ -7,6 +7,12 @@ namespace StudyConnect.API.Dtos.Responses.Forum;
 /// </summary>
 public class CategoryReadDto
 {
+
+    /// <summary>
+    /// the unique identifier of the category
+    /// </summary>
+    public Guid ForumCategoryId { get; set; }
+
     /// <summary>
     /// the name of the Category
     /// </summary>

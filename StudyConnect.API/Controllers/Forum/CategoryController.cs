@@ -26,29 +26,25 @@ public class CategoryController : BaseController
         _categoryRepository = categoryRepository;
     }
 
-    /// <summary>
-    /// Create a new category
-    /// </summary>
-    /// <returns></returns>
-    [HttpPost]
-    public async Task<IActionResult> AddCategory([FromBody] CategoryCreateDto categoryDto)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        ForumCategory category = new()
-        {
-            ForumCategoryId = categoryDto.ForumCategoryId,
-            Name = categoryDto.Name,
-            Description = categoryDto.Description
-        };
-
-        var result = await _categoryRepository.AddAsync(category);
-        if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
-
-        return NoContent();
-    }
+    // [HttpPost]
+    // public async Task<IActionResult> AddCategory([FromBody] CategoryCreateDto categoryDto)
+    // {
+    //     if (!ModelState.IsValid)
+    //         return BadRequest(ModelState);
+    //
+    //     ForumCategory category = new()
+    //     {
+    //         ForumCategoryId = categoryDto.ForumCategoryId,
+    //         Name = categoryDto.Name,
+    //         Description = categoryDto.Description
+    //     };
+    //
+    //     var result = await _categoryRepository.AddAsync(category);
+    //     if (!result.IsSuccess)
+    //         return BadRequest(result.ErrorMessage);
+    //
+    //     return NoContent();
+    // }
 
     /// <summary>
     /// Get category by id
@@ -67,6 +63,7 @@ public class CategoryController : BaseController
 
         var categoryDto = new CategoryReadDto
         {
+            ForumCategoryId = result.Data.ForumCategoryId,
             Name = result.Data.Name,
             Description = result.Data.Description
         };
@@ -75,47 +72,41 @@ public class CategoryController : BaseController
     }
 
     /// <summary>
-    /// Get the category by name
+    /// Get all the categories
     /// </summary>
-    /// <param name="name">the name of the category</param>
     /// <returns></returns>
-    [HttpGet("byname/{name: string}")]
-    public async Task<IActionResult> GetCategoryByName([FromRoute] string name)
+    [HttpGet]
+    public async Task<IActionResult> GetAllCategories()
     {
-        var result = await _categoryRepository.GetByNameAsync(name);
+        var result = await _categoryRepository.GetAllAsync();
         if (!result.IsSuccess)
             return BadRequest(result.ErrorMessage);
 
         if (result.Data == null)
-            return BadRequest("Category not found.");
+            return BadRequest("No categories available.");
 
-        var categoryDto = new CategoryReadDto
+        var categoryDtos = result.Data.Select(c => new CategoryReadDto
         {
-          Name = result.Data.Name,
-          Description = result.Data.Description
-        };
+            ForumCategoryId = c.ForumCategoryId,
+            Name = c.Name,
+            Description = c.Description
+        });
 
-        return Ok (categoryDto);
+        return Ok (result);
     }
-  
 
-    /// <summary>
-    /// Delete a category
-    /// </summary>
-    /// <param name="id">the ForumCategory id</param>
-    /// <returns></returns>
-    [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
-    {
-        if (id == Guid.Empty)
-            return BadRequest("Invalid category ID.");
-
-        var result = await _categoryRepository.DeleteAsync(id);
-    
-        if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage); 
-
-        return NoContent();
-    }
+    // [HttpDelete("{id:guid}")]
+    // public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
+    // {
+    //     if (id == Guid.Empty)
+    //         return BadRequest("Invalid category ID.");
+    //
+    //     var result = await _categoryRepository.DeleteAsync(id);
+    //
+    //     if (!result.IsSuccess)
+    //         return BadRequest(result.ErrorMessage); 
+    //
+    //     return NoContent();
+    // }
 
 }

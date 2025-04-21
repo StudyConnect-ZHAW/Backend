@@ -11,27 +11,26 @@ public interface ICategoryRepository
     /// </summary>
     /// <param name="category"> the category model to add </param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<bool>> AddAsync(ForumCategory category);
+    ///Task<OperationResult<bool>> AddAsync(ForumCategory category);
 
     /// <summary>
-    /// Get category by its GUID
+    /// Get category by its id
     /// </summary>
-    /// <param name="guid"> The unique identifier of the category </param>
+    /// <param name="id"> The unique identifier of the category </param>
     /// <returns> <see cref="OperationResult{T}"/> containing the category if found, or an error message if not. </returns>
-    Task<OperationResult<ForumCategory?>> GetByIdAsync(Guid guid);
+    Task<OperationResult<ForumCategory?>> GetByIdAsync (Guid id);
 
     /// <summary>
-    /// Get category by its name
+    /// Get all the categories
     /// </summary>
-    /// <param name="name"> The name of the category </param>
-    /// <returns> <see cref="OperationResult{T}"/> containing the category if found, or an error message if not. </returns>
-    Task<OperationResult<ForumCategory?>> GetByNameAsync(string name);
+    /// <<returns> <see cref="OperationResult{T}"/> containing  categories if found, or an error message if not. </returns> 
+    Task<OperationResult<IEnumerable<ForumCategory>>> GetAllAsync ();
 
     /// <summary>
     /// Delete a category based on its GUID
     /// </summary>
     /// <param name="guid"> The unique identifier of the category </param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<bool>> DeleteAsync(Guid guid);
+    ///Task<OperationResult<bool>> DeleteAsync(Guid guid);
 }
 
