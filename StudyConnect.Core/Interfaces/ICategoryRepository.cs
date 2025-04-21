@@ -18,14 +18,14 @@ public interface ICategoryRepository
     /// </summary>
     /// <param name="guid"> The unique identifier of the category </param>
     /// <returns> <see cref="OperationResult{T}"/> containing the category if found, or an error message if not. </returns>
-    Task<OperationResult<ForumCategory>> GetByidAsync(Guid guid);
+    Task<OperationResult<ForumCategory?>> GetByIdAsync(Guid guid);
 
     /// <summary>
     /// Get category by its name
     /// </summary>
     /// <param name="name"> The name of the category </param>
     /// <returns> <see cref="OperationResult{T}"/> containing the category if found, or an error message if not. </returns>
-    Task<OperationResult<ForumCategory>> GetByNameAsync(string name);
+    Task<OperationResult<ForumCategory?>> GetByNameAsync(string name);
 
     /// <summary>
     /// Delete a category based on its GUID
