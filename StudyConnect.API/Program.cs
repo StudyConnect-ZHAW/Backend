@@ -20,7 +20,12 @@ builder.Services.AddSwaggerGen(
         }
     );
 builder.Services.AddDbContext<StudyConnectDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.EnableSensitiveDataLogging(); // Enable sensitive data logging for debugging purposes
+    options.EnableDetailedErrors();       // ausführlichere Fehlermeldungen
+    options.LogTo(Console.WriteLine, LogLevel.Trace); // Log SQL queries to the console
+});    
 
 builder.Services.AddHealthChecks();
 
@@ -29,7 +34,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSameDomain", policy =>
     {
-        policy.WithOrigins("https://pm4.init-lab.ch", "http://localhost:3000")
+        policy.WithOrigins("https://api-scmy-studyconnect-staging.pm4.init-lab.ch", "http://localhost:3000")
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
