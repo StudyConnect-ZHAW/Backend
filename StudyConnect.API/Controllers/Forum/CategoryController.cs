@@ -6,7 +6,7 @@ using StudyConnect.API.Dtos.Responses.Forum;
 
 namespace StudyConnect.API.Controllers.Forum;
 /// <summary>
-/// The category endpoint is used to make modifications to a forumcatgory.
+/// The category endpoint is used to make modifications to a forumcategory.
 /// </summary>
 [ApiController]
 [Route("api/v1/categories")]
@@ -79,7 +79,7 @@ public class CategoryController : BaseController
     /// </summary>
     /// <param name="name">the name of the category</param>
     /// <returns></returns>
-    [HttpGet("{name: string}")]
+    [HttpGet("byname/{name: string}")]
     public async Task<IActionResult> GetCategoryByName([FromRoute] string name)
     {
         var result = await _categoryRepository.GetByNameAsync(name);
@@ -105,7 +105,7 @@ public class CategoryController : BaseController
     /// <param name="id">the ForumCategory id</param>
     /// <returns></returns>
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteCatgory([FromRoute] Guid id)
+    public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
     {
         if (id == Guid.Empty)
             return BadRequest("Invalid category ID.");
