@@ -66,13 +66,37 @@ public class CategoryController : BaseController
             return BadRequest("Category not found.");
 
         var categoryDto = new CategoryReadDto
-{
+        {
             Name = result.Data.Name,
             Description = result.Data.Description
         };
 
-        return Ok(categoryDto);
+        return Ok (categoryDto);
     }
+
+    /// <summary>
+    /// Get the category by name
+    /// </summary>
+    /// <param name="name">the name of the category</param>
+    /// <returns></returns>
+    public async Task<IActionResult> GetCategoryByName([FromRoute] string name)
+    {
+        var result = await _categoryRepository.GetByNameAsync(name);
+        if (!result.IsSuccess)
+            return BadRequest(result.ErrorMessage);
+
+        if (result.Data == null)
+            return BadRequest("Category not found.");
+
+        var categoryDto = new CategoryReadDto
+        {
+          Name = result.Data.Name,
+          Description = result.Data.Description
+        };
+
+        return Ok (categoryDto);
+    }
+  
 
     /// <summary>
     /// Delete a category
