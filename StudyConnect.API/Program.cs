@@ -49,6 +49,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "StudyConnect.API V1"));
 }
 
+// ✅ Swagger immer aktivieren, unabhängig von Umgebung
+app.UseSwagger();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "StudyConnect.API V1");
+});
+
+
 // Ensure the database is created and apply any pending migrations
 using (var scope = app.Services.CreateScope())
 {
