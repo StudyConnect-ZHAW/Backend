@@ -29,7 +29,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSameDomain", policy =>
     {
-        policy.WithOrigins("https://pm4.init-lab.ch, http://localhost:3000")
+        policy.WithOrigins("https://pm4.init-lab.ch", "http://localhost:3000")
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
