@@ -24,6 +24,17 @@ builder.Services.AddDbContext<StudyConnectDbContext>(options =>
 
 builder.Services.AddHealthChecks();
 
+// Add CORS policy to allow requests from the specified domain
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSameDomain", policy =>
+    {
+        policy.WithOrigins("https://pm4.init-lab.ch, http://localhost:3000")
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -48,7 +59,8 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-
+// Configure CORS to use the defined policy
+app.UseCors("AllowSameDomain");
 
 app.UseHttpsRedirection();
 
