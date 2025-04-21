@@ -79,6 +79,7 @@ public class CategoryController : BaseController
     /// </summary>
     /// <param name="name">the name of the category</param>
     /// <returns></returns>
+    [HttpGet("{name: string}")]
     public async Task<IActionResult> GetCategoryByName([FromRoute] string name)
     {
         var result = await _categoryRepository.GetByNameAsync(name);
