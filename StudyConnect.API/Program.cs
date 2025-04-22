@@ -41,13 +41,12 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// ✅ Swagger immer aktivieren, unabhängig von Umgebung
-app.UseSwagger();
-app.UseSwaggerUI(options =>
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
 {
-    options.SwaggerEndpoint("/swagger/v1/swagger.json", "StudyConnect.API V1");
-});
-
+    app.UseSwagger();
+    app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "StudyConnect.API V1"));
+}
 
 // Ensure the database is created and apply any pending migrations
 using (var scope = app.Services.CreateScope())
