@@ -4,8 +4,12 @@
 if ! docker network ls --format '{{.Name}}' | grep -q "^studyconnect-network$"; then
     docker network create studyconnect-network
 fi
-docker-compose -f ./compose.yaml up --build -d
 
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then 
+  docker compose -f ./compose.yaml up --build -d
+else 
+  docker-compose -f ./compose.yaml up --build -d
+fi
 # Wait for the backend to be healthy
 until curl --fail http://localhost:8080/health 2>/dev/null; do
   echo "Waiting for backend to be healthy..."
