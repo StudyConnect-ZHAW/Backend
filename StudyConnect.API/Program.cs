@@ -22,9 +22,8 @@ builder.Services.AddSwaggerGen(
 builder.Services.AddDbContext<StudyConnectDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-    options.EnableSensitiveDataLogging(); // Enable sensitive data logging for debugging purposes
-    options.EnableDetailedErrors();       // ausführlichere Fehlermeldungen
-    options.LogTo(Console.WriteLine, LogLevel.Trace); // Log SQL queries to the console
+    options.EnableDetailedErrors();       // enable detailed error messages
+    options.LogTo(Console.WriteLine, LogLevel.Debug); // Log SQL queries to the console
 });    
 
 builder.Services.AddHealthChecks();
