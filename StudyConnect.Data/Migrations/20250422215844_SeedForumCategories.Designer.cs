@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StudyConnect.Data;
 
@@ -11,9 +12,11 @@ using StudyConnect.Data;
 namespace StudyConnect.Data.Migrations
 {
     [DbContext(typeof(StudyConnectDbContext))]
-    partial class StudyConnectDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250422215844_SeedForumCategories")]
+    partial class SeedForumCategories
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -308,14 +311,6 @@ namespace StudyConnect.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("UserRole", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            URoleId = new Guid("00000000-0000-0000-0000-000000000001"),
-                            Description = "Student is the default role with no rights.",
-                            Name = "Student"
-                        });
                 });
 
             modelBuilder.Entity("StudyConnect.Data.Entities.ForumComment", b =>
