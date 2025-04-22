@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using DotNetEnv;
 
 namespace StudyConnect.Data
 {
@@ -25,7 +24,7 @@ namespace StudyConnect.Data
 
             if (string.IsNullOrWhiteSpace(password))
             {
-                throw new InvalidOperationException("Environment variable 'DB_PASSWORD' is not set.");
+                throw new InvalidOperationException("Environment variable 'MSSQL_SA_PASSWORD' is not set.");
             }
 
             var connectionString = rawConnectionString.Replace("${MSSQL_SA_PASSWORD}", password);

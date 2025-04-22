@@ -23,7 +23,7 @@ public interface ICategoryRepository
     /// <summary>
     /// Get all the categories
     /// </summary>
-    /// <<returns> <see cref="OperationResult{T}"/> containing  categories if found, or an error message if not. </returns> 
+    /// <returns> <see cref="OperationResult{T}"/> containing  categories if found, or an error message if not. </returns> 
     Task<OperationResult<IEnumerable<ForumCategory>>> GetAllAsync ();
 
     /// <summary>

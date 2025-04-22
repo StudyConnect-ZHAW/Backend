@@ -78,14 +78,14 @@ public class CategoryController : BaseController
     [HttpGet]
     public async Task<IActionResult> GetAllCategories()
     {
-        var result = await _categoryRepository.GetAllAsync();
-        if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+        var categories = await _categoryRepository.GetAllAsync();
+        if (!categories.IsSuccess)
+            return BadRequest(categories.ErrorMessage);
 
-        if (result.Data == null)
+        if (categories.Data == null)
             return BadRequest("No categories available.");
 
-        var categoryDtos = result.Data.Select(c => new CategoryReadDto
+        var result = categories.Data.Select(c => new CategoryReadDto
         {
             ForumCategoryId = c.ForumCategoryId,
             Name = c.Name,
