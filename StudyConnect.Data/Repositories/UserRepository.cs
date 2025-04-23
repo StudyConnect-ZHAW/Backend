@@ -31,6 +31,12 @@ public class UserRepository : BaseRepository, IUserRepository
         // Add the user to the database
         try
         {
+            // Get Student role from the database by ID
+            var userRole = await _context.UserRoles.FirstOrDefaultAsync(ur => ur.URoleId == Guid.Parse("00000000-0000-0000-0000-000000000001"));
+            if (userRole == null)
+            {
+                return OperationResult<bool>.Failure("User role not found.");
+            }
 
             var userToAdd = new Entities.User
             {
@@ -38,7 +44,7 @@ public class UserRepository : BaseRepository, IUserRepository
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
-                URole = await GetFirstUserRoleAsync() ?? throw new InvalidOperationException("No user role available to assign.") // Ensure that we have a user role to assign
+                URole = userRole
             };
 
             // Add the user to the database context
@@ -123,17 +129,4 @@ public class UserRepository : BaseRepository, IUserRepository
 
     }
 
-    /// <summary>
-    /// Gets the first user role from the database.
-    /// </summary>
-    /// <returns></returns>
-    private async Task<Entities.UserRole?> GetFirstUserRoleAsync()
-    {
-        var userRole = await _context.UserRoles.FirstOrDefaultAsync();
-        if (userRole == null)
-        {
-            throw new InvalidOperationException("No user roles found in the database.");
-        }
-        return userRole;
-    }
 }

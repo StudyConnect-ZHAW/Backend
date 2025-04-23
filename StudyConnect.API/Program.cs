@@ -20,9 +20,24 @@ builder.Services.AddSwaggerGen(
         }
     );
 builder.Services.AddDbContext<StudyConnectDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.EnableDetailedErrors();       // enable detailed error messages
+    options.LogTo(Console.WriteLine, LogLevel.Debug); // Log SQL queries to the console
+});    
 
 builder.Services.AddHealthChecks();
+
+// Add CORS policy to allow requests from the specified domain
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSameDomain", policy =>
+    {
+        policy.WithOrigins("https://api-scmy-studyconnect-staging.pm4.init-lab.ch", "http://localhost:3000")
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
@@ -48,7 +63,8 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-
+// Configure CORS to use the defined policy
+app.UseCors("AllowSameDomain");
 
 app.UseHttpsRedirection();
 
