@@ -11,7 +11,7 @@ public interface ICategoryRepository
     /// </summary>
     /// <param name="category"> the category model to add </param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    ///Task<OperationResult<bool>> AddAsync(ForumCategory category);
+    Task<OperationResult<bool>> AddAsync(ForumCategory category);
 
     /// <summary>
     /// Get category by its id
@@ -31,6 +31,6 @@ public interface ICategoryRepository
     /// </summary>
     /// <param name="guid"> The unique identifier of the category </param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    ///Task<OperationResult<bool>> DeleteAsync(Guid guid);
+    Task<OperationResult<bool>> DeleteAsync(Guid guid);
 }
 

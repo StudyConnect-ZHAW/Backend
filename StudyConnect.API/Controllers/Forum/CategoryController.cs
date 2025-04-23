@@ -26,31 +26,37 @@ public class CategoryController : BaseController
         _categoryRepository = categoryRepository;
     }
 
-    // [HttpPost]
-    // public async Task<IActionResult> AddCategory([FromBody] CategoryCreateDto categoryDto)
-    // {
-    //     if (!ModelState.IsValid)
-    //         return BadRequest(ModelState);
-    //
-    //     ForumCategory category = new()
-    //     {
-    //         ForumCategoryId = categoryDto.ForumCategoryId,
-    //         Name = categoryDto.Name,
-    //         Description = categoryDto.Description
-    //     };
-    //
-    //     var result = await _categoryRepository.AddAsync(category);
-    //     if (!result.IsSuccess)
-    //         return BadRequest(result.ErrorMessage);
-    //
-    //     return NoContent();
-    // }
+    /// <summary>
+    /// Add a ForumCategory
+    /// </summary>
+    /// <param name="categoryDto"> the Category Object to create </param>
+    /// <returns>S StatusCode 501 </returns>
+    [HttpPost]
+    public async Task<IActionResult> AddCategory([FromBody] CategoryCreateDto categoryDto)
+    {
+        return StatusCode(501);
+
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        ForumCategory category = new()
+        {
+            Name = categoryDto.Name,
+            Description = categoryDto.Description
+        };
+
+        var result = await _categoryRepository.AddAsync(category);
+        if (!result.IsSuccess)
+            return BadRequest(result.ErrorMessage);
+
+        return NoContent();
+    }
 
     /// <summary>
     /// Get category by id
     /// </summary>
     /// <param name="id">the ForumCategory id</param>
-    /// <returns></returns>
+    /// <returns> on Success a CatergoryDto, on Failure a BadRequest </returns>
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetCategoryById([FromRoute] Guid id)
     {
@@ -74,7 +80,7 @@ public class CategoryController : BaseController
     /// <summary>
     /// Get all the categories
     /// </summary>
-    /// <returns></returns>
+    /// <returns> on Success a List of CatergoryDtos, on Failure a BadRequest </returns>
     [HttpGet]
     public async Task<IActionResult> GetAllCategories()
     {
@@ -95,18 +101,25 @@ public class CategoryController : BaseController
         return Ok (result);
     }
 
-    // [HttpDelete("{id:guid}")]
-    // public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
-    // {
-    //     if (id == Guid.Empty)
-    //         return BadRequest("Invalid category ID.");
-    //
-    //     var result = await _categoryRepository.DeleteAsync(id);
-    //
-    //     if (!result.IsSuccess)
-    //         return BadRequest(result.ErrorMessage); 
-    //
-    //     return NoContent();
-    // }
+    /// <summary>
+    /// Delete a category
+    /// </summary>
+    /// <param name="id"> the unique identifier of the category </param>
+    /// <returns> StatusCode 501 </returns> 
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
+    {
+        return StatusCode(501);
+
+        if (id == Guid.Empty)
+            return BadRequest("Invalid category ID.");
+
+        var result = await _categoryRepository.DeleteAsync(id);
+
+        if (!result.IsSuccess)
+            return BadRequest(result.ErrorMessage); 
+
+        return NoContent();
+    }
 
 }
