@@ -32,24 +32,9 @@ public class CategoryController : BaseController
     /// <param name="categoryDto"> the Category Object to create </param>
     /// <returns>S StatusCode 501 </returns>
     [HttpPost]
-    public async Task<IActionResult> AddCategory([FromBody] CategoryCreateDto categoryDto)
+    public IActionResult AddCategory([FromBody] CategoryCreateDto categoryDto)
     {
         return StatusCode(501);
-
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        ForumCategory category = new()
-        {
-            Name = categoryDto.Name,
-            Description = categoryDto.Description
-        };
-
-        var result = await _categoryRepository.AddAsync(category);
-        if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
-
-        return NoContent();
     }
 
     /// <summary>
@@ -107,19 +92,9 @@ public class CategoryController : BaseController
     /// <param name="id"> the unique identifier of the category </param>
     /// <returns> StatusCode 501 </returns> 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
+    public  IActionResult DeleteCategory([FromRoute] Guid id)
     {
         return StatusCode(501);
-
-        if (id == Guid.Empty)
-            return BadRequest("Invalid category ID.");
-
-        var result = await _categoryRepository.DeleteAsync(id);
-
-        if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage); 
-
-        return NoContent();
-    }
+     }
 
 }

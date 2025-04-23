@@ -98,7 +98,7 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
 
 
 
-    public async Task<OperationResult<bool>> DeleteAsync(Guid categoryId)
+    public async Task<OperationResult<bool>> DeleteAsync(Guid id)
     {
         if (categoryId == Guid.Empty)
             return OperationResult<bool>.Failure("Invalid category ID.");
