@@ -83,7 +83,7 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
             .AsNoTracking()
             .ToListAsync();
 
-        if (!categories.Any())
+        if (categories.Count == 0)
             return OperationResult<IEnumerable<ForumCategory>>.Failure("No categories were found.");
 
         var result = categories.Select(c => new ForumCategory
