@@ -100,10 +100,10 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
 
     public async Task<OperationResult<bool>> DeleteAsync(Guid id)
     {
-        if (categoryId == Guid.Empty)
+        if (id == Guid.Empty)
             return OperationResult<bool>.Failure("Invalid category ID.");
 
-        var category = await _context.ForumCategories.FindAsync(categoryId);
+        var category = await _context.ForumCategories.FindAsync(id);
         if (category is null)
             return OperationResult<bool>.Failure("Category not found.");
 
