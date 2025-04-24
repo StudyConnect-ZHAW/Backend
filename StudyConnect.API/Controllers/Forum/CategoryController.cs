@@ -30,7 +30,7 @@ public class CategoryController : BaseController
     /// Add a ForumCategory
     /// </summary>
     /// <param name="categoryDto"> the Category Object to create </param>
-    /// <returns>S StatusCode 501 </returns>
+    /// <returns> StatusCode 501 </returns>
     [HttpPost]
     public IActionResult AddCategory([FromBody] CategoryCreateDto categoryDto)
     {
@@ -41,7 +41,7 @@ public class CategoryController : BaseController
     /// Get category by id
     /// </summary>
     /// <param name="id">the ForumCategory id</param>
-    /// <returns> on Success a CatergoryDto, on Failure a BadRequest </returns>
+    /// <returns> on Success a CategoryDto, on Failure a BadRequest </returns>
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetCategoryById([FromRoute] Guid id)
     {
