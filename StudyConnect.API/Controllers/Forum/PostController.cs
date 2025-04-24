@@ -21,12 +21,12 @@ public class PostController: BaseController
     }
 
     /// <summary>
-    /// 
+    /// Filter the Post by Parameters 
     /// </summary>
-    /// <param name="category"></param>
-    /// <param name="title"></param>
-    /// <param name="Author"></param>
-    /// <param name="tags"></param>
+    /// <param name="category"> the name of ForumCategory </param>
+    /// <param name="title"> the title of the Post </param>
+    /// <param name="Author"> the creator of the Post </param>
+    /// <param name="tags"> a list of Tags for this Post </param>
     /// <returns></returns>
     [HttpGet]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]

@@ -17,7 +17,7 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
     {
         if (category == null)
         {
-            return OperationResult<bool>.Failure("category cannot be null.");
+            return OperationResult<bool>.Failure("Category cannot be null.");
         }
 
         var providedCategoryId = await _context.ForumCategories.FirstOrDefaultAsync(c => c.ForumCategoryId == category.ForumCategoryId);
