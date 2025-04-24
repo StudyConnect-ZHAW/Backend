@@ -12,7 +12,7 @@ using StudyConnect.Data;
 namespace StudyConnect.Data.Migrations
 {
     [DbContext(typeof(StudyConnectDbContext))]
-    [Migration("20250422215844_SeedForumCategories")]
+    [Migration("20250424141555_SeedForumCategories")]
     partial class SeedForumCategories
     {
         /// <inheritdoc />
@@ -62,7 +62,7 @@ namespace StudyConnect.Data.Migrations
                         new
                         {
                             ForumCategoryId = new Guid("c345e8a7-8c49-4326-83e7-2657b1d149f3"),
-                            Description = "The lecture that nobody likes",
+                            Description = "Betriebssysteme",
                             Name = "BSY"
                         });
                 });
@@ -311,6 +311,14 @@ namespace StudyConnect.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("UserRole", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            URoleId = new Guid("00000000-0000-0000-0000-000000000001"),
+                            Description = "Student is the default role with no rights.",
+                            Name = "Student"
+                        });
                 });
 
             modelBuilder.Entity("StudyConnect.Data.Entities.ForumComment", b =>

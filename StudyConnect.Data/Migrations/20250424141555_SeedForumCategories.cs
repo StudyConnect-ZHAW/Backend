@@ -11,19 +11,23 @@ namespace StudyConnect.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.InsertData(
+            migrationBuilder.UpdateData(
                 table: "ForumCategory",
-                columns: new[] { "ForumCategoryId", "Description", "Name" },
-                values: new object[] { new Guid("c345e8a7-8c49-4326-83e7-2657b1d149f3"), "The lecture that nobody likes", "BSY" });
+                keyColumn: "ForumCategoryId",
+                keyValue: new Guid("c345e8a7-8c49-4326-83e7-2657b1d149f3"),
+                column: "Description",
+                value: "Betriebssysteme");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DeleteData(
+            migrationBuilder.UpdateData(
                 table: "ForumCategory",
                 keyColumn: "ForumCategoryId",
-                keyValue: new Guid("c345e8a7-8c49-4326-83e7-2657b1d149f3"));
+                keyValue: new Guid("c345e8a7-8c49-4326-83e7-2657b1d149f3"),
+                column: "Description",
+                value: "The lecture that nobody likes");
         }
     }
 }

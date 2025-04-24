@@ -164,7 +164,7 @@ public class StudyConnectDbContext : DbContext
             {
                 ForumCategoryId = new Guid("c345e8a7-8c49-4326-83e7-2657b1d149f3"),
                 Name = "BSY",
-                Description = "The lecture that nobody likes"
+                Description = "Betriebssysteme"
             }
         );
 
