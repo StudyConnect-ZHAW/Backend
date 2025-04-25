@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using StudyConnect.Data.Entities;
 using StudyConnect.Data.Repositories;
 
@@ -10,7 +8,7 @@ public class CategoryRepositoryTests
 
 
     [Fact]
-    public async Task AddAsync_SholdReturnFailure_WhenCategoryIsNull()
+    public async Task AddAsync_ShouldReturnFailure_WhenCategoryIsNull()
     {
         var options = TestUtils.CreateNewContextOptions();
         var configuration = TestUtils.CreateNewConfiguration();
@@ -64,7 +62,7 @@ public class CategoryRepositoryTests
     }
 
     [Fact]
-    public async Task AddAsync_ShluldReturnSucces_WhenCategoryNotFound()
+    public async Task AddAsync_ShouldReturnSucces_WhenCategoryNotFound()
     {
         var options = TestUtils.CreateNewContextOptions();
         var configuration = TestUtils.CreateNewConfiguration();
