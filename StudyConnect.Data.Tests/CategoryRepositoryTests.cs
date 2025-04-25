@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Moq;
 using StudyConnect.Data.Entities;
 using StudyConnect.Data.Repositories;
 

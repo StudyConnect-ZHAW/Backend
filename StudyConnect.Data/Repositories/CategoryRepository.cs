@@ -13,7 +13,7 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
 
     }
 
-    public async Task<OperationResult<bool>> AddAsync(ForumCategory category)
+    public async Task<OperationResult<bool>> AddAsync(ForumCategory? category)
     {
         if (category == null)
         {
@@ -55,7 +55,7 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
 
     }
 
-    public async Task<OperationResult<ForumCategory?>> GetByIdAsync(Guid id )
+    public async Task<OperationResult<ForumCategory?>> GetByIdAsync(Guid id)
     {
         if (id == Guid.Empty)
             return OperationResult<ForumCategory?>.Failure("Invalid category ID.");
@@ -94,7 +94,7 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
         });
 
         return OperationResult<IEnumerable<ForumCategory>>.Success(result);
-    } 
+    }
 
 
 
@@ -113,4 +113,4 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
         return OperationResult<bool>.Success(true);
     }
 
-  }
+}
