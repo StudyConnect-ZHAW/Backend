@@ -7,10 +7,10 @@ namespace StudyConnect.Core.Interfaces;
 public interface ICategoryRepository
 {
     /// <summary>
-    /// Add an category to the database
+    /// Add a category to the database
     /// </summary>
     /// <param name="category"> the category model to add </param>
-    /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
+    /// <returns> <see cref="OperationResult{T}"/> indicating success or failure.</returns>
     Task<OperationResult<bool>> AddAsync(ForumCategory? category);
 
     /// <summary>

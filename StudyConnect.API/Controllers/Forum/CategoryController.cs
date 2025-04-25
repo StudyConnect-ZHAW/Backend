@@ -65,7 +65,7 @@ public class CategoryController : BaseController
     /// <summary>
     /// Get all the categories
     /// </summary>
-    /// <returns> on Success a List of CatergoryDtos, on Failure a BadRequest </returns>
+    /// <returns> on Success a List of CategoryDtos, on Failure a BadRequest </returns>
     [HttpGet]
     public async Task<IActionResult> GetAllCategories()
     {

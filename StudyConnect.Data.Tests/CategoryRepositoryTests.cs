@@ -62,7 +62,7 @@ public class CategoryRepositoryTests
     }
 
     [Fact]
-    public async Task AddAsync_ShouldReturnSucces_WhenCategoryNotFound()
+    public async Task AddAsync_ShouldReturnSuccess_WhenCategoryNotFound()
     {
         var options = TestUtils.CreateNewContextOptions();
         var configuration = TestUtils.CreateNewConfiguration();
