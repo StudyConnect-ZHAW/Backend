@@ -35,13 +35,13 @@ public class CategoryRepositoryTests
         {
             ForumCategoryId = id,
             Name = "Test",
-            Description = "Succes"
+            Description = "Success"
         };
         var modelCategory = new StudyConnect.Core.Models.ForumCategory
         {
             ForumCategoryId = id,
             Name = "Test",
-            Description = "Succes"
+            Description = "Success"
         };
 
         using (var seedContext = new StudyConnectDbContext(options, configuration))
