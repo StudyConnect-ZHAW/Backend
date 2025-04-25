@@ -1,12 +1,94 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Moq;
 using StudyConnect.Data.Entities;
 using StudyConnect.Data.Repositories;
-using Microsoft.Extensions.Configuration;
 
 namespace StudyConnect.Data.Tests;
 
 public class CategoryRepositoryTests
 {
+
+
+    [Fact]
+    public async Task AddAsync_SholdReturnFailure_WhenCategoryIsNull()
+    {
+        var options = TestUtils.CreateNewContextOptions();
+        var configuration = TestUtils.CreateNewConfiguration();
+
+        using (var context = new StudyConnectDbContext(options, configuration))
+        {
+            var repo = new CategoryRepository(context);
+
+            var result = await repo.AddAsync(null);
+
+            Assert.False(result.IsSuccess);
+            Assert.Equal("Category cannot be null.", result.ErrorMessage);
+        }
+    }
+
+    [Fact]
+    public async Task AddAsync_ShouldReturnFailure_WhenCategoryExists()
+    {
+        var options = TestUtils.CreateNewContextOptions();
+        var configuration = TestUtils.CreateNewConfiguration();
+
+        var id = Guid.NewGuid();
+        var category = new ForumCategory
+        {
+            ForumCategoryId = id,
+            Name = "Test",
+            Description = "Succes"
+        };
+        var modelCategory = new StudyConnect.Core.Models.ForumCategory
+        {
+            ForumCategoryId = id,
+            Name = "Test",
+            Description = "Succes"
+        };
+
+        using (var seedContext = new StudyConnectDbContext(options, configuration))
+        {
+            seedContext.ForumCategories.Add(category);
+            seedContext.SaveChanges();
+        }
+
+        using (var testContext = new StudyConnectDbContext(options, configuration))
+        {
+            var repo = new CategoryRepository(testContext);
+
+            var result = await repo.AddAsync(modelCategory);
+
+            Assert.False(result.IsSuccess);
+            Assert.Equal("A category already exists.", result.ErrorMessage);
+        }
+    }
+
+    [Fact]
+    public async Task AddAsync_ShluldReturnSucces_WhenCategoryNotFound()
+    {
+        var options = TestUtils.CreateNewContextOptions();
+        var configuration = TestUtils.CreateNewConfiguration();
+
+        var category = new StudyConnect.Core.Models.ForumCategory
+        {
+            ForumCategoryId = Guid.NewGuid(),
+            Name = "Succes",
+            Description = "testing gone right"
+        };
+
+        using (var context = new StudyConnectDbContext(options, configuration))
+        {
+            var repo = new CategoryRepository(context);
+
+            var result = await repo.AddAsync(category);
+
+            Assert.True(result.IsSuccess);
+            Assert.True(result.Data);
+            Assert.Single(context.ForumCategories);
+        }
+    }
+
     [Fact]
     public async Task GetByIdAsync_ShouldReturnFailure_WhenIdIsEmpty()
     {
@@ -70,7 +152,7 @@ public class CategoryRepositoryTests
         var configuration = TestUtils.CreateNewConfiguration();
 
         using (var context = new StudyConnectDbContext(options, configuration))
-        {  
+        {
             var repo = new CategoryRepository(context);
 
             // Act
@@ -102,7 +184,7 @@ public class CategoryRepositoryTests
             context.SaveChanges();
         }
 
-        using (var context = new StudyConnectDbContext(options,configuration))
+        using (var context = new StudyConnectDbContext(options, configuration))
         {
             var repo = new CategoryRepository(context);
 
@@ -111,7 +193,7 @@ public class CategoryRepositoryTests
             Assert.True(result.IsSuccess);
             Assert.Equal(2, result.Data?.Count());
         }
-    
+
     }
 
     [Fact]
