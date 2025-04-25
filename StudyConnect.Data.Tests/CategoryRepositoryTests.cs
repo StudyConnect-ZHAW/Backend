@@ -70,8 +70,7 @@ public class CategoryRepositoryTests
         var category = new StudyConnect.Core.Models.ForumCategory
         {
             ForumCategoryId = Guid.NewGuid(),
-            Name = "Succes",
-            Description = "testing gone right"
+            Name = "Success",
         };
 
         using (var context = new StudyConnectDbContext(options, configuration))
