@@ -7,7 +7,7 @@ namespace StudyConnect.API.Controllers.Forum;
 /// Provides endpoints to create, retrieve, update, and delete posts.
 /// </summary>
 [ApiController]
-[Route("v1/forum")]
+[Route("api/v1/posts")]
 public class PostController: BaseController
 {
     /// <summary>
@@ -18,6 +18,22 @@ public class PostController: BaseController
     public IActionResult AddPost() 
     {
         return Ok();
+    }
+
+    /// <summary>
+    /// Filter the Post by Parameters 
+    /// </summary>
+    /// <param name="category"> the name of ForumCategory </param>
+    /// <param name="title"> the title of the Post </param>
+    /// <param name="Author"> the creator of the Post </param>
+    /// <param name="tags"> a list of Tags for this Post </param>
+    /// <returns></returns>
+    [HttpGet]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public IActionResult GetPostByFilter([FromQuery] string? category, [FromQuery] string? title, [FromQuery] string? Author, [FromQuery] List<string>? tags)
+    {
+        return Ok("posts");
     }
 
     /// <summary>
@@ -44,6 +60,7 @@ public class PostController: BaseController
                     ""Content"": ""This is a mock content for a mock post."",
                     ""MadeAt"": ""2025-03-29T12:34:56""
                 }
+
             ]
         }";
 

@@ -146,6 +146,34 @@ public class StudyConnectDbContext : DbContext
         modelBuilder.Entity<ForumCategory>().ToTable("ForumCategory");
         modelBuilder.Entity<ForumPost>().ToTable("ForumPost");
         modelBuilder.Entity<ForumComment>().ToTable("ForumComment");
+
+        modelBuilder.Entity<ForumCategory>().HasData(
+            new ForumCategory
+            {
+                ForumCategoryId = new Guid("a3f1d8a5-1b67-4a4f-91c1-9c63c2bde914"),
+                Name = "SWEN1",
+                Description = "Software Entwicklung 2"
+            },
+            new ForumCategory
+            {
+                ForumCategoryId = new Guid("e5b7f442-06c6-4d7e-b6fa-4f8f2420a6e7"),
+                Name = "CT-2",
+                Description = "Computer Technik 2"
+            },
+            new ForumCategory
+            {
+                ForumCategoryId = new Guid("c345e8a7-8c49-4326-83e7-2657b1d149f3"),
+                Name = "BSY",
+                Description = "Betriebssysteme"
+            },
+            new ForumCategory
+            {
+                ForumCategoryId = new Guid("a1b2c3d4-5678-4f90-abcd-1234567890ef"),
+                Name = "General",
+                Description = "General Kontext"
+            }
+        );
+
     }
 
     public DbSet<User> Users { get; set; }
