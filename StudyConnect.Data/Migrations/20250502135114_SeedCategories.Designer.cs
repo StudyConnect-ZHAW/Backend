@@ -12,8 +12,8 @@ using StudyConnect.Data;
 namespace StudyConnect.Data.Migrations
 {
     [DbContext(typeof(StudyConnectDbContext))]
-    [Migration("20250424141555_SeedForumCategories")]
-    partial class SeedForumCategories
+    [Migration("20250502135114_SeedCategories")]
+    partial class SeedCategories
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -64,6 +64,12 @@ namespace StudyConnect.Data.Migrations
                             ForumCategoryId = new Guid("c345e8a7-8c49-4326-83e7-2657b1d149f3"),
                             Description = "Betriebssysteme",
                             Name = "BSY"
+                        },
+                        new
+                        {
+                            ForumCategoryId = new Guid("a1b2c3d4-5678-4f90-abcd-1234567890ef"),
+                            Description = "General Kontext",
+                            Name = "General"
                         });
                 });
 
