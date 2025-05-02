@@ -27,8 +27,10 @@ namespace StudyConnect.API.Controllers.Groups
         }
 
         /// <summary>
-        /// Create a new group
+        /// Creates a new group with the provided information.
         /// </summary>
+        /// <param name="dto">The data required to create the group.</param>
+        /// <returns>No content if successful; otherwise, a bad request with an error message.</returns>
         [Route("v1/groups")]
         [HttpPost]
         public async Task<IActionResult> AddGroup([FromBody] GroupCreateDto dto)
@@ -56,8 +58,10 @@ namespace StudyConnect.API.Controllers.Groups
         }
 
         /// <summary>
-        /// Get a group by id
+        /// Retrieves a group by its unique identifier.
         /// </summary>
+        /// <param name="id">The ID of the group to retrieve.</param>
+        /// <returns>The group if found; otherwise, a not found or bad request result.</returns>
         [Route("v1/groups/{id}")]
         [HttpGet]
         public async Task<IActionResult> GetGroupById([FromRoute] Guid id)
@@ -86,11 +90,17 @@ namespace StudyConnect.API.Controllers.Groups
         }
 
         /// <summary>
-        /// Update a group
+        /// Updates the details of an existing group.
         /// </summary>
+        /// <param name="id">The ID of the group to update.</param>
+        /// <param name="dto">The updated group data.</param>
+        /// <returns>A success message if updated; otherwise, a bad request with an error.</returns>
         [Route("v1/groups/{id}")]
         [HttpPut]
-        public async Task<IActionResult> UpdateGroup([FromRoute] Guid id, [FromBody] GroupUpdateDto dto)
+        public async Task<IActionResult> UpdateGroup(
+            [FromRoute] Guid id,
+            [FromBody] GroupUpdateDto dto
+        )
         {
             if (!ModelState.IsValid)
             {
@@ -115,8 +125,10 @@ namespace StudyConnect.API.Controllers.Groups
         }
 
         /// <summary>
-        /// Delete a group
+        /// Deletes a group by its unique identifier.
         /// </summary>
+        /// <param name="id">The ID of the group to delete.</param>
+        /// <returns>A success message if deleted; otherwise, a bad request with an error.</returns>
         [Route("v1/groups/{id}")]
         [HttpDelete]
         public async Task<IActionResult> DeleteGroup([FromRoute] Guid id)

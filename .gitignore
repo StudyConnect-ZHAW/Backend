@@ -118,6 +118,3 @@ project.lock.json
 
 # Local configuration
 .env*
-
-
-.fake
