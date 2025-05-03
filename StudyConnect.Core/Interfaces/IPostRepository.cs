@@ -10,14 +10,14 @@ public interface IPostRepository
     /// </summary>
     /// <param name="post">The forumpost to be added.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<bool>> AddAsync (ForumPost? post);
-    
+    Task<OperationResult<bool>> AddAsync(ForumPost? post);
+
     /// <summary>
     /// Get a Post by its GUID.
     /// </summary>
     /// <param name="id">the unique identifier of the post.</param>
     /// <returns>An <see cref="OperationResult{T}"/> containing the post if found, or an error message if not.</returns>
-    Task<OperationResult<ForumPost?>> GetByIdAsync (Guid id);
+    Task<OperationResult<ForumPost?>> GetByIdAsync(Guid id);
 
     /// <summary>
     /// Get all Post of the forum.
@@ -30,12 +30,12 @@ public interface IPostRepository
     /// </summary>
     /// <param name="id">The unique identifier of the post.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<bool>> UpdateAsync (Guid id);
+    Task<OperationResult<bool>> UpdateAsync(Guid id, ForumPost post);
 
     /// <summary>
     /// Delete an exitsting post by its GUID.
     /// </summary>
     /// <param name="id">The unique identifier of the post.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<bool>> DeleteAsync (Guid id);
+    Task<OperationResult<bool>> DeleteAsync(Guid id);
 }
