@@ -165,7 +165,7 @@ public class GroupRepository : BaseRepository, IGroupRepository
                 OwnerId = group.OwnerId,
                 Name = group.Name,
                 Description = group.Description,
-                Owner = user 
+                Owner = user,
             };
         }
     }
