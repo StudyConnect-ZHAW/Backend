@@ -21,6 +21,13 @@ public interface ICategoryRepository
     Task<OperationResult<ForumCategory?>> GetByIdAsync(Guid id);
 
     /// <summary>
+    /// Get category by its name
+    /// </summary>
+    /// <param name="name"> The unique name of the category </param>
+    /// <returns> <see cref="OperationResult{T}"/> containing the category if found, or an error message if not. </returns>
+    Task<OperationResult<ForumCategory?>> GetByNameAsync(string name);
+
+    /// <summary>
     /// Get all the categories
     /// </summary>
     /// <returns> <see cref="OperationResult{T}"/> containing  categories if found, or an error message if not. </returns> 
