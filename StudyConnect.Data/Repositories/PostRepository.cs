@@ -63,7 +63,7 @@ public class PostRepository : BaseRepository, IPostRepository
         var result = posts.Select(p =>
         {
             var userModel = packageUser(p.User);
-            var categoryModel = packageCatergory(p.ForumCategory);
+            var categoryModel = packageCategory(p.ForumCategory);
             return new ForumPost
             {
                 Title = p.Title,
@@ -90,7 +90,7 @@ public class PostRepository : BaseRepository, IPostRepository
 
         var userModel = packageUser(forumPost.User);
 
-        var categoryModel = packageCatergory(forumPost.ForumCategory);
+        var categoryModel = packageCategory(forumPost.ForumCategory);
         var result = new ForumPost
         {
             Title = forumPost.Title,
@@ -118,6 +118,7 @@ public class PostRepository : BaseRepository, IPostRepository
         {
             postToUpdate.Title = post.Title;
             postToUpdate.Content = post.Content;
+            postToUpdate.UpdatedAt = DateTime.UtcNow; 
 
             await _context.SaveChangesAsync();
 
@@ -164,7 +165,7 @@ public class PostRepository : BaseRepository, IPostRepository
     /// </summary>
     /// <param name="category">A category entity to create. </param>
     /// <returns>A forumcategory model object.</returns>
-    private ForumCategory packageCatergory(Entities.ForumCategory category)
+    private ForumCategory packageCategory(Entities.ForumCategory category)
     {
         return new ForumCategory
         {
