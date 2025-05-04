@@ -77,6 +77,28 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
         return OperationResult<ForumCategory?>.Success(result);
     }
 
+    public async Task<OperationResult<ForumCategory?>> GetByNameAsync(string name)
+    {
+        if (name == String.Empty)
+            return OperationResult<ForumCategory?>.Failure("Name should be not empty.");
+
+        var category = await _context.ForumCategories
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Name == name);
+
+        if (category == null)
+            return OperationResult<ForumCategory?>.Failure("Category not found.");
+
+        var result = new ForumCategory
+        {
+            ForumCategoryId = category.ForumCategoryId,
+            Name = category.Name,
+            Description = category.Description
+        };
+
+        return OperationResult<ForumCategory?>.Success(result);
+    }
+
     public async Task<OperationResult<IEnumerable<ForumCategory>>> GetAllAsync()
     {
         var categories = await _context.ForumCategories

@@ -118,7 +118,7 @@ public class PostRepository : BaseRepository, IPostRepository
         {
             postToUpdate.Title = post.Title;
             postToUpdate.Content = post.Content;
-            postToUpdate.UpdatedAt = DateTime.UtcNow; 
+            postToUpdate.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
