@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using StudyConnect.Core.Interfaces;
+using StudyConnect.API.Dtos.Requests.Forum;
 
 namespace StudyConnect.API.Controllers.Forum;
 
@@ -10,14 +12,23 @@ namespace StudyConnect.API.Controllers.Forum;
 [Route("api/v1/posts")]
 public class PostController: BaseController
 {
+
+    protected readonly IPostRepository _postRepository;
+
+
+    public PostController (IPostRepository postRepository)
+    {
+        _postRepository = postRepository;
+    }
+
     /// <summary>
     /// Creates a new post
     /// </summary>
     /// <returns> HTTP 200 OK response on success </returns>
     [HttpPost]
-    public IActionResult AddPost() 
+    public IActionResult AddPost(Guid userid, PostCreateDto createDto)
     {
-        return Ok();
+        
     }
 
     /// <summary>

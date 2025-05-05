@@ -12,18 +12,18 @@ public class PostCreateDto
     /// </summary>
     [Required(ErrorMessage = "Post Title is required.")]
     [StringLength(255)]
-    public required string Title {get; set;}
+    public required string Title { get; set;}
     
     /// <summary>
     /// The category name the post should be assigned to.
     /// </summary>
-    [Required(ErrorMessage = "Catergory Name is required.")]
+    [Required(ErrorMessage = "Catergory ID is required.")]
     [StringLength(255)]
-    public required string Modul {get;  set; }
+    public required Guid ModulID { get;  set; }
 
     /// <summary>
     /// The content of the post.
     /// </summary>
-    public string? Content {get; set; }
+    public string? Content { get; set; }
 }
 
