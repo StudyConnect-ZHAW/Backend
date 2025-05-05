@@ -152,26 +152,18 @@ public class PostRepository : BaseRepository, IPostRepository
         var postToDelete = await _context.ForumPosts.FirstOrDefaultAsync(p => p.ForumPostId == id);
         if (postToDelete == null)
             return OperationResult<bool>.Failure("Post could not be found.");
-
-        _context.Remove(postToDelete);
-        await _context.SaveChangesAsync();
-
-        return OperationResult<bool>.Success(true);
-    }
-
-    /// <summary>
-    /// A helper function to extract an category entity from a model.
-    /// </summary>
-    /// <param name="category">A category model to extract.</param>
-    /// <returns>An forumcategory entity that can be stored in the database.</returns>
-    private Entities.ForumCategory extractCategory(ForumCategory category)
-    {
-        return new Entities.ForumCategory
+        
+        try
         {
-            ForumCategoryId = category.ForumCategoryId,
-            Name = category.Name,
-            Description = category.Description
-        };
+            _context.Remove(postToDelete);
+            await _context.SaveChangesAsync();
+            return OperationResult<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return OperationResult<bool>.Failure($"An Error occured while deleting: {ex.Message}");
+        }
+        
     }
 
     /// <summary>
@@ -186,24 +178,6 @@ public class PostRepository : BaseRepository, IPostRepository
             ForumCategoryId = category.ForumCategoryId,
             Name = category.Name,
             Description = category.Description
-        };
-    }
-
-    /// <summary>
-    /// A helper function to extract an user entity from a model.
-    /// </summary>
-    /// <param name="user">An user model to extract.</param>
-    /// <param name="role">A user role needed to create a user entity<./param>
-    /// <returns>An user entity that can be stored in the database.</returns>
-    private Entities.User extractUser(User user, Entities.UserRole role)
-    {
-        return new Entities.User
-        {
-            UserGuid = user.UserGuid,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Email = user.Email,
-            URole = role
         };
     }
 
