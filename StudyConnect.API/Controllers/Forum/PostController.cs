@@ -4,6 +4,7 @@ using StudyConnect.API.Dtos.Requests.Forum;
 using StudyConnect.API.Dtos.Responses.Forum;
 using StudyConnect.API.Dtos.Responses.User;
 using StudyConnect.Core.Models;
+using System.Threading.Tasks;
 
 namespace StudyConnect.API.Controllers.Forum;
 
@@ -13,13 +14,13 @@ namespace StudyConnect.API.Controllers.Forum;
 /// </summary>
 [ApiController]
 [Route("api/v1/posts")]
-public class PostController: BaseController
+public class PostController : BaseController
 {
 
     protected readonly IPostRepository _postRepository;
 
 
-    public PostController (IPostRepository postRepository)
+    public PostController(IPostRepository postRepository)
     {
         _postRepository = postRepository;
     }
@@ -94,15 +95,15 @@ public class PostController: BaseController
 
             return new PostReadDto
             {
-               ForumPostId = p.ForumPostId,
-               Title = p.Title,
-               Content = p.Content,
-               Modul = categoryDto,
-               Author = userDto
+                ForumPostId = p.ForumPostId,
+                Title = p.Title,
+                Content = p.Content,
+                Modul = categoryDto,
+                Author = userDto
             };
         });
 
-        return Ok (result);
+        return Ok(result);
     }
 
     /// <summary>
@@ -111,7 +112,7 @@ public class PostController: BaseController
     /// <param name="pid"> unique identifier of the post </param>
     /// <returns> the post details in JSON </returns>
     [HttpGet("{pid}")]
-    public async Task<IActionResult> GetPostById([FromRoute] Guid pid ) 
+    public async Task<IActionResult> GetPostById([FromRoute] Guid pid)
     {
         var result = await _postRepository.GetByIdAsync(pid);
         if (!result.IsSuccess)
@@ -143,7 +144,7 @@ public class PostController: BaseController
             Author = UserDto
         };
 
-        return Ok (postDto);
+        return Ok(postDto);
     }
 
     /// <summary>
@@ -168,7 +169,7 @@ public class PostController: BaseController
         if (!result.IsSuccess)
             return BadRequest(result.ErrorMessage);
 
-        return Ok ("post updated successfully.");
+        return Ok("post updated successfully.");
     }
 
     /// <summary>
@@ -177,8 +178,15 @@ public class PostController: BaseController
     /// <param name="pid"> unique identifier of the post </param>
     /// <returns> HTTP 200 OK response on success </returns>
     [HttpDelete("{pid}")]
-    public IActionResult DeletePost([FromRoute] Guid pid)
+    public async Task<IActionResult> DeletePost([FromRoute] Guid pid)
     {
-        return Ok();
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var result = await _postRepository.DeleteAsync(pid);
+        if (!result.IsSuccess)
+            return BadRequest(result.ErrorMessage);
+
+        return Ok("Post deleted successfully.");
     }
 }
