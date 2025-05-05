@@ -10,7 +10,7 @@ public interface IPostRepository
     /// </summary>
     /// <param name="post">The forumpost to be added.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<bool>> AddAsync(ForumPost? post);
+    Task<OperationResult<bool>> AddAsync(Guid userid, Guid forumId, ForumPost? post);
 
     /// <summary>
     /// Get a Post by its GUID.

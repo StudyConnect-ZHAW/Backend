@@ -12,32 +12,32 @@ public class PostRepository : BaseRepository, IPostRepository
 
     }
 
-    public async Task<OperationResult<bool>> AddAsync(ForumPost? post)
+    public async Task<OperationResult<bool>> AddAsync(Guid useriD, Guid forumID, ForumPost? post)
     {
+        if (useriD == Guid.Empty || forumID == Guid.Empty)
+            return OperationResult<bool>.Failure("IDs provided were Invalid.");
+        
         if (post == null)
             return OperationResult<bool>.Failure("Post cannot be null.");
 
-        var testTitle = await _context.ForumPosts.FirstOrDefaultAsync(fp => fp.Title == post.Title);
-        if (testTitle != null)
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == useriD);
+        var category = await _context.ForumCategories.FirstOrDefaultAsync(c => c.ForumCategoryId == forumID);
+        if (user == null || category == null)
+            return OperationResult<bool>.Failure("User or Category not found.");
+
+        var testTitle = await _context.ForumPosts.AnyAsync(fp => fp.Title == post.Title);
+        if (testTitle)
             return OperationResult<bool>.Failure("Post Title already taken.");
 
         try
         {
-            var userRole = await _context.UserRoles.FirstOrDefaultAsync(ur => ur.URoleId == Guid.Parse("00000000-0000-0000-0000-000000000001"));
-            if (userRole == null)
-                return OperationResult<bool>.Failure("User Role not found");
-
-            var author = extractUser(post.User, userRole);
-
-            var category = extractCategory(post.Category);
-
             var newPost = new Entities.ForumPost
             {
                 ForumPostId = Guid.NewGuid(),
                 Title = post.Title,
                 Content = post.Content,
                 ForumCategory = category,
-                User = author
+                User = user
             };
 
             await _context.ForumPosts.AddAsync(newPost);
