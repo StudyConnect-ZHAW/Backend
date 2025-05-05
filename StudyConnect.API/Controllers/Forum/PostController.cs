@@ -147,11 +147,25 @@ public class PostController: BaseController
     /// Update existing post
     /// </summary>
     /// <param name="pid"> unique identifier of the post </param>
+    /// <param name="updateDto"> a dto containing the data for updating the post. </param>
     /// <returns> HTTP 200 OK response on success </returns>
     [HttpPut("{pid}")]
-    public IActionResult UpdatePost([FromRoute] Guid pid)
+    public async Task<IActionResult> UpdatePost([FromRoute] Guid pid, [FromBody] PostUpdateDto updateDto)
     {
-        return Ok();
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var post = new ForumPost
+        {
+            Title = updateDto.Title,
+            Content = updateDto.Content
+        };
+
+        var result = await _postRepository.UpdateAsync(pid, post);
+        if (!result.IsSuccess)
+            return BadRequest(result.ErrorMessage);
+
+        return Ok ("post updated successfully.");
     }
 
     /// <summary>

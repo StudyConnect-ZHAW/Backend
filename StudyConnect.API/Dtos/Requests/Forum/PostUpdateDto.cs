@@ -11,7 +11,7 @@ public class PostUpdateDto
     /// The new title to replace the old.
     /// </summary>
     [StringLength(255)]
-    public string? Title { get; set; }
+    public required string Title { get; set; }
     /// <summary>
     /// the new content to replace the old
     /// </summary>
