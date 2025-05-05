@@ -40,7 +40,10 @@ public class PostController: BaseController
             Content = createDto.Content,
         };
 
-        var result = await _postRepository.AddAsync(createDto.UserId, createDto.ForumCategoryId, post);
+        Guid userId = createDto.UserId;
+        Guid forumId = createDto.ForumCategoryId;
+
+        var result = await _postRepository.AddAsync(userId, forumId, post);
         if (!result.IsSuccess)
             return BadRequest(result.ErrorMessage);
 
@@ -55,7 +58,7 @@ public class PostController: BaseController
     /// <param name="Author"> the creator of the Post </param>
     /// <param name="tags"> a list of Tags for this Post </param>
     /// <returns></returns>
-    [HttpGet]
+    [HttpGet("Filter")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult GetPostByFilter([FromQuery] string? category, [FromQuery] string? title, [FromQuery] string? Author, [FromQuery] List<string>? tags)
@@ -117,7 +120,7 @@ public class PostController: BaseController
         if (result.Data == null)
             return NotFound("Post not found");
 
-        var userDto = new UserReadDto
+        var UserDto = new UserReadDto
         {
             FirstName = result.Data.User?.FirstName,
             LastName = result.Data.User?.LastName,
@@ -137,10 +140,10 @@ public class PostController: BaseController
             Title = result.Data.Title,
             Content = result.Data.Content,
             Modul = categoryDto,
-            Author = userDto
+            Author = UserDto
         };
 
-        return Ok (categoryDto);
+        return Ok (postDto);
     }
 
     /// <summary>

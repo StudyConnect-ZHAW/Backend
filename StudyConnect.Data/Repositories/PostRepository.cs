@@ -66,6 +66,8 @@ public class PostRepository : BaseRepository, IPostRepository
     {
         var posts = await _context.ForumPosts
             .AsNoTracking()
+            .Include(p => p.User)
+            .Include(p => p.ForumCategory)
             .ToListAsync();
 
         if (posts.Count == 0)
@@ -73,16 +75,14 @@ public class PostRepository : BaseRepository, IPostRepository
 
         var result = posts.Select(p =>
         {
-            var userModel = packageUser(p.User);
-            var categoryModel = packageCategory(p.ForumCategory);
             return new ForumPost
             {
                 ForumPostId = p.ForumPostId,
                 Title = p.Title,
                 Content = p.Content,
                 CreatedAt = p.CreatedAt,
-                Category = categoryModel,
-                User = userModel
+                Category = packageCategory(p.ForumCategory),
+                User = packageUser(p.User)
             };
         });
 
@@ -94,23 +94,22 @@ public class PostRepository : BaseRepository, IPostRepository
         if (id == Guid.Empty)
             return OperationResult<ForumPost?>.Failure("Invalid ForumPost ID.");
 
-        var forumPost = await _context.ForumPosts
+        var post = await _context.ForumPosts
+            .Include(p => p.User)
+            .Include(p => p.ForumCategory)
             .AsNoTracking()
             .FirstOrDefaultAsync(fp => fp.ForumPostId == id);
 
-        if (forumPost == null)
-            return OperationResult<ForumPost?>.Failure("ForumPost not found.");
-
-        var userModel = packageUser(forumPost.User);
-
-        var categoryModel = packageCategory(forumPost.ForumCategory);
+        if (post == null)
+            return OperationResult<ForumPost?>.Failure("Post not found");
+        //var categoryModel = packageCategory(category);
         var result = new ForumPost
         {
-            Title = forumPost.Title,
-            Content = forumPost.Content,
-            CreatedAt = forumPost.CreatedAt,
-            Category = categoryModel,
-            User = userModel
+            Title = post.Title,
+            Content = post.Content,
+            CreatedAt = post.CreatedAt,
+            Category = packageCategory(post.ForumCategory),
+            User = packageUser(post.User)
         };
 
         return OperationResult<ForumPost?>.Success(result);
