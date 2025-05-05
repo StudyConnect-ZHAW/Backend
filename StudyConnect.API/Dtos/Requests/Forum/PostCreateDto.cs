@@ -8,6 +8,12 @@ namespace StudyConnect.API.Dtos.Requests.Forum;
 public class PostCreateDto
 {
     /// <summary>
+    /// The unique identifier of the creator.
+    /// </summary>
+    [Required(ErrorMessage = "User Id is required.")]
+    public required Guid UserId { get; set; }
+
+    /// <summary>
     /// The title of the post.
     /// </summary>
     [Required(ErrorMessage = "Post Title is required.")]
@@ -17,12 +23,11 @@ public class PostCreateDto
     /// <summary>
     /// The category name the post should be assigned to.
     /// </summary>
-    [Required(ErrorMessage = "Catergory ID is required.")]
-    [StringLength(255)]
-    public required Guid ModulID { get;  set; }
+    [Required(ErrorMessage = "User ID is required.")]
+    public required Guid ForumCategoryId { get;  set; }
 
     /// <summary>
-    /// The content of the post.
+    /// The coModulID.
     /// </summary>
     public string? Content { get; set; }
 }

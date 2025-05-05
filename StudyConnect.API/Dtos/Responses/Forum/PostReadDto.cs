@@ -10,7 +10,7 @@ public class PostReadDto
     /// <summary>
     /// The unique identifier of the post.
     /// </summary>
-    public Guid ForumPostId { get; set; }
+    public Guid? ForumPostId { get; set; }
 
     /// <summary>
     /// The title of the post, given by the author.

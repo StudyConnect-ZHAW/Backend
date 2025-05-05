@@ -14,8 +14,11 @@ public class PostRepository : BaseRepository, IPostRepository
 
     public async Task<OperationResult<bool>> AddAsync(Guid useriD, Guid forumID, ForumPost? post)
     {
-        if (useriD == Guid.Empty || forumID == Guid.Empty)
-            return OperationResult<bool>.Failure("IDs provided were Invalid.");
+        if (useriD == Guid.Empty)
+            return OperationResult<bool>.Failure("User Id is Invalid.");
+
+        if (forumID == Guid.Empty)
+             return OperationResult<bool>.Failure("Category Id is Invalid.");
         
         if (post == null)
             return OperationResult<bool>.Failure("Post cannot be null.");
@@ -33,7 +36,6 @@ public class PostRepository : BaseRepository, IPostRepository
         {
             var newPost = new Entities.ForumPost
             {
-                ForumPostId = Guid.NewGuid(),
                 Title = post.Title,
                 Content = post.Content,
                 ForumCategory = category,
@@ -41,7 +43,16 @@ public class PostRepository : BaseRepository, IPostRepository
             };
 
             await _context.ForumPosts.AddAsync(newPost);
-            await _context.SaveChangesAsync();
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                var inner = ex.InnerException?.Message ?? "No inner exception";
+                throw new Exception($"Failed to add the Post: {inner}", ex);
+            }
 
             return OperationResult<bool>.Success(true);
         }
@@ -66,8 +77,10 @@ public class PostRepository : BaseRepository, IPostRepository
             var categoryModel = packageCategory(p.ForumCategory);
             return new ForumPost
             {
+                ForumPostId = p.ForumPostId,
                 Title = p.Title,
                 Content = p.Content,
+                CreatedAt = p.CreatedAt,
                 Category = categoryModel,
                 User = userModel
             };
@@ -95,6 +108,7 @@ public class PostRepository : BaseRepository, IPostRepository
         {
             Title = forumPost.Title,
             Content = forumPost.Content,
+            CreatedAt = forumPost.CreatedAt,
             Category = categoryModel,
             User = userModel
         };
