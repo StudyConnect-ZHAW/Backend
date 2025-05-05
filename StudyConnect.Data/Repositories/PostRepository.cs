@@ -18,8 +18,8 @@ public class PostRepository : BaseRepository, IPostRepository
             return OperationResult<bool>.Failure("User Id is Invalid.");
 
         if (forumID == Guid.Empty)
-             return OperationResult<bool>.Failure("Category Id is Invalid.");
-        
+            return OperationResult<bool>.Failure("Category Id is Invalid.");
+
         if (post == null)
             return OperationResult<bool>.Failure("Post cannot be null.");
 
@@ -151,7 +151,7 @@ public class PostRepository : BaseRepository, IPostRepository
         var postToDelete = await _context.ForumPosts.FirstOrDefaultAsync(p => p.ForumPostId == id);
         if (postToDelete == null)
             return OperationResult<bool>.Failure("Post could not be found.");
-        
+
         try
         {
             _context.Remove(postToDelete);
@@ -162,7 +162,7 @@ public class PostRepository : BaseRepository, IPostRepository
         {
             return OperationResult<bool>.Failure($"An Error occured while deleting: {ex.Message}");
         }
-        
+
     }
 
     /// <summary>
