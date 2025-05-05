@@ -62,6 +62,36 @@ public class PostRepository : BaseRepository, IPostRepository
         }
     }
 
+    public async Task<OperationResult<IEnumerable<ForumPost>>> SearchAsync(Guid? userId, string? categoryName, string? title)
+    {
+        var posts = _context.ForumPosts
+            .AsNoTracking()
+            .Include(p => p.User)
+            .Include(p => p.ForumCategory)
+            .AsQueryable();
+
+        if (userId.HasValue)
+            posts = posts.Where(p => p.User.UserGuid == userId.Value);
+
+        if (!string.IsNullOrEmpty(categoryName))
+            posts = posts.Where(p => p.ForumCategory.Name == categoryName);
+
+        if (!string.IsNullOrEmpty(title))
+            posts = posts.Where(p => EF.Functions.Like(p.Title, $"%{title}%"));
+
+        var result = await posts.Select(p => new ForumPost
+        {
+            ForumPostId = p.ForumPostId,
+            Title = p.Title,
+            Content = p.Content,
+            CreatedAt = p.CreatedAt,
+            Category = packageCategory(p.ForumCategory),
+            User = packageUser(p.User)
+        }).ToListAsync();
+
+        return OperationResult<IEnumerable<ForumPost>>.Success(result);
+    }
+
     public async Task<OperationResult<IEnumerable<ForumPost>>> GetAllAsync()
     {
         var posts = await _context.ForumPosts
