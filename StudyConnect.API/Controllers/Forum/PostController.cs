@@ -77,7 +77,7 @@ public class PostController : BaseController
         if (posts.Data == null)
             return NotFound("No fitting Queries were found.");
 
-        var result = posts.Data.Select(p => generatePostDto(p));
+        var result = posts.Data.Select(p => GeneratePostDto(p));
 
         return Ok(result);
     }
@@ -96,7 +96,7 @@ public class PostController : BaseController
         if (posts.Data == null)
             return NotFound("No posts available.");
 
-        var result = posts.Data.Select(p => generatePostDto(p));
+        var result = posts.Data.Select(p => GeneratePostDto(p));
 
         return Ok(result);
     }
@@ -116,7 +116,7 @@ public class PostController : BaseController
         if (result.Data == null)
             return NotFound("Post not found");
 
-        var postDto = generatePostDto(result.Data);
+        var postDto = GeneratePostDto(result.Data);
 
         return Ok(postDto);
     }
@@ -169,7 +169,7 @@ public class PostController : BaseController
     /// </summary>
     /// <param name="user">The user model.</param>
     /// <returns>A UserReadDto.</returns>
-    private UserReadDto generateUserReadDto(User? user)
+    private UserReadDto GenerateUserReadDto(User? user)
     {
         return new UserReadDto
         {
@@ -184,7 +184,7 @@ public class PostController : BaseController
     /// </summary>
     /// <param name="category">The forum category model.</param>
     /// <returns>A CategoryReadDto.</returns>
-    private CategoryReadDto generateCategoryReadDto(ForumCategory? category)
+    private CategoryReadDto GenerateCategoryReadDto(ForumCategory? category)
     {
         return new CategoryReadDto
         {
@@ -199,7 +199,7 @@ public class PostController : BaseController
     /// </summary>
     /// <param name="post">The forum post model.</param>
     /// <returns>A PostReadDto.</returns>
-    private PostReadDto generatePostDto(ForumPost post)
+    private PostReadDto GeneratePostDto(ForumPost post)
     {
         return new PostReadDto
         {
@@ -208,8 +208,8 @@ public class PostController : BaseController
             Content = post.Content,
             Created = post.CreatedAt,
             Updated = post.UpdatedAt,
-            Modul = generateCategoryReadDto(post.Category),
-            Author = generateUserReadDto(post.User)
+            Modul = GenerateCategoryReadDto(post.Category),
+            Author = GenerateUserReadDto(post.User)
         };
     }
 }

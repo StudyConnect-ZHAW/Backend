@@ -12,19 +12,19 @@ public class PostRepository : BaseRepository, IPostRepository
 
     }
 
-    public async Task<OperationResult<Guid?>> AddAsync(Guid userId, Guid forumId, ForumPost? post)
+    public async Task<OperationResult<Guid?>> AddAsync(Guid userId, Guid categoryId, ForumPost? post)
     {
         if (userId == Guid.Empty)
             return OperationResult<Guid?>.Failure("User Id is Invalid.");
 
-        if (forumId == Guid.Empty)
+        if (categoryId == Guid.Empty)
             return OperationResult<Guid?>.Failure("Category Id is Invalid.");
 
         if (post == null)
             return OperationResult<Guid?>.Failure("Post cannot be null.");
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == userId);
-        var category = await _context.ForumCategories.FirstOrDefaultAsync(c => c.ForumCategoryId == forumId);
+        var category = await _context.ForumCategories.FirstOrDefaultAsync(c => c.ForumCategoryId == categoryId);
         if (user == null || category == null)
             return OperationResult<Guid?>.Failure("User or Category not found.");
 
