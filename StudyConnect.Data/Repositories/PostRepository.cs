@@ -187,7 +187,7 @@ public class PostRepository : BaseRepository, IPostRepository
         }
         catch (Exception ex)
         {
-            return OperationResult<bool>.Failure($"An Error occured while deleting: {ex.Message}");
+            return OperationResult<bool>.Failure($"An Error occurred while deleting: {ex.Message}");
         }
 
     }

@@ -79,8 +79,8 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
 
     public async Task<OperationResult<ForumCategory?>> GetByNameAsync(string name)
     {
-        if (name == String.Empty)
-            return OperationResult<ForumCategory?>.Failure("Name should be not empty.");
+        if (string.IsNullOrWhiteSpace(name))
+            return OperationResult<ForumCategory?>.Failure("Name should be not null, empty or whitespace.");
 
         var category = await _context.ForumCategories
             .AsNoTracking()
