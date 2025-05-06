@@ -6,7 +6,8 @@ using StudyConnect.API.Dtos.Responses.Forum;
 
 namespace StudyConnect.API.Controllers.Forum;
 /// <summary>
-/// The category endpoint is used to make modifications to a forumcategory.
+/// Controller for managing the forum categories
+/// Provides endpoints to create, retrieve, update, and delete categories.
 /// </summary>
 [ApiController]
 [Route("api/v1/categories")]

@@ -16,18 +16,25 @@ namespace StudyConnect.API.Controllers.Forum;
 public class PostController : BaseController
 {
 
+    /// <summary>
+    /// The post repository to interact with data.
+    /// </summary>
     protected readonly IPostRepository _postRepository;
 
-
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PostController"/> class.
+    /// </summary>
+    /// <param name="postRepository">The post repository to interact with data.</param>
     public PostController(IPostRepository postRepository)
     {
         _postRepository = postRepository;
     }
 
     /// <summary>
-    /// Creates a new post
+    /// Creates a new post.
     /// </summary>
-    /// <returns> HTTP 200 OK response on success </returns>
+    /// <param name="createDto">A Date Transfer Object containgin information for post creating.</param>
+    /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
     [HttpPost]
     public async Task<IActionResult> AddPost([FromBody] PostCreateDto createDto)
     {
@@ -50,6 +57,13 @@ public class PostController : BaseController
         return NoContent();
     }
 
+    /// <summary>
+    /// Search posts based on provieded queries.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the post creator.</param>
+    /// <param name="categoryName">The unique name of the category the post belongs to.</param>
+    /// <param name="title">the post title or substring of post title</param>
+    /// <returns>On success a list of Dtoa with information about the post, on failure HTTP 400/404 status code.</returns>
     [HttpGet("search")]
     public async Task<IActionResult> SearchPosts([FromQuery] Guid? userId, [FromQuery] string? categoryName, [FromQuery] string? title)
     {
@@ -74,6 +88,10 @@ public class PostController : BaseController
         return Ok(result);
     }
 
+    /// <summary>
+    /// Get all the posts.
+    /// </summary>
+    /// <returns>On success a list of Dtos with information about the post, on failure HTTP 400/404 status code.</returns>
     [HttpGet]
     public async Task<IActionResult> GetAllPosts()
     {
@@ -102,7 +120,7 @@ public class PostController : BaseController
     /// Get a post by its ID
     /// </summary>
     /// <param name="pid"> unique identifier of the post </param>
-    /// <returns> the post details in JSON </returns>
+    /// <returns>On success a Dto with information about the post, on failure HTTP 400/404 status code.</returns>
     [HttpGet("{pid}")]
     public async Task<IActionResult> GetPostById([FromRoute] Guid pid)
     {
@@ -132,7 +150,7 @@ public class PostController : BaseController
     /// </summary>
     /// <param name="pid"> unique identifier of the post </param>
     /// <param name="updateDto"> a dto containing the data for updating the post. </param>
-    /// <returns> HTTP 200 OK response on success </returns>
+    /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
     [HttpPut("{pid}")]
     public async Task<IActionResult> UpdatePost([FromRoute] Guid pid, [FromBody] PostUpdateDto updateDto)
     {
@@ -156,7 +174,7 @@ public class PostController : BaseController
     /// Deletes an existing post
     /// </summary>
     /// <param name="pid"> unique identifier of the post </param>
-    /// <returns> HTTP 200 OK response on success </returns>
+    /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
     [HttpDelete("{pid}")]
     public async Task<IActionResult> DeletePost([FromRoute] Guid pid)
     {
@@ -170,6 +188,11 @@ public class PostController : BaseController
         return Ok("Post deleted successfully.");
     }
 
+    /// <summary>
+    /// A helper function to create user Dto from model.
+    /// </summary>
+    /// <param name="user">The user model.</param>
+    /// <returns>A UserReadDto.</returns>
     private UserReadDto generateUserReadDto(User? user)
     {
         return new UserReadDto
@@ -180,6 +203,11 @@ public class PostController : BaseController
         };
     }
 
+    /// <summary>
+    /// A helper function to create category Dto from model.
+    /// </summary>
+    /// <param name="category">The forum category model.</param>
+    /// <returns>A CategoryReadDto.</returns>
     private CategoryReadDto generateCategoryReadDto(ForumCategory? category)
     {
         return new CategoryReadDto
