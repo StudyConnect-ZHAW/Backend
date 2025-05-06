@@ -1,4 +1,3 @@
-using System;
 using Microsoft.EntityFrameworkCore;
 using StudyConnect.Core.Common;
 using StudyConnect.Core.Interfaces;
@@ -65,7 +64,7 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
             .FirstOrDefaultAsync(c => c.ForumCategoryId == id);
 
         if (category == null)
-            return OperationResult<ForumCategory?>.Failure("Category not found.");
+            return OperationResult<ForumCategory?>.Success(null);
 
         var result = new ForumCategory
         {
@@ -87,7 +86,7 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
             .FirstOrDefaultAsync(c => c.Name == name);
 
         if (category == null)
-            return OperationResult<ForumCategory?>.Failure("Category not found.");
+            return OperationResult<ForumCategory?>.Success(null);
 
         var result = new ForumCategory
         {
@@ -99,14 +98,14 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
         return OperationResult<ForumCategory?>.Success(result);
     }
 
-    public async Task<OperationResult<IEnumerable<ForumCategory>>> GetAllAsync()
+    public async Task<OperationResult<IEnumerable<ForumCategory>?>> GetAllAsync()
     {
         var categories = await _context.ForumCategories
             .AsNoTracking()
             .ToListAsync();
 
         if (categories.Count == 0)
-            return OperationResult<IEnumerable<ForumCategory>>.Failure("No categories were found.");
+            return OperationResult<IEnumerable<ForumCategory>?>.Success(null);
 
         var result = categories.Select(c => new ForumCategory
         {
@@ -115,7 +114,7 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
             Description = c.Description
         });
 
-        return OperationResult<IEnumerable<ForumCategory>>.Success(result);
+        return OperationResult<IEnumerable<ForumCategory>?>.Success(result);
     }
 
 
@@ -127,7 +126,7 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
 
         var category = await _context.ForumCategories.FindAsync(id);
         if (category is null)
-            return OperationResult<bool>.Failure("Category not found.");
+            return OperationResult<bool>.Success(false);
 
         _context.ForumCategories.Remove(category);
         await _context.SaveChangesAsync();

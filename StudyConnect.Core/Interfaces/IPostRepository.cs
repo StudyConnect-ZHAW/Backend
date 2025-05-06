@@ -19,7 +19,7 @@ public interface IPostRepository
     /// <param name="categoryName">The unique name of category assigned to the post.</param>
     /// <param name="title">The title of the post.</param>
     /// <returns>An <see cref="OperationResult{T}"/> containing a list of post if found, or an error message if not.</returns>
-    Task<OperationResult<IEnumerable<ForumPost>>> SearchAsync(Guid? userId, string? categoryName, string? title);
+    Task<OperationResult<IEnumerable<ForumPost>?>> SearchAsync(Guid? userId, string? categoryName, string? title);
 
     /// <summary>
     /// Get a Post by its GUID.
@@ -32,7 +32,7 @@ public interface IPostRepository
     /// Get all Post of the forum.
     /// </summary>
     /// <returns>An <see cref="OperationResult{T}"/> containing a list of post if found, or an error message if not.</returns>
-    Task<OperationResult<IEnumerable<ForumPost>>> GetAllAsync();
+    Task<OperationResult<IEnumerable<ForumPost>?>> GetAllAsync();
 
     /// <summary>
     /// Update a Post by its GUID.
