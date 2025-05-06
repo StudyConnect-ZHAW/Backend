@@ -79,7 +79,9 @@ public class PostRepository : BaseRepository, IPostRepository
         if (!string.IsNullOrEmpty(title))
             posts = posts.Where(p => EF.Functions.Like(p.Title, $"%{title}%"));
 
-        var result = await posts.Select(p => new ForumPost
+        var queries = await posts.ToListAsync();
+
+        var result = queries.Select(p => new ForumPost
         {
             ForumPostId = p.ForumPostId,
             Title = p.Title,
@@ -87,7 +89,7 @@ public class PostRepository : BaseRepository, IPostRepository
             CreatedAt = p.CreatedAt,
             Category = packageCategory(p.ForumCategory),
             User = packageUser(p.User)
-        }).ToListAsync();
+        });
 
         return OperationResult<IEnumerable<ForumPost>>.Success(result);
     }
