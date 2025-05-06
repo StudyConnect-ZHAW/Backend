@@ -56,26 +56,26 @@ public class PostController : BaseController
 
         var postId = result.Data;
 
-        var locationUri = Url.Action(nameof(GetPostById), new { id = postId});
+        var locationUri = Url.Action(nameof(GetPostById), new { pid = postId });
         return Created(locationUri, new { pid = postId });
     }
 
     /// <summary>
     /// Search posts based on provieded queries.
     /// </summary>
-    /// <param name="userId">The unique identifier of the post creator.</param>
+    /// <param name="uid">The unique identifier of the post creator.</param>
     /// <param name="categoryName">The unique name of the category the post belongs to.</param>
     /// <param name="title">the post title or substring of post title</param>
     /// <returns>On success a list of Dtoa with information about the post, on failure HTTP 400/404 status code.</returns>
     [HttpGet("search")]
-    public async Task<IActionResult> SearchPosts([FromQuery] Guid? userId, [FromQuery] string? categoryName, [FromQuery] string? title)
+    public async Task<IActionResult> SearchPosts([FromQuery] Guid? uid, [FromQuery] string? categoryName, [FromQuery] string? title)
     {
-        var posts = await _postRepository.SearchAsync(userId, categoryName, title);
+        var posts = await _postRepository.SearchAsync(uid, categoryName, title);
         if (!posts.IsSuccess)
             return BadRequest(posts.ErrorMessage);
 
         if (posts.Data == null)
-            return NotFound("No fitting Queries were found.");
+            return NotFound("Fitting Queries not found.");
 
         var result = posts.Data.Select(p => GeneratePostDto(p));
 
@@ -94,7 +94,7 @@ public class PostController : BaseController
             return BadRequest(posts.ErrorMessage);
 
         if (posts.Data == null)
-            return NotFound("No posts available.");
+            return NotFound("Posts not found.");
 
         var result = posts.Data.Select(p => GeneratePostDto(p));
 
@@ -106,7 +106,7 @@ public class PostController : BaseController
     /// </summary>
     /// <param name="pid">The unique identifier of the post.</param>
     /// <returns>On success a Dto with information about the post, on failure HTTP 400/404 status code.</returns>
-    [HttpGet("{pid}")]
+    [HttpGet("{pid:guid}")]
     public async Task<IActionResult> GetPostById([FromRoute] Guid pid)
     {
         var result = await _postRepository.GetByIdAsync(pid);
@@ -114,7 +114,7 @@ public class PostController : BaseController
             return BadRequest(result.ErrorMessage);
 
         if (result.Data == null)
-            return NotFound("Post not found");
+            return NotFound("Post not found.");
 
         var postDto = GeneratePostDto(result.Data);
 
@@ -127,7 +127,7 @@ public class PostController : BaseController
     /// <param name="pid"> unique identifier of the post </param>
     /// <param name="updateDto"> a dto containing the data for updating the post. </param>
     /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
-    [HttpPut("{pid}")]
+    [HttpPut("{pid:guid}")]
     public async Task<IActionResult> UpdatePost([FromRoute] Guid pid, [FromBody] PostUpdateDto updateDto)
     {
         if (!ModelState.IsValid)
@@ -151,7 +151,7 @@ public class PostController : BaseController
     /// </summary>
     /// <param name="pid">The unique identifier of the post.</param>
     /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
-    [HttpDelete("{pid}")]
+    [HttpDelete("{pid:guid}")]
     public async Task<IActionResult> DeletePost([FromRoute] Guid pid)
     {
         if (!ModelState.IsValid)
