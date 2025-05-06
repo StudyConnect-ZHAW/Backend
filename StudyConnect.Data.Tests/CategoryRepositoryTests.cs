@@ -141,7 +141,7 @@ public class CategoryRepositoryTests
     }
 
     [Fact]
-    public async Task GetByIdAsync_ShouldReturnFailure_WhenCategoryNotFound()
+    public async Task GetByIdAsync_ShouldReturnNull_WhenCategoryNotFound()
     {
         // Arrange
         var options = TestUtils.CreateNewContextOptions();
@@ -156,8 +156,8 @@ public class CategoryRepositoryTests
             var result = await repo.GetByIdAsync(nonExsitingCategoryId);
 
             // Assert
-            Assert.False(result.IsSuccess);
-            Assert.Equal("Category not found.", result.ErrorMessage);
+            Assert.True(result.IsSuccess);
+            Assert.Null(result.Data);
         }
     }
 
@@ -193,7 +193,7 @@ public class CategoryRepositoryTests
     }
 
     [Fact]
-    public async Task GetAllAsync_ShouldReturnFailure_WhenNoCategoriesExist()
+    public async Task GetAllAsync_ShouldReturnNull_WhenNoCategoriesExist()
     {
         var options = TestUtils.CreateNewContextOptions();
         var configuration = TestUtils.CreateNewConfiguration();
@@ -206,8 +206,8 @@ public class CategoryRepositoryTests
             var result = await repo.GetAllAsync();
 
             // Assert
-            Assert.False(result.IsSuccess);
-            Assert.Equal("No categories were found.", result.ErrorMessage);
+            Assert.True(result.IsSuccess);
+            Assert.Null(result.Data);
         }
     }
 }
