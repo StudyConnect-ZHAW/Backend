@@ -30,7 +30,7 @@ public class CategoryController : BaseController
     /// <summary>
     /// Creates a new category.
     /// </summary>
-    /// <param name="categoryDto">A Date Transfer Object containgin information for category creating.</param>
+    /// <param name="categoryDto">A Data Transfer Object containgin information for category creating.</param>
     /// <returns>HTTP 501 status code</returns>
     [HttpPost]
     public IActionResult AddCategory([FromBody] CategoryCreateDto categoryDto)

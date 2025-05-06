@@ -33,7 +33,7 @@ public class PostController : BaseController
     /// <summary>
     /// Creates a new post.
     /// </summary>
-    /// <param name="createDto">A Date Transfer Object containgin information for post creating.</param>
+    /// <param name="createDto">A Date Transfer Object containing information for post creating.</param>
     /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
     [HttpPost]
     public async Task<IActionResult> AddPost([FromBody] PostCreateDto createDto)
