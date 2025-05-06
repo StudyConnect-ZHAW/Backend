@@ -54,7 +54,10 @@ public class PostController : BaseController
         if (!result.IsSuccess)
             return BadRequest(result.ErrorMessage);
 
-        return NoContent();
+        var postId = result.Data;
+
+        var locationUri = Url.Action(nameof(GetPostById), new { id = postId});
+        return Created(locationUri, new { pid = postId });
     }
 
     /// <summary>
