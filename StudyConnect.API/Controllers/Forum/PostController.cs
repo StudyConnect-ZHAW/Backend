@@ -75,7 +75,7 @@ public class PostController : BaseController
             return BadRequest(posts.ErrorMessage);
 
         if (posts.Data == null)
-            return NotFound("Fitting Queries not found.");
+            return NotFound("Queries not found.");
 
         var result = posts.Data.Select(p => GeneratePostDto(p));
 
@@ -143,6 +143,9 @@ public class PostController : BaseController
         if (!result.IsSuccess)
             return BadRequest(result.ErrorMessage);
 
+        if (result.Data == false)
+            return NotFound("Post for update was not found.");
+
         return Ok("post updated successfully.");
     }
 
@@ -160,6 +163,9 @@ public class PostController : BaseController
         var result = await _postRepository.DeleteAsync(pid);
         if (!result.IsSuccess)
             return BadRequest(result.ErrorMessage);
+
+        if (result.Data == false)
+            return NotFound("Post for deletion was not found.");
 
         return Ok("Post deleted successfully.");
     }

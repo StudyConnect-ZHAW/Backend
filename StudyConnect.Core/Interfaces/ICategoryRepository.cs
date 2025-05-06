@@ -1,4 +1,3 @@
-using System;
 using StudyConnect.Core.Common;
 using StudyConnect.Core.Models;
 namespace StudyConnect.Core.Interfaces;
@@ -31,7 +30,7 @@ public interface ICategoryRepository
     /// Get all the categories
     /// </summary>
     /// <returns> <see cref="OperationResult{T}"/> containing  categories if found, or an error message if not. </returns> 
-    Task<OperationResult<IEnumerable<ForumCategory>>> GetAllAsync();
+    Task<OperationResult<IEnumerable<ForumCategory>?>> GetAllAsync();
 
     /// <summary>
     /// Delete a category based on its GUID

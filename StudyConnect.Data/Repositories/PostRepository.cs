@@ -54,7 +54,7 @@ public class PostRepository : BaseRepository, IPostRepository
         }
     }
 
-    public async Task<OperationResult<IEnumerable<ForumPost>>> SearchAsync(Guid? userId, string? categoryName, string? title)
+    public async Task<OperationResult<IEnumerable<ForumPost>?>> SearchAsync(Guid? userId, string? categoryName, string? title)
     {
         var posts = _context.ForumPosts
             .AsNoTracking()
@@ -74,14 +74,14 @@ public class PostRepository : BaseRepository, IPostRepository
         var queries = await posts.ToListAsync();
 
         if (queries.Count == 0)
-            return OperationResult<IEnumerable<ForumPost>>.Failure("Posts not found.");
+            return OperationResult<IEnumerable<ForumPost>?>.Success(null);
 
         var result = queries.Select(p => PackagePost(p));
 
-        return OperationResult<IEnumerable<ForumPost>>.Success(result);
+        return OperationResult<IEnumerable<ForumPost>?>.Success(result);
     }
 
-    public async Task<OperationResult<IEnumerable<ForumPost>>> GetAllAsync()
+    public async Task<OperationResult<IEnumerable<ForumPost>?>> GetAllAsync()
     {
         var posts = await _context.ForumPosts
             .AsNoTracking()
@@ -90,11 +90,11 @@ public class PostRepository : BaseRepository, IPostRepository
             .ToListAsync();
 
         if (posts.Count == 0)
-            return OperationResult<IEnumerable<ForumPost>>.Failure("Posts not found.");
+            return OperationResult<IEnumerable<ForumPost>?>.Success(null);
 
         var result = posts.Select(p => PackagePost(p));
 
-        return OperationResult<IEnumerable<ForumPost>>.Success(result);
+        return OperationResult<IEnumerable<ForumPost>?>.Success(result);
     }
 
     public async Task<OperationResult<ForumPost?>> GetByIdAsync(Guid id)
@@ -108,8 +108,9 @@ public class PostRepository : BaseRepository, IPostRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(fp => fp.ForumPostId == id);
 
+
         if (post == null)
-            return OperationResult<ForumPost?>.Failure("Post not found");
+            return OperationResult<ForumPost?>.Success(null);
 
         var result = PackagePost(post);
 
@@ -126,7 +127,7 @@ public class PostRepository : BaseRepository, IPostRepository
 
         var postToUpdate = await _context.ForumPosts.FirstOrDefaultAsync(p => p.ForumPostId == id);
         if (postToUpdate == null)
-            return OperationResult<bool>.Failure("Post not found.");
+            return OperationResult<bool>.Success(false);
 
         try
         {
@@ -151,7 +152,7 @@ public class PostRepository : BaseRepository, IPostRepository
 
         var postToDelete = await _context.ForumPosts.FirstOrDefaultAsync(p => p.ForumPostId == id);
         if (postToDelete == null)
-            return OperationResult<bool>.Failure("Post not found.");
+            return OperationResult<bool>.Success(false);
 
         try
         {
@@ -163,7 +164,6 @@ public class PostRepository : BaseRepository, IPostRepository
         {
             return OperationResult<bool>.Failure($"An Error occurred while deleting: {ex.Message}");
         }
-
     }
 
     /// <summary>
