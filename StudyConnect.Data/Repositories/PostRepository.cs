@@ -87,6 +87,7 @@ public class PostRepository : BaseRepository, IPostRepository
             Title = p.Title,
             Content = p.Content,
             CreatedAt = p.CreatedAt,
+            UpdatedAt = p.UpdatedAt,
             Category = packageCategory(p.ForumCategory),
             User = packageUser(p.User)
         });
@@ -113,6 +114,7 @@ public class PostRepository : BaseRepository, IPostRepository
                 Title = p.Title,
                 Content = p.Content,
                 CreatedAt = p.CreatedAt,
+                UpdatedAt = p.UpdatedAt,
                 Category = packageCategory(p.ForumCategory),
                 User = packageUser(p.User)
             };
@@ -140,6 +142,7 @@ public class PostRepository : BaseRepository, IPostRepository
             Title = post.Title,
             Content = post.Content,
             CreatedAt = post.CreatedAt,
+            UpdatedAt = post.UpdatedAt,
             Category = packageCategory(post.ForumCategory),
             User = packageUser(post.User)
         };

@@ -65,6 +65,8 @@ public class PostController : BaseController
             ForumPostId = p.ForumPostId,
             Title = p.Title,
             Content = p.Content,
+            Created = p.CreatedAt,
+            Updated = p.UpdatedAt,
             Modul = generateCategoryReadDto(p.Category),
             Author = generateUserReadDto(p.User)
         });
@@ -87,6 +89,8 @@ public class PostController : BaseController
             ForumPostId = p.ForumPostId,
             Title = p.Title,
             Content = p.Content,
+            Created = p.CreatedAt,
+            Updated = p.UpdatedAt,
             Modul = generateCategoryReadDto(p.Category),
             Author = generateUserReadDto(p.User)
         });
@@ -114,6 +118,8 @@ public class PostController : BaseController
             ForumPostId = pid,
             Title = result.Data.Title,
             Content = result.Data.Content,
+            Created = result.Data.CreatedAt,
+            Updated = result.Data.UpdatedAt,
             Modul = generateCategoryReadDto(result.Data.Category),
             Author = generateUserReadDto(result.Data.User)
         };

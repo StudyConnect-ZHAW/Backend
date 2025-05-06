@@ -23,6 +23,16 @@ public class PostReadDto
     public string? Content { get; set; }
 
     /// <summary>
+    /// The date and time when post was created: 
+    /// </summary>
+    public DateTime? Created { get; set; }
+
+    /// <summary>
+    /// The date and time when the post was updated.
+    /// </summary>
+    public DateTime? Updated { get; set; }
+
+    /// <summary>
     /// The category of the post as a dto.
     /// </summary>
     public CategoryReadDto? Modul { get; set; }
