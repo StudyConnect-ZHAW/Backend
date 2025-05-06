@@ -12,7 +12,7 @@ public class PostRepository : BaseRepository, IPostRepository
 
     }
 
-    public async Task<OperationResult<bool>> AddAsync(Guid useriD, Guid forumID, ForumPost? post)
+    public async Task<OperationResult<bool>> AddAsync(Guid userId, Guid forumId, ForumPost? post)
     {
         if (useriD == Guid.Empty)
             return OperationResult<bool>.Failure("User Id is Invalid.");
@@ -43,16 +43,8 @@ public class PostRepository : BaseRepository, IPostRepository
             };
 
             await _context.ForumPosts.AddAsync(newPost);
+            await _context.SaveChangesAsync();
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException ex)
-            {
-                var inner = ex.InnerException?.Message ?? "No inner exception";
-                throw new Exception($"Failed to add the Post: {inner}", ex);
-            }
 
             return OperationResult<bool>.Success(true);
         }
@@ -174,7 +166,7 @@ public class PostRepository : BaseRepository, IPostRepository
         }
         catch (Exception ex)
         {
-            return OperationResult<bool>.Failure($"An Error occured while updateting: {ex.Message}");
+            return OperationResult<bool>.Failure($"An Error occurred while updating: {ex.Message}");
         }
     }
 

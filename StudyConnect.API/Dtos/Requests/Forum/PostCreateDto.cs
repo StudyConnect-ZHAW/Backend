@@ -23,7 +23,7 @@ public class PostCreateDto
     /// <summary>
     /// The category name the post should be assigned to.
     /// </summary>
-    [Required(ErrorMessage = "User ID is required.")]
+    [Required(ErrorMessage = "Fourm Category ID is required.")]
     public required Guid ForumCategoryId { get;  set; }
 
     /// <summary>
