@@ -119,7 +119,7 @@ public class PostController : BaseController
     /// <summary>
     /// Get a post by its ID
     /// </summary>
-    /// <param name="pid"> unique identifier of the post </param>
+    /// <param name="pid">The unique identifier of the post.</param>
     /// <returns>On success a Dto with information about the post, on failure HTTP 400/404 status code.</returns>
     [HttpGet("{pid}")]
     public async Task<IActionResult> GetPostById([FromRoute] Guid pid)
@@ -173,7 +173,7 @@ public class PostController : BaseController
     /// <summary>
     /// Deletes an existing post
     /// </summary>
-    /// <param name="pid"> unique identifier of the post </param>
+    /// <param name="pid">The unique identifier of the post.</param>
     /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
     [HttpDelete("{pid}")]
     public async Task<IActionResult> DeletePost([FromRoute] Guid pid)

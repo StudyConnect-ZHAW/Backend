@@ -28,10 +28,10 @@ public class CategoryController : BaseController
     }
 
     /// <summary>
-    /// Add a ForumCategory
+    /// Creates a new category.
     /// </summary>
-    /// <param name="categoryDto"> the Category Object to create </param>
-    /// <returns> StatusCode 501 </returns>
+    /// <param name="categoryDto">A Date Transfer Object containgin information for category creating.</param>
+    /// <returns>HTTP 501 status code</returns>
     [HttpPost]
     public IActionResult AddCategory([FromBody] CategoryCreateDto categoryDto)
     {
@@ -39,10 +39,10 @@ public class CategoryController : BaseController
     }
 
     /// <summary>
-    /// Get category by id
+    /// Get category by id.
     /// </summary>
-    /// <param name="id">the ForumCategory id</param>
-    /// <returns> on Success a CategoryDto, on Failure a BadRequest </returns>
+    /// <param name="id">The unique identifier of the category.</param>
+    /// <returns>On success a Dto with information about the post, on failure HTTP 400/404 status code.</returns>
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetCategoryById([FromRoute] Guid id)
     {
@@ -51,7 +51,7 @@ public class CategoryController : BaseController
             return BadRequest(result.ErrorMessage);
 
         if (result.Data == null)
-            return BadRequest("Category not found.");
+            return NotFound("Category not found.");
 
         var categoryDto = new CategoryReadDto
         {
@@ -64,9 +64,9 @@ public class CategoryController : BaseController
     }
 
     /// <summary>
-    /// Get all the categories
+    /// Get all the categories.
     /// </summary>
-    /// <returns> on Success a List of CategoryDtos, on Failure a BadRequest </returns>
+    /// <returns>On success a list of Dtos with information about the post, on failure HTTP 400/404 status code.</returns>
     [HttpGet]
     public async Task<IActionResult> GetAllCategories()
     {
@@ -90,8 +90,8 @@ public class CategoryController : BaseController
     /// <summary>
     /// Delete a category
     /// </summary>
-    /// <param name="id"> the unique identifier of the category </param>
-    /// <returns> StatusCode 501 </returns> 
+    /// <param name="id">The unique identifier of the category.</param>
+    /// <returns>HTTP 501 status code</returns> 
     [HttpDelete("{id:guid}")]
     public  IActionResult DeleteCategory([FromRoute] Guid id)
     {
