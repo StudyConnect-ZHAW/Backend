@@ -75,7 +75,7 @@ public class CategoryController : BaseController
             return BadRequest(categories.ErrorMessage);
 
         if (categories.Data == null)
-            return BadRequest("No categories available.");
+            return NotFound("No categories available.");
 
         var result = categories.Data.Select(c => new CategoryReadDto
         {
