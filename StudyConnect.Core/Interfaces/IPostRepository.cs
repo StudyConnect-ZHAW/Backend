@@ -10,7 +10,7 @@ public interface IPostRepository
     /// </summary>
     /// <param name="post">The forumpost to be added.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<bool>> AddAsync(Guid userid, Guid forumId, ForumPost? post);
+    Task<OperationResult<bool>> AddAsync(Guid userId, Guid forumId, ForumPost? post);
 
     /// <summary>
     /// Search posts based on input.
@@ -19,7 +19,7 @@ public interface IPostRepository
     /// <param name="categoryName">The unique name of category assigned to the post.</param>
     /// <param name="title">The title of the post.</param>
     /// <returns>An <see cref="OperationResult{T}"/> containing a list of post if found, or an error message if not.</returns>
-    Task<OperationResult<IEnumerable<ForumPost>>> SearchAsync(Guid? userid, string? categoryName, string? title);
+    Task<OperationResult<IEnumerable<ForumPost>>> SearchAsync(Guid? userId, string? categoryName, string? title);
 
     /// <summary>
     /// Get a Post by its GUID.

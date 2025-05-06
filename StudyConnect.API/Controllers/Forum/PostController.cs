@@ -74,16 +74,7 @@ public class PostController : BaseController
         if (posts.Data == null)
             return NotFound("No fitting Queries were found.");
 
-        var result = posts.Data.Select(p => new PostReadDto
-        {
-            ForumPostId = p.ForumPostId,
-            Title = p.Title,
-            Content = p.Content,
-            Created = p.CreatedAt,
-            Updated = p.UpdatedAt,
-            Modul = generateCategoryReadDto(p.Category),
-            Author = generateUserReadDto(p.User)
-        });
+        var result = posts.Data.Select(p => generatePostDto(p));
 
         return Ok(result);
     }
@@ -102,16 +93,7 @@ public class PostController : BaseController
         if (posts.Data == null)
             return NotFound("No posts available.");
 
-        var result = posts.Data.Select(p => new PostReadDto
-        {
-            ForumPostId = p.ForumPostId,
-            Title = p.Title,
-            Content = p.Content,
-            Created = p.CreatedAt,
-            Updated = p.UpdatedAt,
-            Modul = generateCategoryReadDto(p.Category),
-            Author = generateUserReadDto(p.User)
-        });
+        var result = posts.Data.Select(p => generatePostDto(p));
 
         return Ok(result);
     }
@@ -131,16 +113,7 @@ public class PostController : BaseController
         if (result.Data == null)
             return NotFound("Post not found");
 
-        var postDto = new PostReadDto
-        {
-            ForumPostId = pid,
-            Title = result.Data.Title,
-            Content = result.Data.Content,
-            Created = result.Data.CreatedAt,
-            Updated = result.Data.UpdatedAt,
-            Modul = generateCategoryReadDto(result.Data.Category),
-            Author = generateUserReadDto(result.Data.User)
-        };
+        var postDto = generatePostDto(result.Data);
 
         return Ok(postDto);
     }
@@ -215,6 +188,25 @@ public class PostController : BaseController
             ForumCategoryId = category?.ForumCategoryId,
             Name = category?.Name,
             Description = category?.Description
+        };
+    }
+
+    /// <summary>
+    /// A helper function to create post Dto from model.
+    /// </summary>
+    /// <param name="post">The forum post model.</param>
+    /// <returns>A PostReadDto.</returns>
+    private PostReadDto generatePostDto(ForumPost post)
+    {
+        return new PostReadDto
+        {
+            ForumPostId = post.ForumPostId,
+            Title = post.Title,
+            Content = post.Content,
+            Created = post.CreatedAt,
+            Updated = post.UpdatedAt,
+            Modul = generateCategoryReadDto(post.Category),
+            Author = generateUserReadDto(post.User)
         };
     }
 }
