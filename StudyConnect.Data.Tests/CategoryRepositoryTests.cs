@@ -152,8 +152,8 @@ public class CategoryRepositoryTests
             var repo = new CategoryRepository(context);
 
             // Act
-            var nonExsitingCategoryId = Guid.NewGuid();
-            var result = await repo.GetByIdAsync(nonExsitingCategoryId);
+            var nonExistingCategoryId = Guid.NewGuid();
+            var result = await repo.GetByIdAsync(nonExistingCategoryId);
 
             // Assert
             Assert.True(result.IsSuccess);
