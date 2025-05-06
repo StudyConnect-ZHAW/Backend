@@ -21,7 +21,7 @@ public class PostCreateDto
     public required string Title { get; set;}
     
     /// <summary>
-    /// The category name the post should be assigned to.
+    /// The unique identifier of the category the post should be assigned to.
     /// </summary>
     [Required(ErrorMessage = "Forum Category ID is required.")]
     public required Guid ForumCategoryId { get;  set; }

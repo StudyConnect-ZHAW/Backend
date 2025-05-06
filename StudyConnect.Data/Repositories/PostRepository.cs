@@ -73,16 +73,10 @@ public class PostRepository : BaseRepository, IPostRepository
 
         var queries = await posts.ToListAsync();
 
-        var result = queries.Select(p => new ForumPost
-        {
-            ForumPostId = p.ForumPostId,
-            Title = p.Title,
-            Content = p.Content,
-            CreatedAt = p.CreatedAt,
-            UpdatedAt = p.UpdatedAt,
-            Category = packageCategory(p.ForumCategory),
-            User = packageUser(p.User)
-        });
+        if (queries.Count == 0)
+            return OperationResult<IEnumerable<ForumPost>>.Failure("Posts not found.");
+
+        var result = queries.Select(p => PackagePost(p));
 
         return OperationResult<IEnumerable<ForumPost>>.Success(result);
     }
@@ -96,21 +90,9 @@ public class PostRepository : BaseRepository, IPostRepository
             .ToListAsync();
 
         if (posts.Count == 0)
-            return OperationResult<IEnumerable<ForumPost>>.Failure("No Posts were found.");
+            return OperationResult<IEnumerable<ForumPost>>.Failure("Posts not found.");
 
-        var result = posts.Select(p =>
-        {
-            return new ForumPost
-            {
-                ForumPostId = p.ForumPostId,
-                Title = p.Title,
-                Content = p.Content,
-                CreatedAt = p.CreatedAt,
-                UpdatedAt = p.UpdatedAt,
-                Category = packageCategory(p.ForumCategory),
-                User = packageUser(p.User)
-            };
-        });
+        var result = posts.Select(p => PackagePost(p));
 
         return OperationResult<IEnumerable<ForumPost>>.Success(result);
     }
@@ -128,16 +110,8 @@ public class PostRepository : BaseRepository, IPostRepository
 
         if (post == null)
             return OperationResult<ForumPost?>.Failure("Post not found");
-            
-        var result = new ForumPost
-        {
-            Title = post.Title,
-            Content = post.Content,
-            CreatedAt = post.CreatedAt,
-            UpdatedAt = post.UpdatedAt,
-            Category = packageCategory(post.ForumCategory),
-            User = packageUser(post.User)
-        };
+
+        var result = PackagePost(post);
 
         return OperationResult<ForumPost?>.Success(result);
     }
@@ -152,7 +126,7 @@ public class PostRepository : BaseRepository, IPostRepository
 
         var postToUpdate = await _context.ForumPosts.FirstOrDefaultAsync(p => p.ForumPostId == id);
         if (postToUpdate == null)
-            return OperationResult<bool>.Failure("ForumPost not found.");
+            return OperationResult<bool>.Failure("Post not found.");
 
         try
         {
@@ -177,7 +151,7 @@ public class PostRepository : BaseRepository, IPostRepository
 
         var postToDelete = await _context.ForumPosts.FirstOrDefaultAsync(p => p.ForumPostId == id);
         if (postToDelete == null)
-            return OperationResult<bool>.Failure("Post could not be found.");
+            return OperationResult<bool>.Failure("Post not found.");
 
         try
         {
@@ -193,11 +167,30 @@ public class PostRepository : BaseRepository, IPostRepository
     }
 
     /// <summary>
+    /// A helper function to create a forum post model from entity.
+    /// </summary>
+    /// <param name="post">A forum post entity to transform.</param>
+    /// <returns>A forum post model object.</returns>
+    private ForumPost PackagePost(Entities.ForumPost post)
+    {
+        return new ForumPost
+        {
+            ForumPostId = post.ForumPostId,
+            Title = post.Title,
+            Content = post.Content,
+            CreatedAt = post.CreatedAt,
+            UpdatedAt = post.UpdatedAt,
+            Category = PackageCategory(post.ForumCategory),
+            User = PackageUser(post.User)
+        };
+    }
+
+    /// <summary>
     /// A helper function to create a category model from entity.
     /// </summary>
-    /// <param name="category">A category entity to create. </param>
+    /// <param name="category">A category entity to transform.</param>
     /// <returns>A forumcategory model object.</returns>
-    private ForumCategory packageCategory(Entities.ForumCategory category)
+    private ForumCategory PackageCategory(Entities.ForumCategory category)
     {
         return new ForumCategory
         {
@@ -210,9 +203,9 @@ public class PostRepository : BaseRepository, IPostRepository
     /// <summary>
     /// A helper function to create a user model from entity.
     /// </summary>
-    /// <param name="user">An user entity to create. </param>
+    /// <param name="user">An user entity to transform.</param>
     /// <returns>An User model object.</returns>
-    private User packageUser(Entities.User user)
+    private User PackageUser(Entities.User user)
     {
         return new User
         {

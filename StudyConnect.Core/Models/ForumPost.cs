@@ -1,5 +1,3 @@
-
-
 namespace StudyConnect.Core.Models;
 
 public class ForumPost

@@ -23,7 +23,7 @@ public class PostReadDto
     public string? Content { get; set; }
 
     /// <summary>
-    /// The date and time when post was created: 
+    /// The date and time when post was created. 
     /// </summary>
     public DateTime? Created { get; set; }
 
