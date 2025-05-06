@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using StudyConnect.Core.Interfaces;
-using StudyConnect.Core.Models;
 using StudyConnect.API.Dtos.Requests.Forum;
 using StudyConnect.API.Dtos.Responses.Forum;
 
@@ -41,12 +40,12 @@ public class CategoryController : BaseController
     /// <summary>
     /// Get category by id.
     /// </summary>
-    /// <param name="id">The unique identifier of the category.</param>
+    /// <param name="cid">The unique identifier of the category.</param>
     /// <returns>On success a Dto with information about the post, on failure HTTP 400/404 status code.</returns>
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetCategoryById([FromRoute] Guid id)
+    [HttpGet("{cid:guid}")]
+    public async Task<IActionResult> GetCategoryById([FromRoute] Guid cid)
     {
-        var result = await _categoryRepository.GetByIdAsync(id);
+        var result = await _categoryRepository.GetByIdAsync(cid);
         if (!result.IsSuccess)
             return BadRequest(result.ErrorMessage);
 
@@ -60,7 +59,7 @@ public class CategoryController : BaseController
             Description = result.Data.Description
         };
 
-        return Ok (categoryDto);
+        return Ok(categoryDto);
     }
 
     /// <summary>
@@ -84,18 +83,18 @@ public class CategoryController : BaseController
             Description = c.Description
         });
 
-        return Ok (result);
+        return Ok(result);
     }
 
     /// <summary>
     /// Delete a category
     /// </summary>
-    /// <param name="id">The unique identifier of the category.</param>
+    /// <param name="cid">The unique identifier of the category.</param>
     /// <returns>HTTP 501 status code</returns> 
-    [HttpDelete("{id:guid}")]
-    public  IActionResult DeleteCategory([FromRoute] Guid id)
+    [HttpDelete("{cid:guid}")]
+    public IActionResult DeleteCategory([FromRoute] Guid cid)
     {
         return StatusCode(501);
-     }
+    }
 
 }
