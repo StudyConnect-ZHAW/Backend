@@ -27,7 +27,7 @@ public class PostCreateDto
     public required Guid ForumCategoryId { get;  set; }
 
     /// <summary>
-    /// The coModulID.
+    /// The content of the post.
     /// </summary>
     public string? Content { get; set; }
 }

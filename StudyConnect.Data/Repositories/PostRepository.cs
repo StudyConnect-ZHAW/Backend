@@ -12,25 +12,25 @@ public class PostRepository : BaseRepository, IPostRepository
 
     }
 
-    public async Task<OperationResult<bool>> AddAsync(Guid userId, Guid forumId, ForumPost? post)
+    public async Task<OperationResult<Guid?>> AddAsync(Guid userId, Guid forumId, ForumPost? post)
     {
         if (userId == Guid.Empty)
-            return OperationResult<bool>.Failure("User Id is Invalid.");
+            return OperationResult<Guid?>.Failure("User Id is Invalid.");
 
         if (forumId == Guid.Empty)
-            return OperationResult<bool>.Failure("Category Id is Invalid.");
+            return OperationResult<Guid?>.Failure("Category Id is Invalid.");
 
         if (post == null)
-            return OperationResult<bool>.Failure("Post cannot be null.");
+            return OperationResult<Guid?>.Failure("Post cannot be null.");
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == userId);
         var category = await _context.ForumCategories.FirstOrDefaultAsync(c => c.ForumCategoryId == forumId);
         if (user == null || category == null)
-            return OperationResult<bool>.Failure("User or Category not found.");
+            return OperationResult<Guid?>.Failure("User or Category not found.");
 
         var testTitle = await _context.ForumPosts.AnyAsync(fp => fp.Title == post.Title);
         if (testTitle)
-            return OperationResult<bool>.Failure("Post Title already taken.");
+            return OperationResult<Guid?>.Failure("Post Title already taken.");
 
         try
         {
@@ -46,11 +46,11 @@ public class PostRepository : BaseRepository, IPostRepository
             await _context.SaveChangesAsync();
 
 
-            return OperationResult<bool>.Success(true);
+            return OperationResult<Guid?>.Success(newPost.ForumPostId);
         }
         catch (Exception ex)
         {
-            return OperationResult<bool>.Failure($"Failed to add the Post: {ex.Message}");
+            return OperationResult<Guid?>.Failure($"Failed to add the Post: {ex.Message}");
         }
     }
 
