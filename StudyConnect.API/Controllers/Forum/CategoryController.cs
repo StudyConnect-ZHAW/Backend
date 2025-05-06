@@ -41,7 +41,7 @@ public class CategoryController : BaseController
     /// Get category by id.
     /// </summary>
     /// <param name="cid">The unique identifier of the category.</param>
-    /// <returns>On success a Dto with information about the post, on failure HTTP 400/404 status code.</returns>
+    /// <returns>On success a Dto with information about the category, on failure HTTP 400/404 status code.</returns>
     [HttpGet("{cid:guid}")]
     public async Task<IActionResult> GetCategoryById([FromRoute] Guid cid)
     {
@@ -65,7 +65,7 @@ public class CategoryController : BaseController
     /// <summary>
     /// Get all the categories.
     /// </summary>
-    /// <returns>On success a list of Dtos with information about the post, on failure HTTP 400/404 status code.</returns>
+    /// <returns>On success a list of Dtos with information about the category, on failure HTTP 400/404 status code.</returns>
     [HttpGet]
     public async Task<IActionResult> GetAllCategories()
     {
