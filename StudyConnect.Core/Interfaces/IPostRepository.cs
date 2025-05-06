@@ -10,12 +10,12 @@ public interface IPostRepository
     /// </summary>
     /// <param name="post">The forumpost to be added.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<Guid?>> AddAsync(Guid userId, Guid forumId, ForumPost? post);
+    Task<OperationResult<Guid?>> AddAsync(Guid userId, Guid categoryId, ForumPost? post);
 
     /// <summary>
     /// Search posts based on input.
     /// </summary>
-    /// <param name="authorId">The unique identifier of the post creater.</param>
+    /// <param name="authorId">The unique identifier of the post creator.</param>
     /// <param name="categoryName">The unique name of category assigned to the post.</param>
     /// <param name="title">The title of the post.</param>
     /// <returns>An <see cref="OperationResult{T}"/> containing a list of post if found, or an error message if not.</returns>
