@@ -3,6 +3,8 @@ using StudyConnect.Data.Repositories;
 using StudyConnect.Core.Interfaces;
 using StudyConnect.Data;
 using System.Reflection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Identity.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,18 +18,26 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(
-        options => {
+        options =>
+        {
             var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
             options.IncludeXmlComments(xmlPath);
         }
     );
+
+// Configure Microsoft Identity for authentication
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("Entra"));
+
+
 builder.Services.AddDbContext<StudyConnectDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     options.EnableDetailedErrors();       // enable detailed error messages
     options.LogTo(Console.WriteLine, LogLevel.Debug); // Log SQL queries to the console
-});    
+});
 
 builder.Services.AddHealthChecks();
 
@@ -48,7 +58,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "StudyConnect.API V1"));
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "StudyConnect.API V1");
+        // hier OAuth2 flow hinterlegen
+    });
 }
 
 // Ensure the database is created and apply any pending migrations
@@ -70,6 +84,8 @@ using (var scope = app.Services.CreateScope())
 app.UseCors("AllowSameDomain");
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication(); // Ensure authentication is used before authorization
 
 app.UseAuthorization();
 
