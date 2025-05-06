@@ -14,17 +14,17 @@ public class PostRepository : BaseRepository, IPostRepository
 
     public async Task<OperationResult<bool>> AddAsync(Guid userId, Guid forumId, ForumPost? post)
     {
-        if (useriD == Guid.Empty)
+        if (userId == Guid.Empty)
             return OperationResult<bool>.Failure("User Id is Invalid.");
 
-        if (forumID == Guid.Empty)
+        if (forumId == Guid.Empty)
             return OperationResult<bool>.Failure("Category Id is Invalid.");
 
         if (post == null)
             return OperationResult<bool>.Failure("Post cannot be null.");
 
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == useriD);
-        var category = await _context.ForumCategories.FirstOrDefaultAsync(c => c.ForumCategoryId == forumID);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == userId);
+        var category = await _context.ForumCategories.FirstOrDefaultAsync(c => c.ForumCategoryId == forumId);
         if (user == null || category == null)
             return OperationResult<bool>.Failure("User or Category not found.");
 
@@ -128,7 +128,7 @@ public class PostRepository : BaseRepository, IPostRepository
 
         if (post == null)
             return OperationResult<ForumPost?>.Failure("Post not found");
-        //var categoryModel = packageCategory(category);
+            
         var result = new ForumPost
         {
             Title = post.Title,
