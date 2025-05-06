@@ -4,7 +4,6 @@ using StudyConnect.API.Dtos.Requests.Forum;
 using StudyConnect.API.Dtos.Responses.Forum;
 using StudyConnect.API.Dtos.Responses.User;
 using StudyConnect.Core.Models;
-using System.Threading.Tasks;
 
 namespace StudyConnect.API.Controllers.Forum;
 
@@ -51,20 +50,26 @@ public class PostController : BaseController
         return NoContent();
     }
 
-    /// <summary>
-    /// Filter the Post by Parameters 
-    /// </summary>
-    /// <param name="category"> the name of ForumCategory </param>
-    /// <param name="title"> the title of the Post </param>
-    /// <param name="Author"> the creator of the Post </param>
-    /// <param name="tags"> a list of Tags for this Post </param>
-    /// <returns></returns>
-    [HttpGet("Filter")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public IActionResult GetPostByFilter([FromQuery] string? category, [FromQuery] string? title, [FromQuery] string? Author, [FromQuery] List<string>? tags)
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchPosts([FromQuery] Guid? userId, [FromQuery] string? categoryName, [FromQuery] string? title)
     {
-        return Ok("posts");
+        var posts = await _postRepository.SearchAsync(userId, categoryName, title);
+        if (!posts.IsSuccess)
+            return BadRequest(posts.ErrorMessage);
+
+        if (posts.Data == null)
+            return NotFound("No fitting Queries were found.");
+
+        var result = posts.Data.Select(p => new PostReadDto
+        {
+            ForumPostId = p.ForumPostId,
+            Title = p.Title,
+            Content = p.Content,
+            Modul = generateCategoryReadDto(p.Category),
+            Author = generateUserReadDto(p.User)
+        });
+
+        return Ok(result);
     }
 
     [HttpGet]
@@ -77,30 +82,13 @@ public class PostController : BaseController
         if (posts.Data == null)
             return NotFound("No posts available.");
 
-        var result = posts.Data.Select(p =>
+        var result = posts.Data.Select(p => new PostReadDto
         {
-            var userDto = new UserReadDto
-            {
-                FirstName = p.User?.FirstName,
-                LastName = p.User?.LastName,
-                Email = p.User?.Email
-            };
-
-            var categoryDto = new CategoryReadDto
-            {
-                ForumCategoryId = p.Category?.ForumCategoryId,
-                Name = p.Category?.Name,
-                Description = p.Category?.Description
-            };
-
-            return new PostReadDto
-            {
-                ForumPostId = p.ForumPostId,
-                Title = p.Title,
-                Content = p.Content,
-                Modul = categoryDto,
-                Author = userDto
-            };
+            ForumPostId = p.ForumPostId,
+            Title = p.Title,
+            Content = p.Content,
+            Modul = generateCategoryReadDto(p.Category),
+            Author = generateUserReadDto(p.User)
         });
 
         return Ok(result);
@@ -121,27 +109,13 @@ public class PostController : BaseController
         if (result.Data == null)
             return NotFound("Post not found");
 
-        var UserDto = new UserReadDto
-        {
-            FirstName = result.Data.User?.FirstName,
-            LastName = result.Data.User?.LastName,
-            Email = result.Data.User?.Email
-        };
-
-        var categoryDto = new CategoryReadDto
-        {
-            ForumCategoryId = result.Data.Category?.ForumCategoryId,
-            Name = result.Data.Category?.Name,
-            Description = result.Data.Category?.Description
-        };
-
         var postDto = new PostReadDto
         {
             ForumPostId = pid,
             Title = result.Data.Title,
             Content = result.Data.Content,
-            Modul = categoryDto,
-            Author = UserDto
+            Modul = generateCategoryReadDto(result.Data.Category),
+            Author = generateUserReadDto(result.Data.User)
         };
 
         return Ok(postDto);
@@ -188,5 +162,25 @@ public class PostController : BaseController
             return BadRequest(result.ErrorMessage);
 
         return Ok("Post deleted successfully.");
+    }
+
+    private UserReadDto generateUserReadDto(User? user)
+    {
+        return new UserReadDto
+        {
+            FirstName = user?.FirstName,
+            LastName = user?.LastName,
+            Email = user?.Email
+        };
+    }
+
+    private CategoryReadDto generateCategoryReadDto(ForumCategory? category)
+    {
+        return new CategoryReadDto
+        {
+            ForumCategoryId = category?.ForumCategoryId,
+            Name = category?.Name,
+            Description = category?.Description
+        };
     }
 }
