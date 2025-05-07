@@ -35,7 +35,7 @@ public class PostReadDto
     /// <summary>
     /// The category of the post as a dto.
     /// </summary>
-    public CategoryReadDto? Modul { get; set; }
+    public CategoryReadDto? Category { get; set; }
 
     /// <summary>
     /// The creator of the post as a dto.
