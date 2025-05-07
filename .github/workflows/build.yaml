@@ -80,11 +80,7 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
           Write-Host "Current Directory: $(Get-Location)"
-          if ("${{ github.event_name }}" -eq "pull_request") {
-              $projectKey = "StudyConnect-pr-${{ github.event.pull_request.number }}"
-          } else {
-              $projectKey = "StudyConnect-backend"
-          }
+          $projectKey = "StudyConnect-backend"
           $sonarArgs = @(
             "/k:$projectKey", # Project key for SonarQube
             "/d:sonar.login=${{ env.SONAR_TOKEN }}",
@@ -240,11 +236,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
-          if ("${{ github.event_name }}" -eq "pull_request") {
-              $projectKey = "StudyConnect-pr-${{ github.event.pull_request.number }}"
-          } else {
-              $projectKey = "StudyConnect-backend"
-          }
+          $projectKey = "StudyConnect-backend"
           $SonarHost = "${{ env.SONAR_HOST_URL }}"
           $SonarToken = "${{ env.SONAR_TOKEN }}"
           $ApiUrl = "$SonarHost/api/qualitygates/project_status?projectKey=$projectKey"
