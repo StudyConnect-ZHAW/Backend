@@ -28,7 +28,7 @@ public interface IUserRepository
     /// </summary>
     /// <param name="user">The user with updated information.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<bool>> UpdateAsync(User user);
+    Task<OperationResult<bool?>> UpdateAsync(User user);
 
     /// <summary>
     /// Delete a user from the system.
