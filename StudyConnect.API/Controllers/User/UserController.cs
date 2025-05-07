@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using StudyConnect.API.Dtos.Requests.User;
 using System.ComponentModel.DataAnnotations;
 using StudyConnect.API.Dtos.Responses.User;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Identity.Web;
 
 namespace StudyConnect.API.Controllers.Users
 {
@@ -15,7 +17,7 @@ namespace StudyConnect.API.Controllers.Users
     /// </summary>
     [ApiController]
     public class UserController : BaseController
-    {   
+    {
         /// <summary>
         /// The user repository to interact with user data.
         /// </summary>
@@ -28,7 +30,7 @@ namespace StudyConnect.API.Controllers.Users
         public UserController(IUserRepository userRepository)
         {
             _userRepository = userRepository;
-        }   
+        }
 
         /// <summary>
         /// Create a new user
@@ -36,7 +38,8 @@ namespace StudyConnect.API.Controllers.Users
         /// <returns></returns>
         [Route("v1/users")]
         [HttpPost]
-        public async Task<IActionResult> AddUser([FromBody] UserCreateDto userCreateDto) {
+        public async Task<IActionResult> AddUser([FromBody] UserCreateDto userCreateDto)
+        {
 
             // Validate the incoming request
             if (!ModelState.IsValid)
@@ -70,8 +73,9 @@ namespace StudyConnect.API.Controllers.Users
         /// <returns></returns>
         [Route("v1/users/{id}")]
         [HttpGet]
-        public async Task<IActionResult> GetUserById([FromRoute] Guid id ){
-            
+        public async Task<IActionResult> GetUserById([FromRoute] Guid id)
+        {
+
             var result = await _userRepository.GetByIdAsync(id);
 
             // Check if the user was found
@@ -99,7 +103,8 @@ namespace StudyConnect.API.Controllers.Users
         /// <returns></returns>
         [Route("v1/users/{id}")]
         [HttpPut]
-        public async Task<IActionResult> UpdateUser([FromRoute] Guid id, [FromBody] UserUpdateDto userUpdateDto) {
+        public async Task<IActionResult> UpdateUser([FromRoute] Guid id, [FromBody] UserUpdateDto userUpdateDto)
+        {
             // Validate the incoming request
             if (!ModelState.IsValid)
             {
@@ -115,7 +120,7 @@ namespace StudyConnect.API.Controllers.Users
                 Email = userUpdateDto.Email
             };
 
-            var result =  await _userRepository.UpdateAsync(user);
+            var result = await _userRepository.UpdateAsync(user);
 
             // Check if the operation was successful
             if (!result.IsSuccess)
@@ -125,6 +130,52 @@ namespace StudyConnect.API.Controllers.Users
 
             return Ok("User updated successfully.");
         }
+
+
+        /// <summary>
+        /// Update a user
+        /// </summary>
+        /// <param name="userUpdateDto">User with updated properties</param>
+        /// <returns></returns>
+        [Route("v1/users")]
+        [HttpPut]
+        [Authorize]
+        public async Task<IActionResult> UpdateUser([FromBody] UserUpdateDto userUpdateDto)
+        {
+            //Read the ObjectId claim from the token
+            var oidClaim = HttpContext.User.GetObjectId();
+            if (string.IsNullOrEmpty(oidClaim))
+                return Unauthorized();
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            
+            // Create a updated User object with the new information
+            var user = new User
+            {
+                UserGuid = Guid.Parse(oidClaim),
+                FirstName = userUpdateDto.FirstName,
+                LastName = userUpdateDto.LastName,
+                Email = userUpdateDto.Email
+            };
+
+            var result = await _userRepository.UpdateAsync(user);
+
+            // Check if the operation was successful
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+
+            // Check if the operation was successful but the user was not found
+            if (result.Data == null)
+            {
+                return NotFound("User not found.");
+            }       
+
+            return NoContent();
+        }
+
 
         /// <summary>
         /// Delete a user
