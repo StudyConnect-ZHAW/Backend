@@ -292,41 +292,5 @@ jobs:
           Add-Content -Path $envFile -Value $conditions
           Add-Content -Path $envFile -Value $delimiter
         shell: pwsh # Use PowerShell
-
-      - name: Debug Output
-        run: |
-          echo "Status: $env:quality_gate_status"
-          echo "Conditions:"
-          echo "$env:conditions"
-        shell: pwsh
-
-      # --- Report Results ---
-      - name: Post Comment on PR
-        # Only run for pull request events
-        if: github.event_name == 'pull_request'
-        uses: peter-evans/create-or-update-comment@v4
-        env: 
-          quality_gate_status: ${{ env.quality_gate_status }}
-          conditions: ${{ env.conditions }}
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            **Backend SonarQube Analysis Results** (Branch Scan)
-
-            *   **Quality Gate Status:** `${{ env.quality_gate_status }}`
-
-            *   **Conditions:**
-
-            ${{ env.conditions }}
-            [View Full Report on SonarQube](${{ secrets.SONAR_HOST_URL }}/dashboard?id=StudyConnect-pr-${{ github.event.pull_request.number }})
-
-      
-      #- name: Check Quality Gate Status (Fail Workflow on Error)
-      #  if: env.quality_gate_status != 'OK' && env.quality_gate_status != 'NONE' # NONE means no Quality Gate defined
-      #  run: |
-      #   Write-Error "SonarQube Quality Gate status is ${{ env.quality_gate_status }}. Failing the workflow."
-      #    exit 1
-      #  shell: pwsh # Use PowerShell for exit code
         
 
