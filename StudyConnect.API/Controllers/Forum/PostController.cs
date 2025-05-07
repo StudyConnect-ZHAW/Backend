@@ -143,7 +143,7 @@ public class PostController : BaseController
         if (!result.IsSuccess)
             return BadRequest(result.ErrorMessage);
 
-        if (result.Data == false)
+        if (!result.Data)
             return NotFound("Post for update was not found.");
 
         return Ok("post updated successfully.");
@@ -164,7 +164,7 @@ public class PostController : BaseController
         if (!result.IsSuccess)
             return BadRequest(result.ErrorMessage);
 
-        if (result.Data == false)
+        if (!result.Data)
             return NotFound("Post for deletion was not found.");
 
         return Ok("Post deleted successfully.");
@@ -214,7 +214,7 @@ public class PostController : BaseController
             Content = post.Content,
             Created = post.CreatedAt,
             Updated = post.UpdatedAt,
-            Modul = GenerateCategoryReadDto(post.Category),
+            Category = GenerateCategoryReadDto(post.Category),
             Author = GenerateUserReadDto(post.User)
         };
     }

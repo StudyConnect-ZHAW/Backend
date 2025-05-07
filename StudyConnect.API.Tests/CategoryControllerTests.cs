@@ -83,7 +83,7 @@ public class CategoryControllerTests
             };
 
         _mockRepo.Setup(repo => repo.GetAllAsync())
-             .ReturnsAsync(OperationResult<IEnumerable<ForumCategory>>.Success(categories));
+             .ReturnsAsync(OperationResult<IEnumerable<ForumCategory>?>.Success(categories));
 
         // Act
         var result = await _controller.GetAllCategories();
@@ -112,7 +112,7 @@ public class CategoryControllerTests
     {
         // Arrange
         _mockRepo.Setup(repo => repo.GetAllAsync())
-                 .ReturnsAsync(OperationResult<IEnumerable<ForumCategory>>.Failure("Something went wrong"));
+                 .ReturnsAsync(OperationResult<IEnumerable<ForumCategory>?>.Failure("Something went wrong"));
 
         // Act
         var result = await _controller.GetAllCategories();
