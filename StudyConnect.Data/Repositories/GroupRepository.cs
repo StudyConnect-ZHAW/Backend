@@ -21,7 +21,7 @@ public class GroupRepository : BaseRepository, IGroupRepository
         var entity = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == groupId);
         if (entity == null)
         {
-            return await Task.FromResult(OperationResult<Group?>.Failure("Group not found."));
+            return OperationResult<Group?>.Success(null);
         }
         var entity = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == groupId);
         if (entity == null)
@@ -40,11 +40,6 @@ public class GroupRepository : BaseRepository, IGroupRepository
         return OperationResult<Group?>.Success(groupToReturn);
     }
 
-    /// <summary>
-    /// Updates the specified group's name and description in the database.
-    /// </summary>
-    /// <param name="group">The group object with updated information.</param>
-    /// <returns>An operation result indicating success or failure.</returns>
     public async Task<OperationResult<bool>> UpdateAsync(Group group)
     {
         if (group == null)
@@ -65,7 +60,7 @@ public class GroupRepository : BaseRepository, IGroupRepository
         var existingGroup = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == group.GroupId);
         if (existingGroup == null)
         {
-            return OperationResult<bool>.Failure("Group not found.");
+            return OperationResult<bool>.Success(false);
         }
         var existingGroup = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == group.GroupId);
         if (existingGroup == null)
@@ -89,11 +84,6 @@ public class GroupRepository : BaseRepository, IGroupRepository
         }
     }
 
-    /// <summary>
-    /// Deletes a group from the database based on its unique identifier.
-    /// </summary>
-    /// <param name="groupId">The ID of the group to delete.</param>
-    /// <returns>An operation result indicating success or failure.</returns>
     public async Task<OperationResult<bool>> DeleteAsync(Guid groupId)
     {
         if (groupId == Guid.Empty)
@@ -113,7 +103,7 @@ public class GroupRepository : BaseRepository, IGroupRepository
         var entity = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == groupId);
         if (entity == null)
         {
-            return OperationResult<bool>.Failure("Group not found.");
+            return OperationResult<bool>.Success(false);
         }
         var entity = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == groupId);
         if (entity == null)
@@ -133,11 +123,6 @@ public class GroupRepository : BaseRepository, IGroupRepository
         }
     }
 
-    /// <summary>
-    /// Adds a new group to the database if it does not already exist.
-    /// </summary>
-    /// <param name="group">The group object to be added.</param>
-    /// <returns>An operation result indicating success or failure.</returns>
     public async Task<OperationResult<bool>> AddAsync(Group group)
     {
         if (group == null)
@@ -161,7 +146,6 @@ public class GroupRepository : BaseRepository, IGroupRepository
         {
             var entity = new Data.Entities.Group
             {
-                GroupId = group.GroupId != Guid.Empty ? group.GroupId : Guid.NewGuid(),
                 OwnerId = group.OwnerId,
                 Name = group.Name,
                 Description = group.Description,
@@ -208,6 +192,10 @@ public class GroupRepository : BaseRepository, IGroupRepository
         try
         {
             var entities = await _context.Groups.ToListAsync();
+            if (!entities.Any())
+            {
+                return OperationResult<IEnumerable<Group>>.Success(null);
+            }
 
             var models = entities.Select(g => new Group
             {
