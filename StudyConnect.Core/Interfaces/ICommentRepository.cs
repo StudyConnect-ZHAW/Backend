@@ -12,7 +12,7 @@ public interface ICommentRepository
     /// <param name="parentId">The unique identifier of the parent.</param>
     /// <param name="comment">The model containing information about the comment.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<Guid?>> AddAsync(Guid userId, Guid parentId, ForumComment comment);
+    Task<OperationResult<ForumComment?>> AddAsync(Guid userId, Guid parentId, ForumComment comment);
 
     /// <summary>
     /// Get a comment by its GUID.
