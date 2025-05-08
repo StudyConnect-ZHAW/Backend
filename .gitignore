@@ -118,4 +118,4 @@ project.lock.json
 
 # Local configuration
 .env*
-
+dotnet-tools.json
