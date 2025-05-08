@@ -26,10 +26,6 @@ public class ForumComment
 
     public int ReplyCount { get; set; } = 0;
 
-    public bool IsPinned { get; set; } = false;
-
-    public int ViewCount { get; set; } = 0;
-
     public bool IsEdited { get; set; } = false;
 
     public bool IsDeleted { get; set; } = false;
@@ -37,7 +33,7 @@ public class ForumComment
     /// <summary>
     /// User who created the comment.
     /// </summary>
-    public User? User { get; set; }
+    public required User User { get; set; }
 
     /// <summary>
     /// Forum post this comment belongs to.
