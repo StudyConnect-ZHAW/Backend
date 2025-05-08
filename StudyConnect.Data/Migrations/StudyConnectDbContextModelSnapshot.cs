@@ -92,9 +92,6 @@ namespace StudyConnect.Data.Migrations
                     b.Property<bool>("IsEdited")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsPinned")
-                        .HasColumnType("bit");
-
                     b.Property<Guid?>("ParentCommentForumCommentId")
                         .HasColumnType("uniqueidentifier");
 
@@ -104,11 +101,8 @@ namespace StudyConnect.Data.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("UserGuid")
+                    b.Property<Guid>("UserGuid")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("ViewCount")
-                        .HasColumnType("int");
 
                     b.HasKey("ForumCommentId");
 
@@ -319,7 +313,8 @@ namespace StudyConnect.Data.Migrations
                     b.HasOne("StudyConnect.Data.Entities.User", "User")
                         .WithMany("ForumComments")
                         .HasForeignKey("UserGuid")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("ForumPost");
 

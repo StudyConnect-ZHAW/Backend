@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -19,7 +20,15 @@ namespace StudyConnect.Data.Migrations
                 table: "ForumComment");
 
             migrationBuilder.DropColumn(
+                name: "IsPinned",
+                table: "ForumComment");
+
+            migrationBuilder.DropColumn(
                 name: "LikeCount",
+                table: "ForumComment");
+
+            migrationBuilder.DropColumn(
+                name: "ViewCount",
                 table: "ForumComment");
 
             migrationBuilder.RenameColumn(
@@ -31,6 +40,16 @@ namespace StudyConnect.Data.Migrations
                 name: "IX_ForumComment_ParentCommentId",
                 table: "ForumComment",
                 newName: "IX_ForumComment_ParentCommentForumCommentId");
+
+            migrationBuilder.AlterColumn<Guid>(
+                name: "UserGuid",
+                table: "ForumComment",
+                type: "uniqueidentifier",
+                nullable: false,
+                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"),
+                oldClrType: typeof(Guid),
+                oldType: "uniqueidentifier",
+                oldNullable: true);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_ForumComment_ForumComment_ParentCommentForumCommentId",
@@ -58,6 +77,14 @@ namespace StudyConnect.Data.Migrations
                 table: "ForumComment",
                 newName: "IX_ForumComment_ParentCommentId");
 
+            migrationBuilder.AlterColumn<Guid>(
+                name: "UserGuid",
+                table: "ForumComment",
+                type: "uniqueidentifier",
+                nullable: true,
+                oldClrType: typeof(Guid),
+                oldType: "uniqueidentifier");
+
             migrationBuilder.AddColumn<int>(
                 name: "DislikeCount",
                 table: "ForumComment",
@@ -65,8 +92,22 @@ namespace StudyConnect.Data.Migrations
                 nullable: false,
                 defaultValue: 0);
 
+            migrationBuilder.AddColumn<bool>(
+                name: "IsPinned",
+                table: "ForumComment",
+                type: "bit",
+                nullable: false,
+                defaultValue: false);
+
             migrationBuilder.AddColumn<int>(
                 name: "LikeCount",
+                table: "ForumComment",
+                type: "int",
+                nullable: false,
+                defaultValue: 0);
+
+            migrationBuilder.AddColumn<int>(
+                name: "ViewCount",
                 table: "ForumComment",
                 type: "int",
                 nullable: false,
