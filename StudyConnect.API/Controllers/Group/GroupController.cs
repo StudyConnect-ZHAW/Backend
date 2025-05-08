@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using StudyConnect.Core.Interfaces;
 using StudyConnect.Core.Models;
@@ -42,7 +43,6 @@ namespace StudyConnect.API.Controllers.Groups
 
             var group = new Group
             {
-                GroupId = Guid.NewGuid(),
                 OwnerId = dto.OwnerId,
                 Name = dto.Name,
                 Description = dto.Description,
@@ -54,7 +54,7 @@ namespace StudyConnect.API.Controllers.Groups
                 return BadRequest(result.ErrorMessage);
             }
 
-            return NoContent(); // gleich wie UserController
+            return NoContent(); 
         }
 
         /// <summary>
@@ -121,6 +121,11 @@ namespace StudyConnect.API.Controllers.Groups
                 return BadRequest(result.ErrorMessage);
             }
 
+            if (!result.Data)
+            {
+                return NotFound("Group not found.");
+            }
+
             return Ok("Group updated successfully.");
         }
 
@@ -140,7 +145,42 @@ namespace StudyConnect.API.Controllers.Groups
                 return BadRequest(result.ErrorMessage);
             }
 
+            if (!result.Data)
+            {
+                return NotFound("Group not found.");
+            }
+
             return Ok("Group deleted successfully.");
+        }
+
+        /// <summary>
+        /// Retrieves all groups.
+        /// </summary>
+        /// <returns>A list of groups if found; otherwise, a not found or bad request results.</returns>
+        [HttpGet]
+        [Route("v1/groups")]
+        public async Task<IActionResult> GetAllGroups()
+        {
+            var result = await _groupRepository.GetAllAsync();
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+
+            if (result.Data == null)
+            {
+                return NotFound("No groups found.");
+            }
+
+            var dtoList = result.Data.Select(g => new GroupReadDto
+            {
+                GroupId = g.GroupId,
+                OwnerId = g.OwnerId,
+                Name = g.Name,
+                Description = g.Description,
+            });
+            return Ok(dtoList);
         }
     }
 }
