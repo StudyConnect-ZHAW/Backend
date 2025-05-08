@@ -8,11 +8,12 @@ public interface ICommentRepository
     /// <summary>
     /// Add an comment to a post or parent comment.
     /// </summary>
-    /// <param name="userId">The unique identifier of the user.</param>
-    /// <param name="parentId">The unique identifier of the parent.</param>
     /// <param name="comment">The model containing information about the comment.</param>
+    /// <param name="userId">The unique identifier of the user.</param>
+    /// <param name="postId">The unique identifier of the post.</param>
+    /// <param name="parentId">The unique identifier of the comment parent.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<ForumComment?>> AddAsync(Guid userId, Guid parentId, ForumComment comment);
+    Task<OperationResult<ForumComment?>> AddAsync(ForumComment comment, Guid userId, Guid postId, Guid? parentId);
 
     /// <summary>
     /// Get a comment by its GUID.
@@ -34,7 +35,7 @@ public interface ICommentRepository
     /// <param name="commentId">The unique identifier of the comment.</param>
     /// <param name="comment">A comment model containing the information for update.<param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<ForumComment?>> UpdateAsync(Guid commentId, ForumComment comment);
+    Task<OperationResult<bool>> UpdateAsync(Guid commentId, ForumComment comment);
 
     /// <summary>
     /// Delete a comment by its GUID.
