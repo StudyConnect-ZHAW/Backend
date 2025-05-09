@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace StudyConnect.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class changeComments : Migration
+    public partial class changeCommentEntity : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

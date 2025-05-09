@@ -44,7 +44,7 @@ public class ForumComment
     /// Parent comment this comment is replying to.
     /// This property is nullable to allow for top-level comments th
     /// </summary>
-    public required ForumComment? ParentComment { get; set; } = null!;
+    public ForumComment? ParentComment { get; set; } = null!;
 
     /// <summary>
     /// Collection of replies to this comment.
