@@ -175,13 +175,13 @@ public class PostController : BaseController
     /// </summary>
     /// <param name="user">The user model.</param>
     /// <returns>A UserReadDto.</returns>
-    private UserReadDto GenerateUserReadDto(User? user)
+    private UserReadDto GenerateUserReadDto(User user)
     {
         return new UserReadDto
         {
-            FirstName = user?.FirstName,
-            LastName = user?.LastName,
-            Email = user?.Email
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Email = user.Email
         };
     }
 
@@ -190,13 +190,13 @@ public class PostController : BaseController
     /// </summary>
     /// <param name="category">The forum category model.</param>
     /// <returns>A CategoryReadDto.</returns>
-    private CategoryReadDto GenerateCategoryReadDto(ForumCategory? category)
+    private CategoryReadDto GenerateCategoryReadDto(ForumCategory category)
     {
         return new CategoryReadDto
         {
-            ForumCategoryId = category?.ForumCategoryId,
-            Name = category?.Name,
-            Description = category?.Description
+            ForumCategoryId = category.ForumCategoryId,
+            Name = category.Name,
+            Description = category.Description
         };
     }
 
@@ -214,8 +214,12 @@ public class PostController : BaseController
             Content = post.Content,
             Created = post.CreatedAt,
             Updated = post.UpdatedAt,
-            Category = GenerateCategoryReadDto(post.Category),
-            Author = GenerateUserReadDto(post.User)
+            Category = post.Category != null
+                ? GenerateCategoryReadDto(post.Category)
+                : null,
+            Author = post.User != null
+                ? GenerateUserReadDto(post.User)
+                : null
         };
     }
 }

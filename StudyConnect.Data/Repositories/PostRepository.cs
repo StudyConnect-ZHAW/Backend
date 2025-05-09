@@ -76,7 +76,7 @@ public class PostRepository : BaseRepository, IPostRepository
         if (queries.Count == 0)
             return OperationResult<IEnumerable<ForumPost>?>.Success(null);
 
-        var result = queries.Select(p => PackagePost(p));
+        var result = queries.Select(p => ModelMapper.PackagePost(p));
 
         return OperationResult<IEnumerable<ForumPost>?>.Success(result);
     }
@@ -92,7 +92,7 @@ public class PostRepository : BaseRepository, IPostRepository
         if (posts.Count == 0)
             return OperationResult<IEnumerable<ForumPost>?>.Success(null);
 
-        var result = posts.Select(p => PackagePost(p));
+        var result = posts.Select(p => ModelMapper.PackagePost(p));
 
         return OperationResult<IEnumerable<ForumPost>?>.Success(result);
     }
@@ -112,7 +112,7 @@ public class PostRepository : BaseRepository, IPostRepository
         if (post == null)
             return OperationResult<ForumPost?>.Success(null);
 
-        var result = PackagePost(post);
+        var result = ModelMapper.PackagePost(post);
 
         return OperationResult<ForumPost?>.Success(result);
     }

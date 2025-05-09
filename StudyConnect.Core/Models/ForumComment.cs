@@ -22,5 +22,5 @@ public class ForumComment
 
     public User? User { get; set; }
 
-    public ICollection<ForumComment>? ChildComments { get; set; }
+    public ICollection<ForumComment>? Replies { get; set; }
 }

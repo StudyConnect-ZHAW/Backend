@@ -53,7 +53,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
 
             post.CommentCount++;
 
-            return OperationResult<ForumComment?>.Success(PackageComment(result));
+            return OperationResult<ForumComment?>.Success(ModelMapper.PackageComment(result));
         }
         catch (Exception ex)
         {
@@ -78,7 +78,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
 
         var result = comments
            .Where(c => c.ParentComment == null)
-           .Select(c => PackageCommentTree(c));
+           .Select(c => ModelMapper.PackageCommentTree(c));
 
         return OperationResult<IEnumerable<ForumComment>?>.Success(result);
     }
@@ -93,7 +93,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
         if (comment == null)
             return OperationResult<ForumComment?>.Success(null);
 
-        var result = PackageComment(comment);
+        var result = ModelMapper.PackageComment(comment);
 
         return OperationResult<ForumComment?>.Success(result);
     }
@@ -138,6 +138,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
         try
         {
             commentToDelete.IsDeleted = true;
+            commentToDelete.IsEdited = false;
             await _context.SaveChangesAsync();
             return OperationResult<bool>.Success(true);
         }
