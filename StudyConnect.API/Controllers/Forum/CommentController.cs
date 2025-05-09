@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using StudyConnect.Core.Models;
 using StudyConnect.Core.Interfaces;
 using StudyConnect.API.Dtos.Responses.Forum;
+using StudyConnect.API.Dtos.Requests.Forum;
 using StudyConnect.API.Dtos.Responses.User;
+using System.Threading.Tasks;
 
 namespace StudyConnect.API.Controllers.Forum;
 
@@ -20,6 +22,35 @@ public class CommentController : BaseController
     {
         _commentRepository = commentRepository;
     }
+
+    /// <summary>
+    /// Creates a new comment
+    /// </summary>
+    /// <param name="pid"> unique identifier of the post </param>
+    /// <param name="createDto">A Date Transfer Object containing information for post creating.</param>
+    /// <returns> HTTP 200 OK response on success </returns>
+    [Route("v1/posts/{pid}/comments")]
+    [HttpPost]
+    public async Task<IActionResult> AddComment([FromRoute] Guid pid,[FromBody] CommentCreateDto createDto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var comment = new ForumComment
+        {
+            Content = createDto.Content
+        };
+
+        Guid userId = createDto.UserId;
+        Guid? parentId = createDto.ParentCommentId; 
+
+        var result = await _commentRepository.AddAsync(comment, userId, pid, parentId);
+        if (!result.IsSuccess)
+            return BadRequest(result.ErrorMessage);
+
+        return NoContent();
+    }
+
     /// <summary>
     /// Get all comments of a post
     /// </summary>
@@ -62,17 +93,7 @@ public class CommentController : BaseController
         return Ok(mockComment);
     }
 
-    /// <summary>
-    /// Creates a new comment
-    /// </summary>
-    /// <param name="pid"> unique identifier of the post </param>
-    /// <returns> HTTP 200 OK response on success </returns>
-    [Route("v1/posts/{pid}/comments")]
-    [HttpPost]
-    public IActionResult CreateComment([FromRoute] Guid pid)
-    {
-        return Ok();
-    }
+
 
     /// <summary>
     /// Updates an existing comment
@@ -161,14 +182,12 @@ public class CommentController : BaseController
             Updated = comment.UpdatedAt,
             Edited = comment.IsEdited,
             Deleted = comment.isDeleted,
-            ReplyCount = comment.ReplyCount > 0
-                ? comment.ReplyCount
-                : null,
+            ReplyCount = comment.ReplyCount, 
             User = comment.User != null
                 ? GenerateUserReadDto(comment.User)
                 : null,
-            Post = comment.Post != null
-                ? GeneratePostDto(comment.Post)
+            PostId = comment.Post != null
+                ? comment.Post.ForumPostId
                 : null,
             ParentCommentId = comment.ParentComment != null
                 ? comment.ParentComment.ForumcommentId

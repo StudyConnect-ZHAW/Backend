@@ -16,9 +16,9 @@ public class ForumComment
 
     public bool isDeleted { get; set; }
 
-    public ForumPost? Post { get; set; }
+    public Guid PostId { get; set; }
 
-    public ForumComment? ParentComment { get; set; }
+    public Guid ParentCommentId { get; set; }
 
     public User? User { get; set; }
 
