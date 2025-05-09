@@ -66,12 +66,7 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
         if (category == null)
             return OperationResult<ForumCategory?>.Success(null);
 
-        var result = new ForumCategory
-        {
-            ForumCategoryId = category.ForumCategoryId,
-            Name = category.Name,
-            Description = category.Description
-        };
+        var result = ModelMapper.MapCategoryToModel(category);
 
         return OperationResult<ForumCategory?>.Success(result);
     }
@@ -107,12 +102,7 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
         if (categories.Count == 0)
             return OperationResult<IEnumerable<ForumCategory>?>.Success(null);
 
-        var result = categories.Select(c => new ForumCategory
-        {
-            ForumCategoryId = c.ForumCategoryId,
-            Name = c.Name,
-            Description = c.Description
-        });
+        var result = categories.Select(c => ModelMapper.MapCategoryToModel(c));
 
         return OperationResult<IEnumerable<ForumCategory>?>.Success(result);
     }

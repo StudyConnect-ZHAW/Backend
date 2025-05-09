@@ -43,9 +43,9 @@ public class CommentReadDto
     public bool Deleted { get; set; }
 
     /// <summary>
-    /// The post the comment belongs to as dto.
+    /// The unique identifier of the post the comment belongs to.
     /// </summary>
-    public PostReadDto? Post { get; set; }
+    public Guid? PostId { get; set; }
 
     /// <summary>
     /// The parent comment of this comment, in case this comment is a reply.

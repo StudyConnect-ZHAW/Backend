@@ -23,14 +23,17 @@ public class CommentRepository : BaseRepository, ICommentRepository
             return OperationResult<ForumComment?>.Failure("Invalid post Id.");
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == userId);
-        var post = await _context.ForumPosts.FirstOrDefaultAsync(p => p.ForumPostId == userId);
+        var post = await _context.ForumPosts
+          .Include(p => p.User)
+          .Include(p => p.ForumCategory)
+          .FirstOrDefaultAsync(p => p.ForumPostId == postId);
 
         if (post == null || user == null)
             return OperationResult<ForumComment?>.Failure("Not found.");
 
         if (parentId.HasValue)
         {
-            parent = await _context.ForumComments.FirstOrDefaultAsync(c => c.ForumCommentId == parentId);
+            parent = await _context.ForumComments.FirstOrDefaultAsync(c => c.ForumCommentId == parentId && c.ForumPost.ForumPostId == postId);
             if (parent == null)
                 return OperationResult<ForumComment?>.Failure("Not found.");
         }
@@ -53,7 +56,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
 
             post.CommentCount++;
 
-            return OperationResult<ForumComment?>.Success(ModelMapper.PackageComment(result));
+            return OperationResult<ForumComment?>.Success(ModelMapper.PackageCommentTree(result));
         }
         catch (Exception ex)
         {
@@ -71,13 +74,15 @@ public class CommentRepository : BaseRepository, ICommentRepository
             .Include(c => c.User)
             .Include(c => c.ForumPost)
             .Include(c => c.Replies)
+                .ThenInclude(r => r.User)
+            .Include(c => c.Replies)
+                .ThenInclude(r => r.ForumPost)
             .ToListAsync();
 
         if (comments.Count == 0)
             return OperationResult<IEnumerable<ForumComment>?>.Success(null);
 
         var result = comments
-           .Where(c => c.ParentComment == null)
            .Select(c => ModelMapper.PackageCommentTree(c));
 
         return OperationResult<IEnumerable<ForumComment>?>.Success(result);
@@ -89,11 +94,16 @@ public class CommentRepository : BaseRepository, ICommentRepository
             return OperationResult<ForumComment?>.Failure("Invalid comment Id");
 
 
-        var comment = await _context.ForumComments.FirstOrDefaultAsync(c => c.ForumCommentId == commentId);
+        var comment = await _context.ForumComments
+            .AsNoTracking()
+            .Include(c => c.User)
+            .Include(c => c.ForumPost)
+            .FirstOrDefaultAsync(c => c.ForumCommentId == commentId);
+
         if (comment == null)
             return OperationResult<ForumComment?>.Success(null);
 
-        var result = ModelMapper.PackageComment(comment);
+        var result = ModelMapper.PackageCommentTree(comment);
 
         return OperationResult<ForumComment?>.Success(result);
     }
@@ -147,5 +157,33 @@ public class CommentRepository : BaseRepository, ICommentRepository
             return OperationResult<bool>.Failure($"An error occurred while deleting: {ex:Message}");
         }
     }
+
+    /// <summary>
+    /// A function containing commentt properies which can be used by PackageComment and PackageCommentTree.
+    /// </summary>
+    /// <param name="comment">A comment entity to transform.</param>
+    /// <returns>A forum comment model object.</returns>
+    private Core.Models.ForumComment MapCommentToModel(Entities.ForumComment comment)
+    {
+        var result = new Core.Models.ForumComment
+        {
+            ForumcommentId = comment.ForumCommentId,
+            Content = comment.Content,
+            CreatedAt = comment.CreatedAt,
+            UpdatedAt = comment.UpdatedAt,
+            ReplyCount = comment.ReplyCount,
+            IsEdited = comment.IsEdited,
+            isDeleted = comment.IsDeleted,
+            PostId = comment.ForumPost.ForumPostId,
+            ParentCommentId = comment.ParentComment != null ? comment.ParentComment.ForumCommentId : Guid.Empty,
+            User = ModelMapper.MapUserToModel(comment.User),
+        };
+
+        if (comment.Replies != null)
+            result.Replies = comment.Replies.Select(c => MapCommentToModel(c)).ToList();
+
+        return result;
+    }
+
 }
 
