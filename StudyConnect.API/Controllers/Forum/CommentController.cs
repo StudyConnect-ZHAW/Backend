@@ -1,4 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using StudyConnect.Core.Models;
+using StudyConnect.Core.Interfaces;
+using StudyConnect.API.Dtos.Responses.Forum;
+using StudyConnect.API.Dtos.Responses.User;
 
 namespace StudyConnect.API.Controllers.Forum;
 
@@ -9,6 +13,13 @@ namespace StudyConnect.API.Controllers.Forum;
 [ApiController]
 public class CommentController : BaseController
 {
+
+    protected readonly ICommentRepository _commentRepository;
+
+    public CommentController(ICommentRepository commentRepository)
+    {
+        _commentRepository = commentRepository;
+    }
     /// <summary>
     /// Get all comments of a post
     /// </summary>
@@ -16,9 +27,17 @@ public class CommentController : BaseController
     /// <returns> HTTP 200 OK response on success </returns>
     [Route("v1/posts/{pid}/comments")]
     [HttpGet]
-    public IActionResult GetAllCommentsOfPost([FromRoute] Guid pid)
+    public async Task<IActionResult> GetAllCommentsOfPost([FromRoute] Guid pid)
     {
-        return Ok();
+        var comments = await _commentRepository.GetAllofPostAsync(pid);
+        if (!comments.IsSuccess)
+            return BadRequest(comments.ErrorMessage);
+
+        if (comments.Data == null)
+            return NotFound("No comments were found");
+
+        var result = comments.Data.Select(c => MapCommentToDtoTree(c));
+        return Ok(result);
     }
 
     /// <summary>
@@ -77,5 +96,93 @@ public class CommentController : BaseController
     public IActionResult DeleteComment([FromRoute] Guid cid)
     {
         return Ok();
+    }
+
+    /// <summary>
+    /// A helper function to create user Dto from model.
+    /// </summary>
+    /// <param name="user">The user model.</param>
+    /// <returns>A UserReadDto.</returns>
+    private UserReadDto GenerateUserReadDto(User user)
+    {
+        return new UserReadDto
+        {
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Email = user.Email
+        };
+    }
+
+    /// <summary>
+    /// A helper function to create category Dto from model.
+    /// </summary>
+    /// <param name="category">The forum category model.</param>
+    /// <returns>A CategoryReadDto.</returns>
+    private CategoryReadDto GenerateCategoryReadDto(ForumCategory category)
+    {
+        return new CategoryReadDto
+        {
+            ForumCategoryId = category.ForumCategoryId,
+            Name = category.Name,
+            Description = category.Description
+        };
+    }
+
+    /// <summary>
+    /// A helper function to create post Dto from model.
+    /// </summary>
+    /// <param name="post">The forum post model.</param>
+    /// <returns>A PostReadDto.</returns>
+    private PostReadDto GeneratePostDto(ForumPost post)
+    {
+        return new PostReadDto
+        {
+            ForumPostId = post.ForumPostId,
+            Title = post.Title,
+            Content = post.Content,
+            Created = post.CreatedAt,
+            Updated = post.UpdatedAt,
+            Category = post.Category != null
+                ? GenerateCategoryReadDto(post.Category)
+                : null,
+            Author = post.User != null
+                ? GenerateUserReadDto(post.User)
+                : null
+        };
+    }
+
+    private CommentReadDto BaseCommentToDto(ForumComment comment)
+    {
+        return new CommentReadDto
+        {
+            ForumCommentId = comment.ForumcommentId,
+            Content = comment.Content,
+            Created = comment.CreatedAt,
+            Updated = comment.UpdatedAt,
+            Edited = comment.IsEdited,
+            Deleted = comment.isDeleted,
+            ReplyCount = comment.ReplyCount > 0
+                ? comment.ReplyCount
+                : null,
+            User = comment.User != null
+                ? GenerateUserReadDto(comment.User)
+                : null,
+            Post = comment.Post != null
+                ? GeneratePostDto(comment.Post)
+                : null,
+            ParentCommentId = comment.ParentComment != null
+                ? comment.ParentComment.ForumcommentId
+                : null
+        };
+    }
+
+    private CommentReadDto MapCommentToDtoTree(ForumComment comment)
+    {
+        var commentDto = BaseCommentToDto(comment);
+        commentDto.Replies = comment.Replies?
+            .Select(c => MapCommentToDtoTree(c))
+            .ToList() ?? null;
+
+        return commentDto;
     }
 }
