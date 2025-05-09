@@ -12,8 +12,8 @@ using StudyConnect.Data;
 namespace StudyConnect.Data.Migrations
 {
     [DbContext(typeof(StudyConnectDbContext))]
-    [Migration("20250508154727_changeComments")]
-    partial class changeComments
+    [Migration("20250509205712_changeCommentEntity")]
+    partial class changeCommentEntity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
