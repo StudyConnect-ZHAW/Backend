@@ -17,6 +17,10 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
       - ConnectionStrings__DefaultConnection=Server=mssql-server;Database=studyconnect;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
+      - Entra__Instance=https://${TENANT_ID}.ciamlogin.com/
+      - Entra__TenantId=${TENANT_ID}
+      - Entra__ClientId=${CLIENT_ID}
+      - Entra__Audience=api://${CLIENT_ID}
     ports:
       - "8080:8080"
     depends_on:
