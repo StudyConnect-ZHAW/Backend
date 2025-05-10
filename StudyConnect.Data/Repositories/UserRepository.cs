@@ -94,21 +94,21 @@ public class UserRepository : BaseRepository, IUserRepository
         return OperationResult<User?>.Success(userToReturn);
     }
 
-    public async Task<OperationResult<bool>> UpdateAsync(User user)
+    public async Task<OperationResult<bool?>> UpdateAsync(User user)
     {
         if (user == null)
         {
-            return OperationResult<bool>.Failure("User cannot be null.");
+            return OperationResult<bool?>.Failure("User cannot be null.");
         }
         if (user.UserGuid == Guid.Empty)
         {
-            return OperationResult<bool>.Failure("Invalid GUID.");
+            return OperationResult<bool?>.Failure("Invalid GUID.");
         }
 
         var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == user.UserGuid);
         if (existingUser == null)
         {
-            return OperationResult<bool>.Failure("User not found.");
+            return OperationResult<bool?>.Success(null);
         }
 
         try
@@ -120,11 +120,11 @@ public class UserRepository : BaseRepository, IUserRepository
 
             await _context.SaveChangesAsync();
 
-            return await Task.FromResult(OperationResult<bool>.Success(true));
+            return await Task.FromResult(OperationResult<bool?>.Success(true));
         }
         catch (Exception ex)
         {
-            return OperationResult<bool>.Failure($"An error occurred while updating the user: {ex.Message}");
+            return OperationResult<bool?>.Failure($"An error occurred while updating the user: {ex.Message}");
         }
 
     }
