@@ -56,7 +56,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
 
             post.CommentCount++;
 
-            return OperationResult<ForumComment?>.Success(ModelMapper.PackageCommentTree(result));
+            return OperationResult<ForumComment?>.Success(MapCommentToModel(result));
         }
         catch (Exception ex)
         {
@@ -73,17 +73,26 @@ public class CommentRepository : BaseRepository, ICommentRepository
             .AsNoTracking()
             .Include(c => c.User)
             .Include(c => c.ForumPost)
-            .Include(c => c.Replies)
-                .ThenInclude(r => r.User)
-            .Include(c => c.Replies)
-                .ThenInclude(r => r.ForumPost)
+            .Include(c => c.ParentComment)
+            .Where(c => c.ForumPost.ForumPostId == postId)
             .ToListAsync();
 
         if (comments.Count == 0)
             return OperationResult<IEnumerable<ForumComment>?>.Success(null);
 
+        var commentDict = comments.ToDictionary(c => c.ForumCommentId);
+        foreach (var comment in comments)
+        {
+            if (comment.ParentComment != null && commentDict.TryGetValue(comment.ParentComment.ForumCommentId, out var parent))
+            {
+                parent.Replies ??= new List<Entities.ForumComment>();
+                parent.Replies.Add(comment);
+            }
+        }
+
         var result = comments
-           .Select(c => ModelMapper.PackageCommentTree(c));
+            .Where(c => c.ParentComment == null)
+            .Select(c => MapCommentToModel(c));
 
         return OperationResult<IEnumerable<ForumComment>?>.Success(result);
     }
@@ -103,7 +112,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
         if (comment == null)
             return OperationResult<ForumComment?>.Success(null);
 
-        var result = ModelMapper.PackageCommentTree(comment);
+        var result = MapCommentToModel(comment);
 
         return OperationResult<ForumComment?>.Success(result);
     }
@@ -175,7 +184,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
             IsEdited = comment.IsEdited,
             isDeleted = comment.IsDeleted,
             PostId = comment.ForumPost.ForumPostId,
-            ParentCommentId = comment.ParentComment != null ? comment.ParentComment.ForumCommentId : Guid.Empty,
+            ParentCommentId = comment.ParentComment != null ? comment.ParentComment.ForumCommentId : (Guid?)null,
             User = ModelMapper.MapUserToModel(comment.User),
         };
 
