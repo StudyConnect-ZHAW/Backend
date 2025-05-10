@@ -15,23 +15,29 @@ namespace StudyConnect.API.Controllers.Forum;
 [ApiController]
 public class CommentController : BaseController
 {
-
+    /// <summary>
+    /// The comment repository to interact wit data.
+    /// </summary>
     protected readonly ICommentRepository _commentRepository;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CommentController"/> class.
+    /// </summary>
+    /// <param name="commentRepository">The comment repository to interact with data.</param>
     public CommentController(ICommentRepository commentRepository)
     {
         _commentRepository = commentRepository;
     }
 
     /// <summary>
-    /// Creates a new comment
+    /// Creates a new comment.
     /// </summary>
-    /// <param name="pid"> unique identifier of the post </param>
+    /// <param name="pid">The unique identifier of the post.</param>
     /// <param name="createDto">A Date Transfer Object containing information for post creating.</param>
-    /// <returns> HTTP 200 OK response on success </returns>
-    [Route("v1/posts/{pid}/comments")]
+    /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
+    [Route("v1/posts/{pid:guid}/comments")]
     [HttpPost]
-    public async Task<IActionResult> AddComment([FromRoute] Guid pid,[FromBody] CommentCreateDto createDto)
+    public async Task<IActionResult> AddComment([FromRoute] Guid pid, [FromBody] CommentCreateDto createDto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -42,7 +48,7 @@ public class CommentController : BaseController
         };
 
         Guid userId = createDto.UserId;
-        Guid? parentId = createDto.ParentCommentId; 
+        Guid? parentId = createDto.ParentCommentId;
 
         var result = await _commentRepository.AddAsync(comment, userId, pid, parentId);
         if (!result.IsSuccess)
@@ -52,11 +58,11 @@ public class CommentController : BaseController
     }
 
     /// <summary>
-    /// Get all comments of a post
+    /// Get all comments of a post.
     /// </summary>
-    /// <param name="pid"> unique identifier of the post </param>
-    /// <returns> HTTP 200 OK response on success </returns>
-    [Route("v1/posts/{pid}/comments")]
+    /// <param name="pid">The unique identifier of the post.</param>
+    /// <returns>On success a list of Dtos with information about the comment, on failure a HTTP 400/404 status code.</returns>
+    [Route("v1/posts/{pid:guid}/comments")]
     [HttpGet]
     public async Task<IActionResult> GetAllCommentsOfPost([FromRoute] Guid pid)
     {
@@ -67,56 +73,80 @@ public class CommentController : BaseController
         if (comments.Data == null)
             return NotFound("No comments were found");
 
-        var result = comments.Data.Select(c => MapCommentToDtoTree(c));
+        var result = comments.Data.Select(c => MapCommentToDto(c));
         return Ok(result);
     }
 
     /// <summary>
-    /// Get comment of a post by its ID
+    /// Get comment of a post by its ID.
     /// </summary>
-    /// <param name="cid"> unique identifier of the comment </param>
-    /// <returns> the comment details in JSON </returns>
-    [Route("v1/comments/{cid}")]
+    /// <param name="cmid">The unique identifier of the comment.</param>
+    /// <returns>On success a Dto with information about the comment, on failure a HTTP 400/404 status code.</returns>
+    [Route("v1/comments/{cmid:guid}")]
     [HttpGet]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    public IActionResult GetCommentById([FromRoute] Guid cid)
+    public async Task<IActionResult> GetCommentById([FromRoute] Guid cmid)
     {
-        var mockComment = @"
-        { 
-                ""CommentId"": ""d2b516f0-d3f5-4a02-8191-5d122c375b2d"",
-                ""PostId"": ""d2b876f0-d6h9-4a02-8965-5d248b573j8l"",
-                ""Author"": ""John Doe"",
-                ""Content"": ""This is a mock content for a mock post."",
-                ""MadeAt"": ""2025-03-29T12:34:56""
-        }";
+        var comment = await _commentRepository.GetByIdAsync(cmid);
+        if (!comment.IsSuccess)
+            return BadRequest(comment.ErrorMessage);
 
-        return Ok(mockComment);
+        if (comment.Data == null)
+            return NotFound("Comment was not found.");
+
+        var result = MapCommentToDto(comment.Data);
+
+        return Ok(result);
     }
 
-
-
     /// <summary>
-    /// Updates an existing comment
+    /// Updates an existing comment.
     /// </summary>
-    /// <param name="cid"> unique identifier of the comment </param>
-    /// <returns> HTTP 200 OK response on success </returns>
-    [Route("v1/comments/{cid}")]
+    /// <param name="cmid">The unique identifier of the comment.</param>
+    /// <param name="commentDto">A dto conaining the data for updating the comment.</param>
+    /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
+    [Route("v1/comments/{cmid:guid}")]
     [HttpPut]
-    public IActionResult UpdateComment([FromRoute] Guid cid)
+    public async Task<IActionResult> UpdateComment([FromRoute] Guid cmid, [FromBody] CommentCreateDto commentDto)
     {
-        return Ok();
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var comment = new ForumComment
+        {
+            Content = commentDto.Content
+        };
+
+        var result = await _commentRepository.UpdateAsync(cmid, commentDto.UserId, comment);
+        if (!result.IsSuccess)
+            return BadRequest(result.ErrorMessage);
+
+        if (!result.Data)
+            return NotFound("Comment for update was not found.");
+
+        return NoContent();
     }
 
     /// <summary>
-    /// Deletes an existing comment
+    /// Deletes an existing comment.
     /// </summary>
-    /// <param name="cid"> unique identifier of the comment </param>
-    /// <returns> HTTP 200 OK response on success </returns>
-    [Route("v1/comments/{cid}")]
+    /// <param name="cmid">The unique identifier of the comment.</param>
+    /// <param name="userId">The unique identifier of the current user.</param>
+    /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
+    [Route("v1/comments/{cmid:guid}")]
     [HttpDelete]
-    public IActionResult DeleteComment([FromRoute] Guid cid)
+    public async Task<IActionResult> DeleteComment([FromRoute] Guid cmid, [FromBody] Guid userId)
     {
-        return Ok();
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var result = await _commentRepository.DeleteAsync(cmid, userId);
+        if (!result.IsSuccess)
+            return BadRequest(result.ErrorMessage);
+
+        if (!result.Data)
+            return NotFound("Comment for deleting was not found.");
+
+        return NoContent();
     }
 
     /// <summary>
@@ -124,7 +154,7 @@ public class CommentController : BaseController
     /// </summary>
     /// <param name="user">The user model.</param>
     /// <returns>A UserReadDto.</returns>
-    private UserReadDto GenerateUserReadDto(User user)
+    private UserReadDto MapUserToDto(User user)
     {
         return new UserReadDto
         {
@@ -135,46 +165,13 @@ public class CommentController : BaseController
     }
 
     /// <summary>
-    /// A helper function to create category Dto from model.
+    /// A helper function to create comment Dto from model.
     /// </summary>
-    /// <param name="category">The forum category model.</param>
-    /// <returns>A CategoryReadDto.</returns>
-    private CategoryReadDto GenerateCategoryReadDto(ForumCategory category)
+    /// <param name="comment">The comment model.</param>
+    /// <returns>A CommentReadDto.</returns>
+    private CommentReadDto MapCommentToDto(ForumComment comment)
     {
-        return new CategoryReadDto
-        {
-            ForumCategoryId = category.ForumCategoryId,
-            Name = category.Name,
-            Description = category.Description
-        };
-    }
-
-    /// <summary>
-    /// A helper function to create post Dto from model.
-    /// </summary>
-    /// <param name="post">The forum post model.</param>
-    /// <returns>A PostReadDto.</returns>
-    private PostReadDto GeneratePostDto(ForumPost post)
-    {
-        return new PostReadDto
-        {
-            ForumPostId = post.ForumPostId,
-            Title = post.Title,
-            Content = post.Content,
-            Created = post.CreatedAt,
-            Updated = post.UpdatedAt,
-            Category = post.Category != null
-                ? GenerateCategoryReadDto(post.Category)
-                : null,
-            Author = post.User != null
-                ? GenerateUserReadDto(post.User)
-                : null
-        };
-    }
-
-    private CommentReadDto BaseCommentToDto(ForumComment comment)
-    {
-        return new CommentReadDto
+        var result = new CommentReadDto
         {
             ForumCommentId = comment.ForumcommentId,
             Content = comment.Content,
@@ -182,22 +179,19 @@ public class CommentController : BaseController
             Updated = comment.UpdatedAt,
             Edited = comment.IsEdited,
             Deleted = comment.isDeleted,
-            ReplyCount = comment.ReplyCount, 
+            ReplyCount = comment.ReplyCount,
             User = comment.User != null
-                ? GenerateUserReadDto(comment.User)
+                ? MapUserToDto(comment.User)
                 : null,
-            PostId = comment.PostId, 
+            PostId = comment.PostId,
             ParentCommentId = comment.ParentCommentId
         };
-    }
 
-    private CommentReadDto MapCommentToDtoTree(ForumComment comment)
-    {
-        var commentDto = BaseCommentToDto(comment);
-        commentDto.Replies = comment.Replies?
-            .Select(c => MapCommentToDtoTree(c))
-            .ToList() ?? null;
+        if (comment.Replies != null && comment.Replies.Count > 0)
+        {
+            result.Replies = comment.Replies.Select(c => MapCommentToDto(c)).ToList();
+        }
 
-        return commentDto;
+        return result;
     }
 }

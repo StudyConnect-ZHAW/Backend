@@ -40,6 +40,11 @@ public class CommentRepository : BaseRepository, ICommentRepository
 
         try
         {
+            if (parent != null)
+                parent.ReplyCount++;
+
+            post.CommentCount++;
+
             var result = new Entities.ForumComment
             {
                 Content = comment.Content,
@@ -50,11 +55,6 @@ public class CommentRepository : BaseRepository, ICommentRepository
 
             await _context.AddAsync(result);
             await _context.SaveChangesAsync();
-
-            if (parent != null)
-                parent.ReplyCount++;
-
-            post.CommentCount++;
 
             return OperationResult<ForumComment?>.Success(MapCommentToModel(result));
         }
@@ -117,7 +117,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
         return OperationResult<ForumComment?>.Success(result);
     }
 
-    public async Task<OperationResult<bool>> UpdateAsync(Guid commentId, ForumComment comment)
+    public async Task<OperationResult<bool>> UpdateAsync(Guid commentId, Guid userId, ForumComment comment)
     {
         if (commentId == Guid.Empty)
             return OperationResult<bool>.Failure("Invalid comment Id.");
@@ -125,14 +125,19 @@ public class CommentRepository : BaseRepository, ICommentRepository
         if (comment == null)
             return OperationResult<bool>.Failure("Post cannot be null.");
 
-        var commentToUpdate = await _context.ForumComments.FirstOrDefaultAsync(c => c.ForumCommentId == commentId);
+        var commentToUpdate = await _context.ForumComments
+            .Include(c => c.User)
+            .FirstOrDefaultAsync(c => c.ForumCommentId == commentId);
         if (commentToUpdate == null)
             return OperationResult<bool>.Success(false);
+
+        if (commentToUpdate.User.UserGuid != userId)
+            return OperationResult<bool>.Failure("Not auhorized.");
 
         try
         {
             commentToUpdate.Content = comment.Content;
-            commentToUpdate.UpdatedAt = DateTime.UtcNow;
+            commentToUpdate.UpdatedAt = DateTime.Now;
             commentToUpdate.IsEdited = true;
 
             await _context.SaveChangesAsync();
@@ -145,14 +150,19 @@ public class CommentRepository : BaseRepository, ICommentRepository
         }
     }
 
-    public async Task<OperationResult<bool>> DeleteAsync(Guid commentId)
+    public async Task<OperationResult<bool>> DeleteAsync(Guid commentId, Guid userId)
     {
         if (commentId == Guid.Empty)
             return OperationResult<bool>.Failure("Invalid comment Id.");
 
-        var commentToDelete = await _context.ForumComments.FirstOrDefaultAsync(c => c.ForumCommentId == commentId);
+        var commentToDelete = await _context.ForumComments
+            .Include(c => c.User)
+            .FirstOrDefaultAsync(c => c.ForumCommentId == commentId);
         if (commentToDelete == null)
             return OperationResult<bool>.Success(false);
+
+        if (commentToDelete.User.UserGuid != userId)
+            return OperationResult<bool>.Failure("Not auhorized.");
 
         try
         {

@@ -33,14 +33,16 @@ public interface ICommentRepository
     /// Updates a Comment by its GUID.
     /// </summary>
     /// <param name="commentId">The unique identifier of the comment.</param>
+    /// <param name="userId">The unique identifier of the current user.</param>
     /// <param name="comment">A comment model containing the information for update.<param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<bool>> UpdateAsync(Guid commentId, ForumComment comment);
+    Task<OperationResult<bool>> UpdateAsync(Guid commentId, Guid userId, ForumComment comment);
 
     /// <summary>
     /// Delete a comment by its GUID.
     /// </summary> 
     /// <param name="commentId">The unique identifier of the comment.</param>
+    /// <param name="userId">the unique identifier of the current user.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<bool>> DeleteAsync(Guid commentId);
+    Task<OperationResult<bool>> DeleteAsync(Guid commentId, Guid userId);
 }
