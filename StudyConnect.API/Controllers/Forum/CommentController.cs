@@ -186,12 +186,8 @@ public class CommentController : BaseController
             User = comment.User != null
                 ? GenerateUserReadDto(comment.User)
                 : null,
-            PostId = comment.Post != null
-                ? comment.Post.ForumPostId
-                : null,
-            ParentCommentId = comment.ParentComment != null
-                ? comment.ParentComment.ForumcommentId
-                : null
+            PostId = comment.PostId, 
+            ParentCommentId = comment.ParentCommentId
         };
     }
 
