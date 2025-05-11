@@ -126,25 +126,17 @@ public class CommentRepository : BaseRepository, ICommentRepository
         if (IsInvalid(userId))
             return OperationResult<bool>.Failure(InvalidUserId);
 
-        // Retrieve the comment, including its associated user
-        var result = await _context.ForumComments
-            .Include(c => c.User)
-            .FirstOrDefaultAsync(c => c.ForumCommentId == commentId);
-
-        // Test data
-        if (result == null)
-            return OperationResult<bool>.Failure(CommentNotFound);
-
-        // Verify that the requesting user is the author of the comment
-        if (result.User.UserGuid != userId)
-            return OperationResult<bool>.Failure(Unauthorized);
+        // Retrieve the comment and ensure the user is authorized to access it
+        var result = await GetAuthorizedCommentAsync(commentId, userId);
+        if (!result.IsSuccess)
+            return OperationResult<bool>.Failure(result.ErrorMessage!);
 
         try
         {
             // Update the comment's content and metadata
-            result.Content = comment.Content;
-            result.UpdatedAt = DateTime.Now;
-            result.IsEdited = true;
+            result.Data!.Content = comment.Content;
+            result.Data!.UpdatedAt = DateTime.UtcNow;
+            result.Data!.IsEdited = true;
 
             await _context.SaveChangesAsync();
 
@@ -164,23 +156,15 @@ public class CommentRepository : BaseRepository, ICommentRepository
         if (IsInvalid(userId))
             return OperationResult<bool>.Failure(InvalidUserId);
 
-        // Retrieve the comment, including its associated user
-        var result = await _context.ForumComments
-            .Include(c => c.User)
-            .FirstOrDefaultAsync(c => c.ForumCommentId == commentId);
-
-        // Test for data
-        if (result == null)
-            return OperationResult<bool>.Failure(CommentNotFound);
-
-        // Verify that the requesting user is the author of the comment
-        if (result.User.UserGuid != userId)
-            return OperationResult<bool>.Failure(Unauthorized);
+        // Retrieve the comment and ensure the user is authorized to access it
+        var result = await GetAuthorizedCommentAsync(commentId, userId);
+        if (!result.IsSuccess)
+            return OperationResult<bool>.Failure(result.ErrorMessage!);
 
         try
         {
-            result.IsDeleted = true;
-            result.IsEdited = false;
+            result.Data!.IsDeleted = true;
+            result.Data!.IsEdited = false;
             await _context.SaveChangesAsync();
             return OperationResult<bool>.Success(true);
         }
@@ -234,6 +218,27 @@ public class CommentRepository : BaseRepository, ICommentRepository
     }
 
     /// <summary>
+    /// Retrieves a forum comment by its ID and verifies that the specified user is the author.
+    /// </summary>
+    /// <param name="commentId">The unique identifier of the comment.</param>
+    /// <param name="userId">The unique identifier of the user requesting access.</param>
+    /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
+    private async Task<OperationResult<Entities.ForumComment?>> GetAuthorizedCommentAsync(Guid commentId, Guid userId)
+    {
+        var comment = await _context.ForumComments
+            .Include(c => c.User)
+            .FirstOrDefaultAsync(c => c.ForumCommentId == commentId);
+
+        if (comment == null)
+            return OperationResult<Entities.ForumComment?>.Failure(CommentNotFound);
+
+        if (comment.User.UserGuid != userId)
+            return OperationResult<Entities.ForumComment?>.Failure(Unauthorized);
+
+        return OperationResult<Entities.ForumComment?>.Success(comment);
+    }
+
+    /// <summary>
     /// A helper function to establish parent-child relationships in a list of comment entities.
     /// </summary>
     /// <param name="comments">A list of comments, each of which may have a parent comment ID.</param>
@@ -267,7 +272,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
             UpdatedAt = comment.UpdatedAt,
             ReplyCount = comment.ReplyCount,
             IsEdited = comment.IsEdited,
-            isDeleted = comment.IsDeleted,
+            IsDeleted = comment.IsDeleted,
             PostId = comment.ForumPost.ForumPostId,
             ParentCommentId = comment.ParentComment != null
                 ? comment.ParentComment.ForumCommentId

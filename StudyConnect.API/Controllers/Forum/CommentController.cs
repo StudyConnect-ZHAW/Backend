@@ -134,7 +134,7 @@ public class CommentController : BaseController
     /// <returns>Returns HTTP 204 No Content on success, or an appropriate error status code on failure.</returns>
     [Route("v1/comments/{cmid:guid}")]
     [HttpDelete]
-    public async Task<IActionResult> DeleteComment([FromRoute] Guid cmid, [FromBody] Guid userId)
+    public async Task<IActionResult> DeleteComment([FromRoute] Guid cmid, [FromQuery] Guid userId)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -179,7 +179,7 @@ public class CommentController : BaseController
             Created = comment.CreatedAt,
             Updated = comment.UpdatedAt,
             Edited = comment.IsEdited,
-            Deleted = comment.isDeleted,
+            Deleted = comment.IsDeleted,
             ReplyCount = comment.ReplyCount,
             User = comment.User != null
                 ? MapUserToDto(comment.User)

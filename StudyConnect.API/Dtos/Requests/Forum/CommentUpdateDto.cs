@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
+namespace StudyConnect.API.Dtos.Requests.Forum;
+
 /// <summary>
 /// Data transfer object for updating a forum comment.
 /// </summary>
