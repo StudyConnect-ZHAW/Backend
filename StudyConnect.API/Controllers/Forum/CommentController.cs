@@ -4,26 +4,25 @@ using StudyConnect.Core.Interfaces;
 using StudyConnect.API.Dtos.Responses.Forum;
 using StudyConnect.API.Dtos.Requests.Forum;
 using StudyConnect.API.Dtos.Responses.User;
-using System.Threading.Tasks;
 
 namespace StudyConnect.API.Controllers.Forum;
 
 /// <summary>
-/// Controller for managing the comments
+/// Controller for managing the comments.
 /// Provides endpoints to create, retrieve, update, and delete comments.
 /// </summary>
 [ApiController]
 public class CommentController : BaseController
 {
     /// <summary>
-    /// The comment repository to interact wit data.
+    /// The comment repository for data operations.
     /// </summary>
     protected readonly ICommentRepository _commentRepository;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CommentController"/> class.
     /// </summary>
-    /// <param name="commentRepository">The comment repository to interact with data.</param>
+    /// <param name="commentRepository">The repository used to manage comment data.</param>
     public CommentController(ICommentRepository commentRepository)
     {
         _commentRepository = commentRepository;
@@ -33,8 +32,8 @@ public class CommentController : BaseController
     /// Creates a new comment.
     /// </summary>
     /// <param name="pid">The unique identifier of the post.</param>
-    /// <param name="createDto">A Date Transfer Object containing information for post creating.</param>
-    /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
+    /// <param name="createDto">A Data Transfer Object containing information for comment creation.</param>
+    /// <returns>Returns HTTP 200 OK on success, or 400 Bad Request on failure.</returns>
     [Route("v1/posts/{pid:guid}/comments")]
     [HttpPost]
     public async Task<IActionResult> AddComment([FromRoute] Guid pid, [FromBody] CommentCreateDto createDto)
@@ -54,46 +53,44 @@ public class CommentController : BaseController
         if (!result.IsSuccess)
             return BadRequest(result.ErrorMessage);
 
-        return NoContent();
+        return Ok(result);
     }
 
     /// <summary>
-    /// Get all comments of a post.
+    /// Retrieves all comments for a specific post.
     /// </summary>
     /// <param name="pid">The unique identifier of the post.</param>
-    /// <returns>On success a list of Dtos with information about the comment, on failure a HTTP 400/404 status code.</returns>
+    /// <returns>Returns a list of comments on success, or HTTP 400/404 on failure.</returns>
     [Route("v1/posts/{pid:guid}/comments")]
     [HttpGet]
     public async Task<IActionResult> GetAllCommentsOfPost([FromRoute] Guid pid)
     {
         var comments = await _commentRepository.GetAllofPostAsync(pid);
         if (!comments.IsSuccess)
-            return BadRequest(comments.ErrorMessage);
+            return comments.ErrorMessage!.Contains("not found")
+                ? NotFound(comments.ErrorMessage)
+                : BadRequest(comments.ErrorMessage);
 
-        if (comments.Data == null)
-            return NotFound("No comments were found");
-
-        var result = comments.Data.Select(c => MapCommentToDto(c));
+        var result = comments.Data!.Select(c => MapCommentToDto(c));
         return Ok(result);
     }
 
     /// <summary>
-    /// Get comment of a post by its ID.
+    /// Retrieves a comment by its ID.
     /// </summary>
     /// <param name="cmid">The unique identifier of the comment.</param>
-    /// <returns>On success a Dto with information about the comment, on failure a HTTP 400/404 status code.</returns>
+    /// <returns>Returns the comment details on success, or HTTP 400/404 on failure.</returns>
     [Route("v1/comments/{cmid:guid}")]
     [HttpGet]
     public async Task<IActionResult> GetCommentById([FromRoute] Guid cmid)
     {
         var comment = await _commentRepository.GetByIdAsync(cmid);
         if (!comment.IsSuccess)
-            return BadRequest(comment.ErrorMessage);
+            return comment.ErrorMessage!.Contains("not found")
+                ? NotFound(comment.ErrorMessage)
+                : BadRequest(comment.ErrorMessage);
 
-        if (comment.Data == null)
-            return NotFound("Comment was not found.");
-
-        var result = MapCommentToDto(comment.Data);
+        var result = MapCommentToDto(comment.Data!);
 
         return Ok(result);
     }
@@ -102,11 +99,11 @@ public class CommentController : BaseController
     /// Updates an existing comment.
     /// </summary>
     /// <param name="cmid">The unique identifier of the comment.</param>
-    /// <param name="commentDto">A dto conaining the data for updating the comment.</param>
-    /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
+    /// <param name="commentDto">A Data Transfer Object containing updated comment data.</param>
+    /// <returns>Returns HTTP 204 No Content on success, or an appropriate error status code on failure.</returns>
     [Route("v1/comments/{cmid:guid}")]
     [HttpPut]
-    public async Task<IActionResult> UpdateComment([FromRoute] Guid cmid, [FromBody] CommentCreateDto commentDto)
+    public async Task<IActionResult> UpdateComment([FromRoute] Guid cmid, [FromBody] CommentUpdateDto commentDto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -118,10 +115,11 @@ public class CommentController : BaseController
 
         var result = await _commentRepository.UpdateAsync(cmid, commentDto.UserId, comment);
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
-
-        if (!result.Data)
-            return NotFound("Comment for update was not found.");
+        {
+            if (result.ErrorMessage!.Contains("not found")) return NotFound(result.ErrorMessage);
+            else if (result.ErrorMessage!.Contains("authorized")) return Unauthorized(result.ErrorMessage);
+            else return BadRequest(result.ErrorMessage);
+        }
 
         return NoContent();
     }
@@ -130,8 +128,8 @@ public class CommentController : BaseController
     /// Deletes an existing comment.
     /// </summary>
     /// <param name="cmid">The unique identifier of the comment.</param>
-    /// <param name="userId">The unique identifier of the current user.</param>
-    /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
+    /// <param name="userId">The ID of the user requesting the deletion.</param>
+    /// <returns>Returns HTTP 204 No Content on success, or an appropriate error status code on failure.</returns>
     [Route("v1/comments/{cmid:guid}")]
     [HttpDelete]
     public async Task<IActionResult> DeleteComment([FromRoute] Guid cmid, [FromBody] Guid userId)
@@ -141,19 +139,20 @@ public class CommentController : BaseController
 
         var result = await _commentRepository.DeleteAsync(cmid, userId);
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
-
-        if (!result.Data)
-            return NotFound("Comment for deleting was not found.");
+        {
+            if (result.ErrorMessage!.Contains("not found")) return NotFound(result.ErrorMessage);
+            else if (result.ErrorMessage!.Contains("authorized")) return Unauthorized(result.ErrorMessage);
+            else return BadRequest(result.ErrorMessage);
+        }
 
         return NoContent();
     }
 
     /// <summary>
-    /// A helper function to create user Dto from model.
+    /// A helper function to map a User model to a UserReadDto.
     /// </summary>
     /// <param name="user">The user model.</param>
-    /// <returns>A UserReadDto.</returns>
+    /// <returns>A UserReadDto containing user details.</returns>
     private UserReadDto MapUserToDto(User user)
     {
         return new UserReadDto
@@ -165,15 +164,15 @@ public class CommentController : BaseController
     }
 
     /// <summary>
-    /// A helper function to create comment Dto from model.
+    /// A helper function to map a forumComment model to a CommentReadDto.
     /// </summary>
     /// <param name="comment">The comment model.</param>
-    /// <returns>A CommentReadDto.</returns>
+    /// <returns>A CommentReadDto containing comment details and nested replies, if any.</returns>
     private CommentReadDto MapCommentToDto(ForumComment comment)
     {
         var result = new CommentReadDto
         {
-            ForumCommentId = comment.ForumcommentId,
+            ForumCommentId = comment.ForumCommentId,
             Content = comment.Content,
             Created = comment.CreatedAt,
             Updated = comment.UpdatedAt,
