@@ -55,7 +55,9 @@ public class CommentController : BaseController
                 ? NotFound(result.ErrorMessage)
                 : BadRequest(result.ErrorMessage);
 
-        return Ok(result);
+        var createdComment = MapCommentToDto(result.Data!);
+
+        return Ok(createdComment);
     }
 
     /// <summary>
