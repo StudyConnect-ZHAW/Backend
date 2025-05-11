@@ -4,7 +4,6 @@ using StudyConnect.Core.Interfaces;
 using StudyConnect.Core.Models;
 using StudyConnect.API.Dtos.Requests.Group;
 using StudyConnect.API.Dtos.Responses.Group;
-using System.ComponentModel.DataAnnotations;
 
 namespace StudyConnect.API.Controllers.Groups
 {
@@ -28,10 +27,12 @@ namespace StudyConnect.API.Controllers.Groups
         }
 
         /// <summary>
-        /// Creates a new group with the provided information.
+        /// Creates a new group and returns <c>200 OK</c> if successful.
         /// </summary>
-        /// <param name="dto">The data required to create the group.</param>
-        /// <returns>No content if successful; otherwise, a bad request with an error message.</returns>
+        /// <returns>
+        /// 200 OK with the created group on success;
+        /// 400 Bad Request if the input is invalid or the repository returns an error.
+        /// </returns>
         [Route("v1/groups")]
         [HttpPost]
         public async Task<IActionResult> AddGroup([FromBody] GroupCreateDto dto)
@@ -54,7 +55,14 @@ namespace StudyConnect.API.Controllers.Groups
                 return BadRequest(result.ErrorMessage);
             }
 
-            return NoContent(); 
+            var response = new GroupReadDto
+            {
+                GroupId = group.GroupId, // DB setzt Id nach SaveChanges
+                OwnerId = group.OwnerId,
+                Name = group.Name,
+                Description = group.Description,
+            };
+            return Ok(response);
         }
 
         /// <summary>
@@ -150,7 +158,7 @@ namespace StudyConnect.API.Controllers.Groups
                 return NotFound("Group not found.");
             }
 
-            return Ok("Group deleted successfully.");
+            return NoContent();
         }
 
         /// <summary>
@@ -168,10 +176,9 @@ namespace StudyConnect.API.Controllers.Groups
                 return BadRequest(result.ErrorMessage);
             }
 
-            if (result.Data == null)
-            {
+            var groups = result.Data!;
+            if (!groups.Any())
                 return NotFound("No groups found.");
-            }
 
             var dtoList = result.Data.Select(g => new GroupReadDto
             {
@@ -180,6 +187,7 @@ namespace StudyConnect.API.Controllers.Groups
                 Name = g.Name,
                 Description = g.Description,
             });
+
             return Ok(dtoList);
         }
     }
