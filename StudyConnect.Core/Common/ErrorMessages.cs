@@ -16,6 +16,7 @@ namespace StudyConnect.Core.Common
         public const string ParentCommentNotFound = "Parent comment not found.";
 
         public const string CommentNotFound = "Comment not found.";
+        public const string CommentsNotFound = "Comments not found";
         public const string PostNotFound = "Post not found.";
         public const string UserNotFound = "User not found.";
     }

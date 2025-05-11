@@ -83,7 +83,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
 
         // Test list for data
         if (comments.Count == 0)
-            return OperationResult<IEnumerable<ForumComment>?>.Success(null);
+            return OperationResult<IEnumerable<ForumComment>?>.Failure(CommentsNotFound);
 
         // Build the parent-child relationships among the comment entities
         BuildEntityCommentTree(comments);
@@ -110,7 +110,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
 
         // Test for data
         if (comment == null)
-            return OperationResult<ForumComment?>.Success(null);
+            return OperationResult<ForumComment?>.Failure(CommentNotFound);
 
         // Convert comment to model format
         var result = MapCommentToModel(comment);
@@ -133,7 +133,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
 
         // Test data
         if (result == null)
-            return OperationResult<bool>.Success(false);
+            return OperationResult<bool>.Failure(CommentNotFound);
 
         // Verify that the requesting user is the author of the comment
         if (result.User.UserGuid != userId)
@@ -171,7 +171,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
 
         // Test for data
         if (result == null)
-            return OperationResult<bool>.Success(false);
+            return OperationResult<bool>.Failure(CommentNotFound);
 
         // Verify that the requesting user is the author of the comment
         if (result.User.UserGuid != userId)
