@@ -62,6 +62,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
         }
         catch (Exception ex)
         {
+
             return OperationResult<ForumComment?>.Failure($"{UnknownError}: {ex.Message}");
         }
     }
@@ -151,7 +152,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
         }
         catch (Exception ex)
         {
-            return OperationResult<bool>.Failure($"An error occurred while updating: {ex.Message}");
+            return OperationResult<bool>.Failure($"{UnknownError}: {ex.Message}");
         }
     }
 
@@ -185,7 +186,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
         }
         catch (Exception ex)
         {
-            return OperationResult<bool>.Failure($"An error occurred while deleting: {ex.Message}");
+            return OperationResult<bool>.Failure($"{UnknownError}: {ex.Message}");
         }
     }
 
