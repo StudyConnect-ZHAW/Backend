@@ -4,7 +4,7 @@ public class ForumComment
 {
     public required string Content { get; set; }
 
-    public Guid ForumcommentId { get; set; }
+    public Guid ForumCommentId { get; set; }
 
     public DateTime CreatedAt { get; set; }
 

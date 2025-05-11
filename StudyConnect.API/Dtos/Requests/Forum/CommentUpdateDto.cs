@@ -1,0 +1,19 @@
+using System.ComponentModel.DataAnnotations;
+
+/// <summary>
+/// Data transfer object for updating a forum comment.
+/// </summary>
+public class CommentUpdateDto
+{
+    /// <summary>
+    /// The unique identifier of the creator.
+    /// </summary>
+    [Required(ErrorMessage = "User Id is required.")]
+    public required Guid UserId { get; set; }
+
+    /// <summary>
+    /// The Content of the forum comment.
+    /// </summary>
+    [Required(ErrorMessage = "Content is required.")]
+    public required string Content { get; set; }
+}
