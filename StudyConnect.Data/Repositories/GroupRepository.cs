@@ -42,11 +42,6 @@ public class GroupRepository : BaseRepository, IGroupRepository
 
     public async Task<OperationResult<bool>> UpdateAsync(Group group)
     {
-        if (group == null)
-        {
-            return OperationResult<bool>.Failure("Group cannot be null.");
-        }
-
         if (group.GroupId == Guid.Empty)
         {
             return OperationResult<bool>.Failure("Invalid GUID.");
@@ -125,11 +120,6 @@ public class GroupRepository : BaseRepository, IGroupRepository
 
     public async Task<OperationResult<bool>> AddAsync(Group group)
     {
-        if (group == null)
-        {
-            return OperationResult<bool>.Failure("Group cannot be null.");
-        }
-
         var existingGroup = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == group.GroupId);
         if (existingGroup != null)
         {
@@ -192,11 +182,7 @@ public class GroupRepository : BaseRepository, IGroupRepository
         try
         {
             var entities = await _context.Groups.ToListAsync();
-            if (!entities.Any())
-            {
-                return OperationResult<IEnumerable<Group>>.Success(null);
-            }
-
+            
             var models = entities.Select(g => new Group
             {
                 GroupId = g.GroupId,
