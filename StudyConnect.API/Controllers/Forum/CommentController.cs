@@ -51,7 +51,9 @@ public class CommentController : BaseController
 
         var result = await _commentRepository.AddAsync(comment, userId, pid, parentId);
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+            return result.ErrorMessage!.Contains("not found")
+                ? NotFound(result.ErrorMessage)
+                : BadRequest(result.ErrorMessage);
 
         return Ok(result);
     }
