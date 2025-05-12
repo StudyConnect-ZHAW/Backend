@@ -42,25 +42,27 @@ namespace StudyConnect.API.Controllers.Groups
                 return BadRequest(ModelState);
             }
 
-            var group = new Group
+            var newGroup = new Group
             {
                 OwnerId = dto.OwnerId,
                 Name = dto.Name,
                 Description = dto.Description,
             };
 
-            var result = await _groupRepository.AddAsync(group);
+            var result = await _groupRepository.AddAsync(newGroup);
             if (!result.IsSuccess)
             {
                 return BadRequest(result.ErrorMessage);
             }
 
+            var created = result.Data!;
+
             var response = new GroupReadDto
             {
-                GroupId = group.GroupId, // DB setzt Id nach SaveChanges
-                OwnerId = group.OwnerId,
-                Name = group.Name,
-                Description = group.Description,
+                GroupId = created.GroupId,
+                OwnerId = created.OwnerId,
+                Name = created.Name,
+                Description = created.Description,
             };
             return Ok(response);
         }

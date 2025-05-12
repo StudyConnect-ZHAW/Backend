@@ -89,39 +89,30 @@ public class GroupRepository : BaseRepository, IGroupRepository
         }
     }
 
-    public async Task<OperationResult<bool>> AddAsync(Group group)
+    public async Task<OperationResult<Group>> AddAsync(Group group)
     {
-        var existingGroup = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == group.GroupId);
-        if (existingGroup != null)
+        var entity = new Data.Entities.Group
         {
-            return OperationResult<bool>.Failure("A group with the same ID already exists.");
-        }
+            OwnerId = group.OwnerId,
+            Name = group.Name,
+            Description = group.Description,
+            Owner =
+                await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == group.OwnerId)
+                ?? throw new InvalidOperationException("Owner user not found."),
+        };
 
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == group.OwnerId);
-        if (user == null)
+        await _context.Groups.AddAsync(entity);
+        await _context.SaveChangesAsync();
+
+        // In Domain-/DTO-Modell zurückmappen
+        var model = new Group
         {
-            return OperationResult<bool>.Failure("Owner user not found.");
-        }
-
-        try
-        {
-            var entity = new Data.Entities.Group
-            {
-                OwnerId = group.OwnerId,
-                Name = group.Name,
-                Description = group.Description,
-                Owner = user,
-            };
-
-            await _context.Groups.AddAsync(entity);
-            await _context.SaveChangesAsync();
-
-            return OperationResult<bool>.Success(true);
-        }
-        catch (Exception ex)
-        {
-        return OperationResult<bool>.Failure($"An error occurred while adding the group: {ex.Message}");
-        }
+            GroupId = entity.GroupId,
+            OwnerId = entity.OwnerId,
+            Name = entity.Name,
+            Description = entity.Description,
+        };
+        return OperationResult<Group>.Success(model);
     }
 
     public async Task<OperationResult<IEnumerable<Group>>> GetAllAsync()
@@ -129,7 +120,7 @@ public class GroupRepository : BaseRepository, IGroupRepository
         try
         {
             var entities = await _context.Groups.ToListAsync();
-            
+
             var models = entities.Select(g => new Group
             {
                 GroupId = g.GroupId,

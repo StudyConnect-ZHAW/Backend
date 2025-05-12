@@ -28,7 +28,7 @@ public interface IGroupRepository
     /// </summary>
     /// <param name="group">The group to add.</param>
     /// <returns>An operation result indicating success or failure.</returns>
-    Task<OperationResult<bool>> AddAsync(Group group);
+    Task<OperationResult<Group>> AddAsync(Group group);
 
     /// <summary>
     /// Updates an existing group in the system.
