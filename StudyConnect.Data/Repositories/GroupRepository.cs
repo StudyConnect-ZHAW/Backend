@@ -118,7 +118,7 @@ public class GroupRepository : BaseRepository, IGroupRepository
         }
     }
 
-    public async Task<OperationResult<bool>> AddAsync(Group group)
+    public async Task<OperationResult<Group>> AddAsync(Group group)
     {
         var existingGroup = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == group.GroupId);
         if (existingGroup != null)
@@ -141,30 +141,19 @@ public class GroupRepository : BaseRepository, IGroupRepository
                 Description = group.Description,
                 Owner = user,
             };
-        }
-    }
 
-    public async Task<OperationResult<Group>> AddAsync(Group group)
-    {
-        var entity = new Data.Entities.Group
+        await _context.Groups.AddAsync(entity);
+        await _context.SaveChangesAsync();
+
+        // In Domain-/DTO-Modell zurückmappen
+        var model = new Group
         {
-            OwnerId = group.OwnerId,
-            Name = group.Name,
-            Description = group.Description,
-            Owner =
-                await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == group.OwnerId)
-                ?? throw new InvalidOperationException("Owner user not found."),
+            GroupId = entity.GroupId,
+            OwnerId = entity.OwnerId,
+            Name = entity.Name,
+            Description = entity.Description,
         };
-
-            await _context.Groups.AddAsync(entity);
-            await _context.SaveChangesAsync();
-
-            return OperationResult<bool>.Success(true);
-        }
-        catch (Exception ex)
-        {
-        return OperationResult<bool>.Failure($"An error occurred while adding the group: {ex.Message}");
-        }
+        return OperationResult<Group>.Success(model);
     }
         // In Domain-/DTO-Modell zurückmappen
         var model = new Group
@@ -182,7 +171,7 @@ public class GroupRepository : BaseRepository, IGroupRepository
         try
         {
             var entities = await _context.Groups.ToListAsync();
-            
+
             var models = entities.Select(g => new Group
             {
                 GroupId = g.GroupId,
