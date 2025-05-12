@@ -128,6 +128,12 @@ namespace StudyConnect.API.Controllers.Users
                 return BadRequest(result.ErrorMessage);
             }
 
+            // Check if the operation was successful but the user was not found
+            if (!result.Data)
+            {
+                return NotFound("User not found.");
+            }  
+
             return Ok("User updated successfully.");
         }
 
@@ -136,10 +142,11 @@ namespace StudyConnect.API.Controllers.Users
         /// Update a user
         /// </summary>
         /// <param name="userUpdateDto">User with updated properties</param>
-        /// <returns></returns>
+        /// <response code="204">User was updated</response>
         [Route("v1/users")]
         [HttpPut]
         [Authorize]
+        [ProducesResponseType(StatusCodes.Status204NoContent)] 
         public async Task<IActionResult> UpdateUser([FromBody] UserUpdateDto userUpdateDto)
         {
             //Read the ObjectId claim from the token
@@ -168,7 +175,7 @@ namespace StudyConnect.API.Controllers.Users
             }
 
             // Check if the operation was successful but the user was not found
-            if (result.Data == null)
+            if (!result.Data)
             {
                 return NotFound("User not found.");
             }       
