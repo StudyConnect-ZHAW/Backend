@@ -122,7 +122,7 @@ public class CommentController : BaseController
         if (!result.IsSuccess)
         {
             if (result.ErrorMessage!.Contains(GeneralNotFound)) return NotFound(result.ErrorMessage);
-            else if (result.ErrorMessage!.Contains("authorized")) return Unauthorized(result.ErrorMessage);
+            else if (result.ErrorMessage!.Equals(NotAuthorized)) return Unauthorized(result.ErrorMessage);
             else return BadRequest(result.ErrorMessage);
         }
 
@@ -146,7 +146,7 @@ public class CommentController : BaseController
         if (!result.IsSuccess)
         {
             if (result.ErrorMessage!.Contains(GeneralNotFound)) return NotFound(result.ErrorMessage);
-            else if (result.ErrorMessage!.Contains("authorized")) return Unauthorized(result.ErrorMessage);
+            else if (result.ErrorMessage!.Equals(NotAuthorized)) return Unauthorized(result.ErrorMessage);
             else return BadRequest(result.ErrorMessage);
         }
 

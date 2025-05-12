@@ -5,7 +5,7 @@ namespace StudyConnect.Core.Common
         // General
         public const string UnknownError = "An unexpected error occurred.";
         public const string NotFound = "The requested resource was not found.";
-        public const string Unauthorized = "Not authorized to perform this action.";
+        public const string NotAuthorized = "Not authorized to perform this action.";
         public const string InvalidInput = "Input is invalid.";
 
         public const string InvalidUserId = "Invalid user ID.";

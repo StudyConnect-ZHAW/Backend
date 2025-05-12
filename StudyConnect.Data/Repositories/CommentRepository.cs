@@ -233,7 +233,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
             return OperationResult<Entities.ForumComment?>.Failure(CommentNotFound);
 
         if (comment.User.UserGuid != userId)
-            return OperationResult<Entities.ForumComment?>.Failure(Unauthorized);
+            return OperationResult<Entities.ForumComment?>.Failure(NotAuthorized);
 
         return OperationResult<Entities.ForumComment?>.Success(comment);
     }
