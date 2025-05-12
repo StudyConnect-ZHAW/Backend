@@ -4,6 +4,7 @@ using StudyConnect.Core.Interfaces;
 using StudyConnect.API.Dtos.Responses.Forum;
 using StudyConnect.API.Dtos.Requests.Forum;
 using StudyConnect.API.Dtos.Responses.User;
+using static StudyConnect.Core.Common.ErrorMessages;
 
 namespace StudyConnect.API.Controllers.Forum;
 
@@ -51,7 +52,7 @@ public class CommentController : BaseController
 
         var result = await _commentRepository.AddAsync(comment, userId, pid, parentId);
         if (!result.IsSuccess)
-            return result.ErrorMessage!.Contains("not found")
+            return result.ErrorMessage!.Contains(GeneralNotFound)
                 ? NotFound(result.ErrorMessage)
                 : BadRequest(result.ErrorMessage);
 
@@ -71,7 +72,7 @@ public class CommentController : BaseController
     {
         var comments = await _commentRepository.GetAllofPostAsync(pid);
         if (!comments.IsSuccess)
-            return comments.ErrorMessage!.Contains("not found")
+            return comments.ErrorMessage!.Contains(GeneralNotFound)
                 ? NotFound(comments.ErrorMessage)
                 : BadRequest(comments.ErrorMessage);
 
@@ -90,7 +91,7 @@ public class CommentController : BaseController
     {
         var comment = await _commentRepository.GetByIdAsync(cmid);
         if (!comment.IsSuccess)
-            return comment.ErrorMessage!.Contains("not found")
+            return comment.ErrorMessage!.Contains(GeneralNotFound)
                 ? NotFound(comment.ErrorMessage)
                 : BadRequest(comment.ErrorMessage);
 
@@ -120,7 +121,7 @@ public class CommentController : BaseController
         var result = await _commentRepository.UpdateAsync(cmid, commentDto.UserId, comment);
         if (!result.IsSuccess)
         {
-            if (result.ErrorMessage!.Contains("not found")) return NotFound(result.ErrorMessage);
+            if (result.ErrorMessage!.Contains(GeneralNotFound)) return NotFound(result.ErrorMessage);
             else if (result.ErrorMessage!.Contains("authorized")) return Unauthorized(result.ErrorMessage);
             else return BadRequest(result.ErrorMessage);
         }
@@ -144,7 +145,7 @@ public class CommentController : BaseController
         var result = await _commentRepository.DeleteAsync(cmid, userId);
         if (!result.IsSuccess)
         {
-            if (result.ErrorMessage!.Contains("not found")) return NotFound(result.ErrorMessage);
+            if (result.ErrorMessage!.Contains(GeneralNotFound)) return NotFound(result.ErrorMessage);
             else if (result.ErrorMessage!.Contains("authorized")) return Unauthorized(result.ErrorMessage);
             else return BadRequest(result.ErrorMessage);
         }
