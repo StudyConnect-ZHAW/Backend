@@ -19,6 +19,12 @@ namespace StudyConnect.API.Controllers
         public async Task<IActionResult> GetAllTags()
         {
             var tags = await _tagRepository.GetAllTagsAsync();
+
+            if (tags == null || !tags.Any())
+            {
+                return NotFound("No tags found.");
+            }
+
             var tagDtos = tags.Select(t => new TagDto
             {
                 Id = t.Id,
