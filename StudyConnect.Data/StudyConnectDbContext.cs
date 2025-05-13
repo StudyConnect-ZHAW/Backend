@@ -130,6 +130,14 @@ public class StudyConnectDbContext : DbContext
             .WithMany(fc => fc.Replies)
             .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<Core.Models.Tag>(entity =>
+        {   
+            entity.ToTable("Tag"); // Tabellenname in SQL
+            entity.HasKey(t => t.Id);
+            entity.Property(t => t.Name).IsRequired().HasMaxLength(100);
+            entity.Property(t => t.Description).HasMaxLength(500);
+        });
+
         // Configure Unique non-key indexes
         modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
         modelBuilder.Entity<UserRole>().HasIndex(u => u.Name).IsUnique();
@@ -183,4 +191,5 @@ public class StudyConnectDbContext : DbContext
     public DbSet<ForumCategory> ForumCategories { get; set; }
     public DbSet<ForumPost> ForumPosts { get; set; }
     public DbSet<ForumComment> ForumComments { get; set; }
+    public DbSet<Core.Models.Tag> Tags { get; set; }
 }
