@@ -179,7 +179,7 @@ namespace StudyConnect.API.Controllers.Groups
             }
 
             var groups = result.Data!;
-            if (!groups.Any())
+            if (groups == null || !groups.Any())
                 return NotFound("No groups found.");
 
             var dtoList = result.Data.Select(g => new GroupReadDto
