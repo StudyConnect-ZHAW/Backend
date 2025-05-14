@@ -97,7 +97,7 @@ public class GroupRepository : BaseRepository, IGroupRepository
             Name = group.Name,
             Description = group.Description,
             Owner =
-                await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == group.OwnerId)
+                await _context.Users.FirstOrDefaultAsync(u => u.UserId == group.OwnerId)
                 ?? throw new InvalidOperationException("Owner user not found."),
         };
 

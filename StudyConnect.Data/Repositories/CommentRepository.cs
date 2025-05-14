@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using StudyConnect.Core.Interfaces;
 using StudyConnect.Core.Models;
 using StudyConnect.Core.Common;
+using StudyConnect.Data.Utilities;
 using static StudyConnect.Core.Common.ErrorMessages;
 
 namespace StudyConnect.Data.Repositories;
@@ -191,7 +192,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
         if (IsInvalid(userId))
             return OperationResult<Entities.User?>.Failure(InvalidUserId);
 
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == userId);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
         return user is null
             ? OperationResult<Entities.User?>.Failure(UserNotFound)
             : OperationResult<Entities.User?>.Success(user);
@@ -232,7 +233,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
         if (comment == null)
             return OperationResult<Entities.ForumComment?>.Failure(CommentNotFound);
 
-        if (comment.User.UserGuid != userId)
+        if (comment.User.UserId != userId)
             return OperationResult<Entities.ForumComment?>.Failure(NotAuthorized);
 
         return OperationResult<Entities.ForumComment?>.Success(comment);
@@ -279,7 +280,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
                 : null,
             User = comment.IsDeleted
                 ? null
-                : ModelMapper.MapUserToModel(comment.User),
+                : comment.User.ToUserModel(),
             Replies = comment.Replies != null
                 ? comment.Replies.Select(MapCommentToModel).ToList()
                 : null
