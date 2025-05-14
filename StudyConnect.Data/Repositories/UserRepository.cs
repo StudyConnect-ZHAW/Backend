@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using StudyConnect.Core.Common;
 using StudyConnect.Core.Interfaces;
 using StudyConnect.Core.Models;
+using static StudyConnect.Data.Utilities.ModelMappers;
 
 namespace StudyConnect.Data.Repositories;
 
@@ -51,7 +52,7 @@ public class UserRepository : BaseRepository, IUserRepository
             await _context.Users.AddAsync(userToAdd);
             // Save changes to the database
             await _context.SaveChangesAsync();
-            
+
             return OperationResult<bool>.Success(true);
         }
         catch (InvalidOperationException ex)
@@ -77,7 +78,11 @@ public class UserRepository : BaseRepository, IUserRepository
             return OperationResult<User?>.Failure("Invalid GUID.");
         }
 
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == guid);
+        var user = await _context.Users
+            .AsNoTracking()
+            .Include(u => u.URole)
+            .FirstOrDefaultAsync(u => u.UserGuid == guid);
+
         if (user == null)
         {
             return await Task.FromResult(OperationResult<User?>.Failure("User not found."));
@@ -88,10 +93,30 @@ public class UserRepository : BaseRepository, IUserRepository
             UserGuid = user.UserGuid,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            Email = user.Email
+            Email = user.Email,
+            userRole = user.URole.MapToUserRole()
         };
 
         return OperationResult<User?>.Success(userToReturn);
+    }
+
+
+    public async Task<OperationResult<UserRole?>> GetUserRoleOfUser(Guid userId)
+    {
+        if (userId == Guid.Empty)
+        {
+            return OperationResult<UserRole?>.Failure("Invalid GUID.");
+        }
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == userId);
+        if (user == null)
+        {
+            return await Task.FromResult(OperationResult<UserRole?>.Failure("User not found."));
+        }
+
+        var userRole = user.URole.MapToUserRole();
+
+        return OperationResult<UserRole?>.Success(userRole);
     }
 
     public async Task<OperationResult<bool>> UpdateAsync(User user)

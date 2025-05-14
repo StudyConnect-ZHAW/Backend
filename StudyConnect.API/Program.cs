@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using StudyConnect.Data.Repositories;
 using StudyConnect.Core.Interfaces;
+using StudyConnect.Core.Interfaces.Services;
+using StudyConnect.Services;
 using StudyConnect.Data;
 using System.Reflection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -15,6 +17,8 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<IPostService, PostService>();
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

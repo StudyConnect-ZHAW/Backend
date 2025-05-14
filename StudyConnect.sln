@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudyConnect.Core.Tests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudyConnect.Data.Tests", "StudyConnect.Data.Tests\StudyConnect.Data.Tests.csproj", "{400522D4-0739-4D0C-A976-A7B9E5695E7D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudyConnect.Services", "StudyConnect.Services\StudyConnect.Services.csproj", "{E89BE3B0-2B22-4679-A98C-60EB8A5A32BE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{400522D4-0739-4D0C-A976-A7B9E5695E7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{400522D4-0739-4D0C-A976-A7B9E5695E7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{400522D4-0739-4D0C-A976-A7B9E5695E7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E89BE3B0-2B22-4679-A98C-60EB8A5A32BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E89BE3B0-2B22-4679-A98C-60EB8A5A32BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E89BE3B0-2B22-4679-A98C-60EB8A5A32BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E89BE3B0-2B22-4679-A98C-60EB8A5A32BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

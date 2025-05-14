@@ -15,11 +15,13 @@ WORKDIR /src
 COPY ["StudyConnect.API/StudyConnect.API.csproj", "StudyConnect.API/"]
 COPY ["StudyConnect.Core/StudyConnect.Core.csproj", "StudyConnect.Core/"]
 COPY ["StudyConnect.Data/StudyConnect.Data.csproj", "StudyConnect.Data/"]
+COPY ["StudyConnect.Services/StudyConnect.Services.csproj", "StudyConnect.Services/"]
 RUN dotnet restore "StudyConnect.API/StudyConnect.API.csproj"
 
 COPY StudyConnect.API/ ./StudyConnect.API/
 COPY StudyConnect.Core/ ./StudyConnect.Core/
 COPY StudyConnect.Data/ ./StudyConnect.Data/
+COPY StudyConnect.Services/ ./StudyConnect.Services/
 
 RUN dotnet build "StudyConnect.API/StudyConnect.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
