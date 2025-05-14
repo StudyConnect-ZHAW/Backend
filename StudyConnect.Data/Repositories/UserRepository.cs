@@ -108,7 +108,7 @@ public class UserRepository : BaseRepository, IUserRepository
         var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == user.UserGuid);
         if (existingUser == null)
         {
-            return OperationResult<bool>.Failure("User not found.");
+            return OperationResult<bool>.Success(false);
         }
 
         try
