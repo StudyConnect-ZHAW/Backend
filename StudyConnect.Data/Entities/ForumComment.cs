@@ -20,21 +20,11 @@ public class ForumComment
     [Required]
     public required string Content { get; set; }
 
-    public Guid? ParentCommentId { get; set; }
-
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime UpdatedAt { get; set; }
 
-    public int LikeCount { get; set; } = 0;
-
-    public int DislikeCount { get; set; } = 0;
-
     public int ReplyCount { get; set; } = 0;
-
-    public bool IsPinned { get; set; } = false;
-
-    public int ViewCount { get; set; } = 0;
 
     public bool IsEdited { get; set; } = false;
 
@@ -43,7 +33,7 @@ public class ForumComment
     /// <summary>
     /// User who created the comment.
     /// </summary>
-    public User? User { get; set; }
+    public required User User { get; set; }
 
     /// <summary>
     /// Forum post this comment belongs to.
@@ -52,14 +42,13 @@ public class ForumComment
 
     /// <summary>
     /// Parent comment this comment is replying to.
-    /// This property is nullable to allow for top-level comments that do not have a parent.
+    /// This property is nullable to allow for top-level comments th
     /// </summary>
-    [ForeignKey("ParentCommentId")]
     public ForumComment? ParentComment { get; set; } = null!;
 
     /// <summary>
     /// Collection of replies to this comment.
     /// This property is initialized to an empty list to avoid null reference exceptions.
     /// </summary>
-    public ICollection<ForumComment> Replies { get; set; } = [];
+    public virtual ICollection<ForumComment> Replies { get; set; } = new List<ForumComment>();
 }

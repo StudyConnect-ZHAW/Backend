@@ -76,7 +76,7 @@ public class PostRepository : BaseRepository, IPostRepository
         if (queries.Count == 0)
             return OperationResult<IEnumerable<ForumPost>?>.Success(null);
 
-        var result = queries.Select(p => PackagePost(p));
+        var result = queries.Select(p => MapPostToModel(p));
 
         return OperationResult<IEnumerable<ForumPost>?>.Success(result);
     }
@@ -92,7 +92,7 @@ public class PostRepository : BaseRepository, IPostRepository
         if (posts.Count == 0)
             return OperationResult<IEnumerable<ForumPost>?>.Success(null);
 
-        var result = posts.Select(p => PackagePost(p));
+        var result = posts.Select(p => MapPostToModel(p));
 
         return OperationResult<IEnumerable<ForumPost>?>.Success(result);
     }
@@ -112,7 +112,7 @@ public class PostRepository : BaseRepository, IPostRepository
         if (post == null)
             return OperationResult<ForumPost?>.Success(null);
 
-        var result = PackagePost(post);
+        var result = MapPostToModel(post);
 
         return OperationResult<ForumPost?>.Success(result);
     }
@@ -171,48 +171,18 @@ public class PostRepository : BaseRepository, IPostRepository
     /// </summary>
     /// <param name="post">A forum post entity to transform.</param>
     /// <returns>A forum post model object.</returns>
-    private ForumPost PackagePost(Entities.ForumPost post)
+    public static Core.Models.ForumPost MapPostToModel(Entities.ForumPost post)
     {
-        return new ForumPost
+        return new Core.Models.ForumPost
         {
             ForumPostId = post.ForumPostId,
             Title = post.Title,
             Content = post.Content,
             CreatedAt = post.CreatedAt,
             UpdatedAt = post.UpdatedAt,
-            Category = PackageCategory(post.ForumCategory),
-            User = PackageUser(post.User)
+            Category = ModelMapper.MapCategoryToModel(post.ForumCategory),
+            User = ModelMapper.MapUserToModel(post.User)
         };
     }
 
-    /// <summary>
-    /// A helper function to create a category model from entity.
-    /// </summary>
-    /// <param name="category">A category entity to transform.</param>
-    /// <returns>A forumcategory model object.</returns>
-    private ForumCategory PackageCategory(Entities.ForumCategory category)
-    {
-        return new ForumCategory
-        {
-            ForumCategoryId = category.ForumCategoryId,
-            Name = category.Name,
-            Description = category.Description
-        };
-    }
-
-    /// <summary>
-    /// A helper function to create a user model from entity.
-    /// </summary>
-    /// <param name="user">An user entity to transform.</param>
-    /// <returns>An User model object.</returns>
-    private User PackageUser(Entities.User user)
-    {
-        return new User
-        {
-            UserGuid = user.UserGuid,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Email = user.Email
-        };
-    }
 }

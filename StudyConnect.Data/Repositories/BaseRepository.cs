@@ -1,5 +1,3 @@
-using System;
-
 namespace StudyConnect.Data.Repositories;
 
 public class BaseRepository
@@ -10,4 +8,5 @@ public class BaseRepository
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
     }
+
 }

@@ -128,7 +128,6 @@ public class StudyConnectDbContext : DbContext
         modelBuilder.Entity<ForumComment>()
             .HasOne(fc => fc.ParentComment)
             .WithMany(fc => fc.Replies)
-            .HasForeignKey(fc => fc.ParentCommentId)
             .OnDelete(DeleteBehavior.Restrict);
 
         // Configure Unique non-key indexes
