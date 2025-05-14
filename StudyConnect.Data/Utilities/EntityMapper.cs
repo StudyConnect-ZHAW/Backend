@@ -6,7 +6,7 @@ public static class EntityMapper
     {
         return new Data.Entities.User
         {
-            UserGuid = user.UserGuid,
+            UserId = user.UserGuid,
             URole = user.userRole!.MapFromURole(),
             FirstName = user.FirstName,
             LastName = user.LastName,

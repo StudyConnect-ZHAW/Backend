@@ -23,7 +23,7 @@ public class UserRepository : BaseRepository, IUserRepository
         }
 
         // Check if the user GUID is valid
-        var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == user.UserGuid);
+        var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.UserId == user.UserGuid);
         if (existingUser != null)
         {
             return OperationResult<bool>.Failure("A user with the same GUID already exists.");
@@ -41,7 +41,7 @@ public class UserRepository : BaseRepository, IUserRepository
 
             var userToAdd = new Entities.User
             {
-                UserGuid = user.UserGuid,
+                UserId = user.UserGuid,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
@@ -81,7 +81,7 @@ public class UserRepository : BaseRepository, IUserRepository
         var user = await _context.Users
             .AsNoTracking()
             .Include(u => u.URole)
-            .FirstOrDefaultAsync(u => u.UserGuid == guid);
+            .FirstOrDefaultAsync(u => u.UserId == guid);
 
         if (user == null)
         {
@@ -90,7 +90,7 @@ public class UserRepository : BaseRepository, IUserRepository
 
         var userToReturn = new User
         {
-            UserGuid = user.UserGuid,
+            UserGuid = user.UserId,
             FirstName = user.FirstName,
             LastName = user.LastName,
             Email = user.Email,
@@ -108,7 +108,7 @@ public class UserRepository : BaseRepository, IUserRepository
             return OperationResult<UserRole?>.Failure("Invalid GUID.");
         }
 
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == userId);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
         if (user == null)
         {
             return await Task.FromResult(OperationResult<UserRole?>.Failure("User not found."));
@@ -130,7 +130,7 @@ public class UserRepository : BaseRepository, IUserRepository
             return OperationResult<bool>.Failure("Invalid GUID.");
         }
 
-        var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == user.UserGuid);
+        var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.UserId == user.UserGuid);
         if (existingUser == null)
         {
             return OperationResult<bool>.Success(false);

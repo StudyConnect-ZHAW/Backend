@@ -107,8 +107,6 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
         return OperationResult<IEnumerable<ForumCategory>?>.Success(result);
     }
 
-
-
     public async Task<OperationResult<bool>> DeleteAsync(Guid id)
     {
         if (id == Guid.Empty)
@@ -124,4 +122,6 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
         return OperationResult<bool>.Success(true);
     }
 
+    public async Task<bool> CategoryExistAsync(Guid categoryId) =>
+        await _context.ForumCategories.AnyAsync(c => c.ForumCategoryId == categoryId);
 }

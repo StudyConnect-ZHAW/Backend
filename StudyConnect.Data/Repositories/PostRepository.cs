@@ -16,25 +16,18 @@ public class PostRepository : BaseRepository, IPostRepository
 
     public async Task<ForumPost> AddAsync(ForumPost post)
     {
-        var user = post.User!.MapFromUser();
-        var category = post.Category!.MapFromCategory();
-
-        _context.Entry(user).State = EntityState.Unchanged;
-        _context.Entry(category).State = EntityState.Unchanged;
-
         var newPost = new Entities.ForumPost
         {
             Title = post.Title,
             Content = post.Content,
-            ForumCategory = category,
-            User = user
+            ForumCategoryId = post.ForumCategoryId!,
+            UserId = post.UserId
         };
 
         await _context.ForumPosts.AddAsync(newPost);
         await _context.SaveChangesAsync();
 
-        var result = newPost.MapToForumPost();
-        return result;
+        return await GetByIdAsync(newPost.ForumPostId);
     }
 
     public async Task<IEnumerable<ForumPost>?> SearchAsync(
@@ -49,7 +42,7 @@ public class PostRepository : BaseRepository, IPostRepository
             .AsNoTracking()
             .Include(p => p.User)
             .Include(p => p.ForumCategory)
-            .WhereIf(userId.HasValue, p => p.User.UserGuid == userId)
+            .WhereIf(userId.HasValue, p => p.User.UserId == userId)
             .WhereIf(!string.IsNullOrWhiteSpace(categoryName), p => p.ForumCategory.Name == categoryName)
             .WhereIf(!string.IsNullOrWhiteSpace(title), p => EF.Functions.Like(p.Title, $"%{title}%"))
             .WhereIf(fromDate.HasValue, p => p.CreatedAt >= fromDate!.Value.Date)

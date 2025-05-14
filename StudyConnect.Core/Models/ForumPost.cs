@@ -7,6 +7,8 @@ public class ForumPost
     public Guid ForumPostId { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    public Guid ForumCategoryId { get; set; }
+    public Guid UserId { get; set; }
     public ForumCategory? Category { get; set; }
     public User? User { get; set; }
 }

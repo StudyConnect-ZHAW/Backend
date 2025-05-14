@@ -26,6 +26,8 @@ public interface ICategoryRepository
     /// <returns> <see cref="OperationResult{T}"/> containing the category if found, or an error message if not. </returns>
     Task<OperationResult<ForumCategory?>> GetByNameAsync(string name);
 
+    Task<bool> CategoryExistAsync(Guid categoryId);
+
     /// <summary>
     /// Get all the categories
     /// </summary>

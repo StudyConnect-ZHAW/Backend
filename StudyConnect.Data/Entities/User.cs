@@ -12,7 +12,7 @@ public class User
 {
     [Key]
     [Required]
-    public Guid UserGuid { get; set; }
+    public Guid UserId { get; set; }
 
     [Required]
     public Guid URoleId { get; set; }

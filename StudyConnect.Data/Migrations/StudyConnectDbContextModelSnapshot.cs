@@ -101,7 +101,7 @@ namespace StudyConnect.Data.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("UserGuid")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("ForumCommentId");
@@ -110,7 +110,7 @@ namespace StudyConnect.Data.Migrations
 
                     b.HasIndex("ParentCommentForumCommentId");
 
-                    b.HasIndex("UserGuid");
+                    b.HasIndex("UserId");
 
                     b.ToTable("ForumComment", (string)null);
                 });
@@ -238,7 +238,7 @@ namespace StudyConnect.Data.Migrations
 
             modelBuilder.Entity("StudyConnect.Data.Entities.User", b =>
                 {
-                    b.Property<Guid>("UserGuid")
+                    b.Property<Guid>("UserId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -257,7 +257,7 @@ namespace StudyConnect.Data.Migrations
                     b.Property<Guid>("URoleId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("UserGuid");
+                    b.HasKey("UserId");
 
                     b.HasIndex("Email")
                         .IsUnique();
@@ -312,9 +312,8 @@ namespace StudyConnect.Data.Migrations
 
                     b.HasOne("StudyConnect.Data.Entities.User", "User")
                         .WithMany("ForumComments")
-                        .HasForeignKey("UserGuid")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("ForumPost");
 

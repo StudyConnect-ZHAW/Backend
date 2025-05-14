@@ -36,8 +36,8 @@ public class PostService : IPostService
         if (user.Data == null)
             return OperationResult<ForumPost>.Failure("user not found.");
 
-        var category = await _categoryRepository.GetByIdAsync(categoryId);
-        if (category.Data == null)
+        var category = await _categoryRepository.CategoryExistAsync(categoryId); 
+        if (!category)
             return OperationResult<ForumPost>.Failure("category not found.");
 
         var isTitleTaken = await _postRepository.TestForTitleAsync(post.Title);
@@ -50,10 +50,9 @@ public class PostService : IPostService
             {
                 Title = post.Title,
                 Content = post.Content,
-                User = user.Data,
-                Category = category.Data
+                UserId = userId,
+                ForumCategoryId = categoryId
             };
-
             
             var result = await _postRepository.AddAsync(finalpost);
             return OperationResult<ForumPost>.Success(result);

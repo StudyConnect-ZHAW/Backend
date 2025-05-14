@@ -12,7 +12,7 @@ using StudyConnect.Data;
 namespace StudyConnect.Data.Migrations
 {
     [DbContext(typeof(StudyConnectDbContext))]
-    [Migration("20250514121534_FixForumPost")]
+    [Migration("20250514132933_FixForumPost")]
     partial class FixForumPost
     {
         /// <inheritdoc />
@@ -113,7 +113,7 @@ namespace StudyConnect.Data.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("UserGuid")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("ViewCount")
@@ -125,7 +125,7 @@ namespace StudyConnect.Data.Migrations
 
                     b.HasIndex("ParentCommentId");
 
-                    b.HasIndex("UserGuid");
+                    b.HasIndex("UserId");
 
                     b.ToTable("ForumComment", (string)null);
                 });
@@ -253,7 +253,7 @@ namespace StudyConnect.Data.Migrations
 
             modelBuilder.Entity("StudyConnect.Data.Entities.User", b =>
                 {
-                    b.Property<Guid>("UserGuid")
+                    b.Property<Guid>("UserId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -272,7 +272,7 @@ namespace StudyConnect.Data.Migrations
                     b.Property<Guid>("URoleId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("UserGuid");
+                    b.HasKey("UserId");
 
                     b.HasIndex("Email")
                         .IsUnique();
@@ -327,7 +327,7 @@ namespace StudyConnect.Data.Migrations
 
                     b.HasOne("StudyConnect.Data.Entities.User", "User")
                         .WithMany("ForumComments")
-                        .HasForeignKey("UserGuid")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("ForumPost");

@@ -21,7 +21,7 @@ public static class ModelMappers
     {
         return new Core.Models.User
         {
-            UserGuid = user.UserGuid,
+            UserGuid = user.UserId,
             FirstName = user.FirstName,
             LastName = user.LastName,
             Email = user.Email
