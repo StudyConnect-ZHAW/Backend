@@ -32,22 +32,25 @@ public interface IPostRepository
     /// </summary>
     /// <param name="id">the unique identifier of the post.</param>
     /// <returns>An <see cref="OperationResult{T}"/> containing the post if found, or an error message if not.</returns>
-    Task<ForumPost?> GetByIdAsync(Guid id);
+    Task<ForumPost?> GetByIdAsync(Guid id, bool update);
 
 
-    Task<bool> TestForTitleAsync(string title);
+    Task<bool> TitleExistsAsync(string title);
+
+
+    Task<bool> isAthorizedAsync(Guid userId, Guid postId);
 
     /// <summary>
     /// Update a Post by its GUID.
     /// </summary>
     /// <param name="id">The unique identifier of the post.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task UpdateAsync(ForumPost post);
+    Task UpdateAsync(Guid postId, ForumPost post);
 
     /// <summary>
     /// Delete an exitsting post by its GUID.
     /// </summary>
     /// <param name="id">The unique identifier of the post.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task DeleteAsync(ForumPost post);
+    Task DeleteAsync(Guid postId);
 }

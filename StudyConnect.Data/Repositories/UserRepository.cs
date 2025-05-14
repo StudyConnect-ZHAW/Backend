@@ -80,7 +80,6 @@ public class UserRepository : BaseRepository, IUserRepository
 
         var user = await _context.Users
             .AsNoTracking()
-            .Include(u => u.URole)
             .FirstOrDefaultAsync(u => u.UserId == guid);
 
         if (user == null)
@@ -94,29 +93,9 @@ public class UserRepository : BaseRepository, IUserRepository
             FirstName = user.FirstName,
             LastName = user.LastName,
             Email = user.Email,
-            userRole = user.URole.MapToUserRole()
         };
 
         return OperationResult<User?>.Success(userToReturn);
-    }
-
-
-    public async Task<OperationResult<UserRole?>> GetUserRoleOfUser(Guid userId)
-    {
-        if (userId == Guid.Empty)
-        {
-            return OperationResult<UserRole?>.Failure("Invalid GUID.");
-        }
-
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
-        if (user == null)
-        {
-            return await Task.FromResult(OperationResult<UserRole?>.Failure("User not found."));
-        }
-
-        var userRole = user.URole.MapToUserRole();
-
-        return OperationResult<UserRole?>.Success(userRole);
     }
 
     public async Task<OperationResult<bool>> UpdateAsync(User user)

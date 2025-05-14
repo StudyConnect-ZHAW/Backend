@@ -40,13 +40,15 @@ public class PostController : BaseController
         var post = new ForumPost
         {
             Title = createDto.Title,
-            Content = createDto.Content!
+            Content = createDto.Content != null
+                ? createDto.Content
+                : ""
         };
 
         var userId = createDto.UserId;
         var categoryId = createDto.ForumCategoryId;
 
-        var result = await _postService.AddPostAsync(userId,categoryId, post);
+        var result = await _postService.AddPostAsync(userId, categoryId, post);
         if (!result.IsSuccess)
             return BadRequest(result.ErrorMessage);
 
@@ -86,9 +88,17 @@ public class PostController : BaseController
     /// <param name="pid">The unique identifier of the post.</param>
     /// <returns>On success a Dto with information about the post, on failure HTTP 400/404 status code.</returns>
     [HttpGet("{pid:guid}")]
-    public IActionResult GetPostById([FromRoute] Guid pid)
+    public async Task<IActionResult> GetPostById([FromRoute] Guid pid)
     {
-        return StatusCode(501);
+        var post = await _postService.GetPostByIdAsync(pid);
+        if (!post.IsSuccess)
+            return BadRequest(post.ErrorMessage);
+
+        if (post.Data == null)
+            return NotFound("Post not found.");
+
+        var result = GeneratePostDto(post.Data);
+        return Ok(result);
     }
 
     /// <summary>
@@ -98,9 +108,25 @@ public class PostController : BaseController
     /// <param name="updateDto"> a dto containing the data for updating the post. </param>
     /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
     [HttpPut("{pid:guid}")]
-    public IActionResult UpdatePost([FromRoute] Guid pid, [FromQuery][FromBody] PostUpdateDto updateDto)
+    public async Task<IActionResult> UpdatePost([FromRoute] Guid pid, [FromBody] PostUpdateDto updateDto)
     {
-        return StatusCode(501);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var post = new ForumPost
+        {
+            Title = updateDto.Title,
+            Content = updateDto.Content
+        };
+
+        var result = await _postService.UpdatePostAsync(updateDto.UserId, pid, post);
+        if (!result.IsSuccess)
+            return BadRequest(result.ErrorMessage);
+
+        if (!result.Data)
+            return NotFound("Post for update was not found.");
+
+        return NoContent();
     }
 
 
@@ -110,9 +136,19 @@ public class PostController : BaseController
     /// <param name="pid">The unique identifier of the post.</param>
     /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
     [HttpDelete("{pid:guid}")]
-    public IActionResult DeletePost([FromRoute] Guid pid)
+    public async Task<IActionResult> DeletePost([FromRoute] Guid pid, [FromQuery] Guid userId)
     {
-        return StatusCode(501);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var result = await _postService.DeletePostAsync(userId, pid);
+        if (!result.IsSuccess)
+            return BadRequest(result.ErrorMessage);
+
+        if (!result.Data)
+            return NotFound("Post for deletion was not found.");
+
+        return NoContent();
     }
 
 

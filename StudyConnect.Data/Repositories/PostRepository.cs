@@ -11,9 +11,6 @@ public class PostRepository : BaseRepository, IPostRepository
 
     }
 
-    public async Task<bool> TestForTitleAsync(string title) =>
-        await _context.ForumPosts.AnyAsync(fp => fp.Title == title);
-
     public async Task<Guid> AddAsync(ForumPost post)
     {
         var newPost = new Entities.ForumPost
@@ -37,8 +34,7 @@ public class PostRepository : BaseRepository, IPostRepository
         string? categoryName,
         string? title,
         DateTime? fromDate,
-        DateTime? toDate
-    )
+        DateTime? toDate)
     {
         var query = _context.ForumPosts
             .AsNoTracking()
@@ -52,11 +48,11 @@ public class PostRepository : BaseRepository, IPostRepository
 
         var posts = await query.ToListAsync();
 
-        return posts.Select(p => p.MapToForumPost());
+        return posts.Select(p => p.ToForumPostModel(false));
         ;
     }
 
-    public async Task<ForumPost?> GetByIdAsync(Guid id)
+    public async Task<ForumPost?> GetByIdAsync(Guid id, bool Update)
     {
         var post = await _context.ForumPosts
             .AsNoTracking()
@@ -64,22 +60,31 @@ public class PostRepository : BaseRepository, IPostRepository
             .Include(p => p.ForumCategory)
             .FirstOrDefaultAsync(fp => fp.ForumPostId == id);
 
-        return post!.MapToForumPost();
+        return post!.ToForumPostModel(Update);
     }
 
-    public async Task UpdateAsync(ForumPost post)
+    public async Task UpdateAsync(Guid postId, ForumPost post)
     {
-        var toUpdate = post.MapFromForumPost(null, null);
+        var toUpdate = await _context.ForumPosts.FirstOrDefaultAsync(p => p.ForumPostId == postId);
+
+        toUpdate!.Title = post.Title;
+        toUpdate!.Content = post.Content;
 
         _context.ForumPosts.Update(toUpdate);
         await _context.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(ForumPost post)
+    public async Task DeleteAsync(Guid postId)
     {
-        var toDelete = post.MapFromForumPost(null, null);
+        var toDelete = await _context.ForumPosts.FirstOrDefaultAsync(p => p.ForumPostId == postId);
 
-        _context.Remove(post);
+        _context.Remove(toDelete!);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<bool> TitleExistsAsync(string title) =>
+        await _context.ForumPosts.AnyAsync(p => p.Title == title);
+
+    public async Task<bool> isAthorizedAsync(Guid userId, Guid postId) =>
+        await _context.ForumPosts.AnyAsync(p => p.ForumPostId == postId && p.UserId == userId);
 }

@@ -7,6 +7,8 @@ namespace StudyConnect.API.Dtos.Requests.Forum;
 /// </summary>
 public class PostUpdateDto
 {
+
+    public required Guid UserId { get; set; }
     /// <summary>
     /// The new title to replace the old.
     /// </summary>

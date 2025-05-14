@@ -36,11 +36,11 @@ public class PostService : IPostService
         if (user.Data == null)
             return OperationResult<ForumPost>.Failure("user not found.");
 
-        var category = await _categoryRepository.CategoryExistAsync(categoryId); 
+        var category = await _categoryRepository.CategoryExistAsync(categoryId);
         if (!category)
             return OperationResult<ForumPost>.Failure("category not found.");
 
-        var isTitleTaken = await _postRepository.TestForTitleAsync(post.Title);
+        var isTitleTaken = await _postRepository.TitleExistsAsync(post.Title);
         if (isTitleTaken)
             return OperationResult<ForumPost>.Failure("Title already taken.");
 
@@ -53,9 +53,9 @@ public class PostService : IPostService
                 UserId = userId,
                 ForumCategoryId = categoryId
             };
-            
+
             var resultId = await _postRepository.AddAsync(finalpost);
-            var result = await _postRepository.GetByIdAsync(resultId);
+            var result = await _postRepository.GetByIdAsync(resultId, false);
             return OperationResult<ForumPost>.Success(result!);
 
         }
@@ -87,7 +87,7 @@ public class PostService : IPostService
         if (IsInvalid(postId))
             return OperationResult<ForumPost>.Failure("Invalid Id");
 
-        var result = await _postRepository.GetByIdAsync(postId);
+        var result = await _postRepository.GetByIdAsync(postId, false);
         if (result == null)
             return OperationResult<ForumPost>.Failure("Post not found.");
 
@@ -99,63 +99,59 @@ public class PostService : IPostService
         if (post == null)
             return OperationResult<bool>.Failure("post should not be Empty.");
 
-        var actualPost = await GetAuthorizedPostAsync(userId, postId);
-        if (!actualPost.IsSuccess)
-            return OperationResult<bool>.Failure(actualPost.ErrorMessage!);
+        var test = await TestAuthorizationAsync(userId, postId);
+        if (!test.IsSuccess)
+            return OperationResult<bool>.Failure(test.ErrorMessage!);
+
 
         try
         {
-            actualPost.Data!.Title = post.Title;
-            actualPost.Data!.Content = post.Content;
-
-            await _postRepository.UpdateAsync(actualPost.Data);
+            await _postRepository.UpdateAsync(postId, post);
             return OperationResult<bool>.Success(true);
         }
         catch (Exception ex)
         {
-            return OperationResult<bool>.Failure($"An error occurred while updating: {ex.Message}");
+            Console.WriteLine("❌ FULL EXCEPTION:");
+            Console.WriteLine(ex.ToString());
+            return OperationResult<bool>.Failure($"An error occurred while updating: {ex}");
         }
-
-
-        throw new NotImplementedException();
     }
 
     public async Task<OperationResult<bool>> DeletePostAsync(Guid userId, Guid postId)
     {
-        var actualPost = await GetAuthorizedPostAsync(userId, postId);
+        var actualPost = await TestAuthorizationAsync(userId, postId);
         if (!actualPost.IsSuccess)
             return OperationResult<bool>.Failure(actualPost.ErrorMessage!);
 
         try
         {
-            await _postRepository.DeleteAsync(actualPost.Data!);
+            await _postRepository.DeleteAsync(postId);
             return OperationResult<bool>.Success(true);
 
         }
         catch (Exception ex)
         {
-            return OperationResult<bool>.Failure($"An error occurred while updating: {ex.Message}");
+            Console.WriteLine("❌ FULL EXCEPTION:");
+            Console.WriteLine(ex.ToString());
+            return OperationResult<bool>.Failure($"An error occurred while updating: {ex}");
         }
     }
 
     private static bool IsInvalid(Guid id) => id == Guid.Empty;
 
-    private async Task<OperationResult<ForumPost>> GetAuthorizedPostAsync(Guid userId, Guid postId)
+    private async Task<OperationResult<bool>> TestAuthorizationAsync(Guid userId, Guid postId)
     {
         if (IsInvalid(postId))
-            return OperationResult<ForumPost>.Failure("Invalid postId.");
+            return OperationResult<bool>.Failure("Invalid postId.");
 
         if (IsInvalid(userId))
-            return OperationResult<ForumPost>.Failure("Invalid userId.");
+            return OperationResult<bool>.Failure("Invalid userId.");
 
-        var post = await _postRepository.GetByIdAsync(postId);
-        if (post == null)
-            return OperationResult<ForumPost>.Failure("Post not found");
+        var post = await _postRepository.isAthorizedAsync(userId, postId);
+        if (!post)
+            return OperationResult<bool>.Failure("Post not Authorized.");
 
-        if (post.User!.UserGuid != userId)
-            return OperationResult<ForumPost>.Failure("Not authorized.");
-
-        return OperationResult<ForumPost>.Success(post);
+        return OperationResult<bool>.Success(true);
     }
 }
 

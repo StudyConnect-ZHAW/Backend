@@ -33,19 +33,15 @@ public static class EntityMapper
         };
     }
 
-    public static Data.Entities.ForumPost MapFromForumPost(this Core.Models.ForumPost post, Core.Models.ForumCategory? category, Core.Models.User? user)
+    public static Data.Entities.ForumPost MapFromForumPost(this Core.Models.ForumPost post)
     {
         return new Data.Entities.ForumPost
         {
             Title = post.Title,
             Content = post.Content,
             UpdatedAt = DateTime.UtcNow,
-            ForumCategory = category != null
-                ? category.MapFromCategory()
-                : post.Category!.MapFromCategory(),
-            User = user != null
-                ? user.MapFromUser()
-                : post.User!.MapFromUser(),
+            ForumCategoryId = post.ForumCategoryId,
+            UserId = post.UserId
         };
     }
 

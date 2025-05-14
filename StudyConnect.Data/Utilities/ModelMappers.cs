@@ -2,22 +2,12 @@ namespace StudyConnect.Data.Utilities;
 
 public static class ModelMappers
 {
-    public static Core.Models.UserRole MapToUserRole(this Entities.UserRole userRole)
-    {
-        return new Core.Models.UserRole
-        {
-            URoleId = userRole.URoleId,
-            Name = userRole.Name,
-            Description = userRole.Description
-        };
-    }
-
     /// <summary>
     /// A helper function to create a user model from entity.
     /// </summary>
     /// <param name="user">An user entity to transform.</param>
     /// <returns>An User model object.</returns>
-    public static Core.Models.User MapToUser(this Entities.User user)
+    public static Core.Models.User ToUserModel(this Entities.User user)
     {
         return new Core.Models.User
         {
@@ -33,7 +23,7 @@ public static class ModelMappers
     /// </summary>
     /// <param name="category">A category entity to transform.</param>
     /// <returns>A forumcategory model object.</returns>
-    public static Core.Models.ForumCategory MapToCategory(this Entities.ForumCategory category)
+    public static Core.Models.ForumCategory ToCategoryModel(this Entities.ForumCategory category)
     {
         return new Core.Models.ForumCategory
         {
@@ -48,9 +38,9 @@ public static class ModelMappers
     /// </summary>
     /// <param name="post">A forum post entity to transform.</param>
     /// <returns>A forum post model object.</returns>
-    public static Core.Models.ForumPost MapToForumPost(this Entities.ForumPost post)
+    public static Core.Models.ForumPost ToForumPostModel(this Entities.ForumPost post, bool forUpdate)
     {
-        return new Core.Models.ForumPost
+        var result = new Core.Models.ForumPost
         {
             ForumPostId = post.ForumPostId,
             Title = post.Title,
@@ -59,8 +49,19 @@ public static class ModelMappers
                 : "",
             CreatedAt = post.CreatedAt,
             UpdatedAt = post.UpdatedAt,
-            Category = post.ForumCategory.MapToCategory(),
-            User = post.User.MapToUser()
         };
+
+        if (forUpdate)
+        {
+            result.ForumCategoryId = post.ForumCategoryId;
+            result.UserId = post.UserId;
+        }
+        else
+        {
+            result.Category = post.ForumCategory.ToCategoryModel();
+            result.User = post.User.ToUserModel();
+        }
+
+        return result;
     }
 }
