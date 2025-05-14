@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StudyConnect.Data;
 
@@ -11,9 +12,11 @@ using StudyConnect.Data;
 namespace StudyConnect.Data.Migrations
 {
     [DbContext(typeof(StudyConnectDbContext))]
-    partial class StudyConnectDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250514121534_FixForumPost")]
+    partial class FixForumPost
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -83,6 +86,9 @@ namespace StudyConnect.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("DislikeCount")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("ForumPostId")
                         .HasColumnType("uniqueidentifier");
 
@@ -92,7 +98,13 @@ namespace StudyConnect.Data.Migrations
                     b.Property<bool>("IsEdited")
                         .HasColumnType("bit");
 
-                    b.Property<Guid?>("ParentCommentForumCommentId")
+                    b.Property<bool>("IsPinned")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("LikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("ParentCommentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("ReplyCount")
@@ -101,14 +113,17 @@ namespace StudyConnect.Data.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("UserGuid")
+                    b.Property<Guid?>("UserGuid")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("int");
 
                     b.HasKey("ForumCommentId");
 
                     b.HasIndex("ForumPostId");
 
-                    b.HasIndex("ParentCommentForumCommentId");
+                    b.HasIndex("ParentCommentId");
 
                     b.HasIndex("UserGuid");
 
@@ -307,14 +322,13 @@ namespace StudyConnect.Data.Migrations
 
                     b.HasOne("StudyConnect.Data.Entities.ForumComment", "ParentComment")
                         .WithMany("Replies")
-                        .HasForeignKey("ParentCommentForumCommentId")
+                        .HasForeignKey("ParentCommentId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("StudyConnect.Data.Entities.User", "User")
                         .WithMany("ForumComments")
                         .HasForeignKey("UserGuid")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("ForumPost");
 
