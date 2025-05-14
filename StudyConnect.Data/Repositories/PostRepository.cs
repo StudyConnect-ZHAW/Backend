@@ -14,7 +14,7 @@ public class PostRepository : BaseRepository, IPostRepository
     public async Task<bool> TestForTitleAsync(string title) =>
         await _context.ForumPosts.AnyAsync(fp => fp.Title == title);
 
-    public async Task<ForumPost> AddAsync(ForumPost post)
+    public async Task<Guid> AddAsync(ForumPost post)
     {
         var newPost = new Entities.ForumPost
         {
@@ -27,7 +27,9 @@ public class PostRepository : BaseRepository, IPostRepository
         await _context.ForumPosts.AddAsync(newPost);
         await _context.SaveChangesAsync();
 
-        return await GetByIdAsync(newPost.ForumPostId);
+        var result = newPost.ForumPostId;
+
+        return result;
     }
 
     public async Task<IEnumerable<ForumPost>?> SearchAsync(
@@ -57,9 +59,9 @@ public class PostRepository : BaseRepository, IPostRepository
     public async Task<ForumPost?> GetByIdAsync(Guid id)
     {
         var post = await _context.ForumPosts
+            .AsNoTracking()
             .Include(p => p.User)
             .Include(p => p.ForumCategory)
-            .AsNoTracking()
             .FirstOrDefaultAsync(fp => fp.ForumPostId == id);
 
         return post!.MapToForumPost();

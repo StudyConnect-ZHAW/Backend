@@ -46,7 +46,7 @@ public class PostController : BaseController
         var userId = createDto.UserId;
         var categoryId = createDto.ForumCategoryId;
 
-        var result = await _postService.AddPostAsync(userId, categoryId, post);
+        var result = await _postService.AddPostAsync(userId,categoryId, post);
         if (!result.IsSuccess)
             return BadRequest(result.ErrorMessage);
 
@@ -55,7 +55,7 @@ public class PostController : BaseController
 
         var output = GeneratePostDto(result.Data);
 
-        return Ok(post);
+        return Ok(output);
     }
 
     /// <summary>

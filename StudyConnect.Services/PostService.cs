@@ -54,8 +54,9 @@ public class PostService : IPostService
                 ForumCategoryId = categoryId
             };
             
-            var result = await _postRepository.AddAsync(finalpost);
-            return OperationResult<ForumPost>.Success(result);
+            var resultId = await _postRepository.AddAsync(finalpost);
+            var result = await _postRepository.GetByIdAsync(resultId);
+            return OperationResult<ForumPost>.Success(result!);
 
         }
         catch (Exception ex)
