@@ -1,4 +1,5 @@
 using StudyConnect.Core.Models;
+using StudyConnect.API.Dtos.Responses;
 using Microsoft.EntityFrameworkCore;
 
 namespace StudyConnect.Data.Repositories
@@ -12,11 +13,17 @@ namespace StudyConnect.Data.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<Tag>> GetAllTagsAsync()
+        public async Task<IEnumerable<TagDto>> GetAllTagsAsync()
         {
 
             return await _context.Tags
             .AsNoTracking()
+            .Select(t => new TagDto
+                {
+                    Id = t.TagId,
+                    Name = t.Name,
+                    Description = t.Description
+                })
             .ToListAsync();
           
         }
