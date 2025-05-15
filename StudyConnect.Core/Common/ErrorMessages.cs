@@ -7,6 +7,7 @@ namespace StudyConnect.Core.Common
         public const string NotFound = "The requested resource was not found.";
         public const string NotAuthorized = "Not authorized to perform this action.";
         public const string NameRequired = "Name cannot be null, empty or whitespace.";
+        public const string TitleTaken = "Title is already in user.";
 
         public const string InvalidInput = "Input is invalid.";
 
@@ -15,6 +16,7 @@ namespace StudyConnect.Core.Common
         public const string InvalidCommentId = "Invalid comment ID.";
         public const string InvalidCategoryId = "Invalid category ID.";
         public const string CommentContentEmpty = "Comment content cannot be empty.";
+        public const string PostConentEmpty = "Post content cannot be null";
         public const string ParentCommentNotFound = "Parent comment not found.";
 
         public const string GeneralNotFound = "not found";
