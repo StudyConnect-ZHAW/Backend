@@ -31,7 +31,7 @@ public class User
     /// User role in the system.
     /// </summary>
     [ForeignKey("URoleId")]
-    public required UserRole URole { get; set; }
+    public virtual UserRole URole { get; set; } = null!;
 
     /// <summary>
     /// Collection of groups owned by the user.

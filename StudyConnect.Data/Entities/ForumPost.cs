@@ -53,5 +53,5 @@ public class ForumPost
     /// <summary>
     /// Collection of comments associated with this post.
     /// </summary>
-    public virtual ICollection<ForumComment> ForumComments { get; set; } = new List<ForumComment>();
+    public virtual ICollection<ForumComment> ForumComments { get; set; } = [];
 }

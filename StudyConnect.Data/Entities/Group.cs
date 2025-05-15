@@ -32,7 +32,7 @@ public class Group
     /// Owner of the group.
     /// </summary>
     [ForeignKey("OwnerId")]
-    public required virtual User Owner { get; set; }
+    public virtual User Owner { get; set; } = null!;
 
     /// <summary>
     /// Collection of members in the group.

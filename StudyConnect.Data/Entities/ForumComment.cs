@@ -22,10 +22,12 @@ public class ForumComment
     public required string Content { get; set; }
 
     [Required]
-    public Guid UserId;
+    public Guid UserId { get; set; }
 
     [Required]
-    public Guid ForumPostId;
+    public Guid ForumPostId { get; set; }
+
+    public Guid? ParentCommentId { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
@@ -53,11 +55,12 @@ public class ForumComment
     /// Parent comment this comment is replying to.
     /// This property is nullable to allow for top-level comments th
     /// </summary>
-    public ForumComment? ParentComment { get; set; } = null!;
+    [ForeignKey("ParentCommentId")]
+    public virtual ForumComment? ParentComment { get; set; }
 
     /// <summary>
     /// Collection of replies to this comment.
     /// This property is initialized to an empty list to avoid null reference exceptions.
     /// </summary>
-    public virtual ICollection<ForumComment> Replies { get; set; } = new List<ForumComment>();
+    public virtual ICollection<ForumComment> Replies { get; set; } = [];
 }

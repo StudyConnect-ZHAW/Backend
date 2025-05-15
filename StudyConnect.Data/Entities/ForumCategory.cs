@@ -23,5 +23,5 @@ public class ForumCategory
     /// <summary>
     /// Collection of posts associated with this category.
     /// </summary>
-    public virtual ICollection<ForumPost> ForumPosts { get; set; } = new List<ForumPost>();
+    public virtual ICollection<ForumPost> ForumPosts { get; set; } = [];
 }

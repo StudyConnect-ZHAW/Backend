@@ -92,7 +92,7 @@ namespace StudyConnect.Data.Migrations
                     b.Property<bool>("IsEdited")
                         .HasColumnType("bit");
 
-                    b.Property<Guid?>("ParentCommentForumCommentId")
+                    b.Property<Guid?>("ParentCommentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("ReplyCount")
@@ -108,7 +108,7 @@ namespace StudyConnect.Data.Migrations
 
                     b.HasIndex("ForumPostId");
 
-                    b.HasIndex("ParentCommentForumCommentId");
+                    b.HasIndex("ParentCommentId");
 
                     b.HasIndex("UserId");
 
@@ -273,12 +273,14 @@ namespace StudyConnect.Data.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.HasKey("URoleId");
 
@@ -306,7 +308,7 @@ namespace StudyConnect.Data.Migrations
 
                     b.HasOne("StudyConnect.Data.Entities.ForumComment", "ParentComment")
                         .WithMany("Replies")
-                        .HasForeignKey("ParentCommentForumCommentId")
+                        .HasForeignKey("ParentCommentId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("StudyConnect.Data.Entities.User", "User")

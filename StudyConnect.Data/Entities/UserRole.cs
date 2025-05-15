@@ -15,14 +15,16 @@ public class UserRole
     public Guid URoleId { get; set; }
 
     [Required]
+    [MaxLength(200)]
     public required string Name { get; set; }
 
-    [MaxLength(500)]
+    [Required]
+    [MaxLength(200)]
     [DataType(DataType.MultilineText)]
     public string? Description { get; set; }
 
     /// <summary>
     /// Collection of users with this role.
     /// </summary>
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
+    public virtual ICollection<User> Users { get; set; } = [];
 }

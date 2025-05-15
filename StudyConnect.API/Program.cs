@@ -63,7 +63,7 @@ builder.Services
 
 builder.Services.AddDbContext<StudyConnectDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseLazyLoadingProxies().UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     options.EnableDetailedErrors();       // enable detailed error messages
     options.LogTo(Console.WriteLine, LogLevel.Debug); // Log SQL queries to the console
 });

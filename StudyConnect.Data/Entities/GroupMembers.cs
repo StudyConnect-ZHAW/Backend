@@ -15,10 +15,10 @@ public class GroupMembers
 
     [Required]
     [Key]
-    public Guid GroupId { get; set; } = Guid.NewGuid();
+    public Guid GroupId { get; set; } 
 
     [Required]
-    public Guid MemberRoleId { get; set; } = Guid.NewGuid();
+    public Guid MemberRoleId { get; set; }
 
     public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
 
@@ -28,17 +28,17 @@ public class GroupMembers
     /// Unique identifier for the group member.
     /// </summary>
     [ForeignKey("MemberId")]
-    public required User Member { get; set; }
+    public virtual User Member { get; set; } = null!;
 
     /// <summary>
     /// Unique identifier for the group to which the member belongs.
     /// </summary>
     [ForeignKey("GroupId")]
-    public required Group Group { get; set; }
+    public virtual Group Group { get; set; } = null!;
 
     /// <summary>
     /// Role of the member within the group, such as admin, moderator, or member.
     /// </summary>
     [ForeignKey("MemberRoleId")]
-    public required MemberRole MemberRole { get; set; }
+    public virtual MemberRole MemberRole { get; set; } = null!;
 }

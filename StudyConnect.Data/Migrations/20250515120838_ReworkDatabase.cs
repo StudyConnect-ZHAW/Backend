@@ -12,10 +12,6 @@ namespace StudyConnect.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_ForumComment_ForumComment_ParentCommentId",
-                table: "ForumComment");
-
-            migrationBuilder.DropForeignKey(
                 name: "FK_ForumComment_User_UserGuid",
                 table: "ForumComment");
 
@@ -24,7 +20,7 @@ namespace StudyConnect.Data.Migrations
                 table: "ForumPost");
 
             migrationBuilder.DropIndex(
-                name: "IX_ForumComment_ParentCommentId",
+                name: "IX_ForumComment_UserGuid",
                 table: "ForumComment");
 
             migrationBuilder.DropColumn(
@@ -40,7 +36,7 @@ namespace StudyConnect.Data.Migrations
                 table: "ForumComment");
 
             migrationBuilder.DropColumn(
-                name: "ParentCommentId",
+                name: "UserGuid",
                 table: "ForumComment");
 
             migrationBuilder.DropColumn(
@@ -62,15 +58,26 @@ namespace StudyConnect.Data.Migrations
                 table: "ForumPost",
                 newName: "IX_ForumPost_UserId");
 
-            migrationBuilder.RenameColumn(
-                name: "UserGuid",
-                table: "ForumComment",
-                newName: "ParentCommentForumCommentId");
+            migrationBuilder.AlterColumn<string>(
+                name: "Name",
+                table: "UserRole",
+                type: "nvarchar(200)",
+                maxLength: 200,
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "nvarchar(450)");
 
-            migrationBuilder.RenameIndex(
-                name: "IX_ForumComment_UserGuid",
-                table: "ForumComment",
-                newName: "IX_ForumComment_ParentCommentForumCommentId");
+            migrationBuilder.AlterColumn<string>(
+                name: "Description",
+                table: "UserRole",
+                type: "nvarchar(200)",
+                maxLength: 200,
+                nullable: false,
+                defaultValue: "",
+                oldClrType: typeof(string),
+                oldType: "nvarchar(500)",
+                oldMaxLength: 500,
+                oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(
                 name: "Content",
@@ -94,14 +101,6 @@ namespace StudyConnect.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_ForumComment_ForumComment_ParentCommentForumCommentId",
-                table: "ForumComment",
-                column: "ParentCommentForumCommentId",
-                principalTable: "ForumComment",
-                principalColumn: "ForumCommentId",
-                onDelete: ReferentialAction.Restrict);
-
-            migrationBuilder.AddForeignKey(
                 name: "FK_ForumComment_User_UserId",
                 table: "ForumComment",
                 column: "UserId",
@@ -121,10 +120,6 @@ namespace StudyConnect.Data.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_ForumComment_ForumComment_ParentCommentForumCommentId",
-                table: "ForumComment");
-
             migrationBuilder.DropForeignKey(
                 name: "FK_ForumComment_User_UserId",
                 table: "ForumComment");
@@ -156,15 +151,24 @@ namespace StudyConnect.Data.Migrations
                 table: "ForumPost",
                 newName: "IX_ForumPost_UserGuid");
 
-            migrationBuilder.RenameColumn(
-                name: "ParentCommentForumCommentId",
-                table: "ForumComment",
-                newName: "UserGuid");
+            migrationBuilder.AlterColumn<string>(
+                name: "Name",
+                table: "UserRole",
+                type: "nvarchar(450)",
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "nvarchar(200)",
+                oldMaxLength: 200);
 
-            migrationBuilder.RenameIndex(
-                name: "IX_ForumComment_ParentCommentForumCommentId",
-                table: "ForumComment",
-                newName: "IX_ForumComment_UserGuid");
+            migrationBuilder.AlterColumn<string>(
+                name: "Description",
+                table: "UserRole",
+                type: "nvarchar(500)",
+                maxLength: 500,
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "nvarchar(200)",
+                oldMaxLength: 200);
 
             migrationBuilder.AlterColumn<string>(
                 name: "Content",
@@ -197,7 +201,7 @@ namespace StudyConnect.Data.Migrations
                 defaultValue: 0);
 
             migrationBuilder.AddColumn<Guid>(
-                name: "ParentCommentId",
+                name: "UserGuid",
                 table: "ForumComment",
                 type: "uniqueidentifier",
                 nullable: true);
@@ -210,17 +214,9 @@ namespace StudyConnect.Data.Migrations
                 defaultValue: 0);
 
             migrationBuilder.CreateIndex(
-                name: "IX_ForumComment_ParentCommentId",
+                name: "IX_ForumComment_UserGuid",
                 table: "ForumComment",
-                column: "ParentCommentId");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_ForumComment_ForumComment_ParentCommentId",
-                table: "ForumComment",
-                column: "ParentCommentId",
-                principalTable: "ForumComment",
-                principalColumn: "ForumCommentId",
-                onDelete: ReferentialAction.Restrict);
+                column: "UserGuid");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_ForumComment_User_UserGuid",
