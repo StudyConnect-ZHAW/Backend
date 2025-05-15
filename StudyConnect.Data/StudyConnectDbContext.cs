@@ -54,10 +54,10 @@ public class StudyConnectDbContext : DbContext
             .WithMany(ur => ur.Users)
             .HasForeignKey("URoleId")
             .OnDelete(DeleteBehavior.Restrict);
-        
+
         // Create a Default UserRole Student
         modelBuilder.Entity<UserRole>().HasData(new UserRole
-        {   
+        {
             URoleId = new Guid("00000000-0000-0000-0000-000000000001"),
             Name = "Student",
             Description = "Student is the default role with no rights."
@@ -130,6 +130,14 @@ public class StudyConnectDbContext : DbContext
             .WithMany(fc => fc.Replies)
             .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<Tag>(entity =>
+        {
+            entity.ToTable("Tag"); // Tabellenname in SQL
+            entity.HasKey(t => t.TagId);
+            entity.Property(t => t.Name).IsRequired().HasMaxLength(100);
+            entity.Property(t => t.Description).HasMaxLength(500);
+        });
+
         // Configure Unique non-key indexes
         modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
         modelBuilder.Entity<UserRole>().HasIndex(u => u.Name).IsUnique();
@@ -172,6 +180,32 @@ public class StudyConnectDbContext : DbContext
                 Description = "General Kontext"
             }
         );
+        modelBuilder.Entity<Tag>().HasData(
+            new Tag
+            {
+                TagId = new Guid("dba25ed0-ea90-4de8-9b73-bedd16d15a5f"),
+                Name = "Question",
+                Description = "Ask your question here"
+            },
+            new Tag
+            {
+                TagId = new Guid("27a0d0a6-9df8-429e-b473-129533d460d5"),
+                Name = "Looking for Group",
+                Description = "Looking for study group members"
+            },
+            new Tag
+            {
+                TagId = new Guid("46fd2f68-df2d-4a0a-9137-f8556b4f132f"),
+                Name = "Discussion",
+                Description = "Discuss the topic here"
+            },
+            new Tag
+            {
+                TagId = new Guid("9d2f3e3f-0f58-4d55-8337-84fecd2b84d3"),
+                Name = "Issue",
+                Description = "Check existing problems or issues"
+            }
+        );
 
     }
 
@@ -183,4 +217,5 @@ public class StudyConnectDbContext : DbContext
     public DbSet<ForumCategory> ForumCategories { get; set; }
     public DbSet<ForumPost> ForumPosts { get; set; }
     public DbSet<ForumComment> ForumComments { get; set; }
+    public DbSet<Tag> Tags { get; set; }
 }
