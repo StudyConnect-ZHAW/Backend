@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using StudyConnect.Core.Interfaces;
+using StudyConnect.Core.Interfaces.Services;
 using StudyConnect.API.Dtos.Requests.Forum;
 using StudyConnect.API.Dtos.Responses.Forum;
 
@@ -15,15 +15,15 @@ public class CategoryController : BaseController
     /// <summary>
     /// The category repository to interact with data.
     /// </summary>
-    protected readonly ICategoryRepository _categoryRepository;
+    protected readonly ICategoryService _categoryService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CategoryController"/> class.
     /// </summary>
     /// <param name="categoryRepository">The category repository to interact with data.</param>
-    public CategoryController(ICategoryRepository categoryRepository)
+    public CategoryController(ICategoryService categoryService)
     {
-        _categoryRepository = categoryRepository;
+        _categoryService = categoryService;
     }
 
     /// <summary>
@@ -45,7 +45,7 @@ public class CategoryController : BaseController
     [HttpGet("{cid:guid}")]
     public async Task<IActionResult> GetCategoryById([FromRoute] Guid cid)
     {
-        var result = await _categoryRepository.GetByIdAsync(cid);
+        var result = await _categoryService.GetCategoryByIdAsync(cid);
         if (!result.IsSuccess)
             return BadRequest(result.ErrorMessage);
 
@@ -63,13 +63,39 @@ public class CategoryController : BaseController
     }
 
     /// <summary>
+    /// Get category by name.
+    /// </summary>
+    /// <param name="categoryName">The unique name of the category.</param>
+    /// <returns>On success a Dto with information about the category, on failure HTTP 400/404 status code.</returns>
+    [HttpGet("{categoryName}")]
+    public async Task<IActionResult> GetCategoriesByName([FromRoute] string categoryName)
+    {
+        var result = await _categoryService.GetCategoryByNameAsync(categoryName);
+        if (!result.IsSuccess)
+            return BadRequest(result.ErrorMessage);
+
+        if (result.Data == null)
+            return NotFound("Category not found.");
+
+        var categoryDto = new CategoryReadDto
+        {
+            ForumCategoryId = result.Data.ForumCategoryId,
+            Name = result.Data.Name,
+            Description = result.Data.Description
+        };
+
+        return Ok(categoryDto);
+    }
+
+
+    /// <summary>
     /// Get all the categories.
     /// </summary>
     /// <returns>On success a list of Dtos with information about the category, on failure HTTP 400/404 status code.</returns>
     [HttpGet]
     public async Task<IActionResult> GetAllCategories()
     {
-        var categories = await _categoryRepository.GetAllAsync();
+        var categories = await _categoryService.GetAllCategoriesAsync();
         if (!categories.IsSuccess)
             return BadRequest(categories.ErrorMessage);
 
