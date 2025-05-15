@@ -18,11 +18,18 @@ public class ForumComment
     public Guid ForumCommentId { get; set; }
 
     [Required]
+    [DataType(DataType.MultilineText)]
     public required string Content { get; set; }
+
+    [Required]
+    public Guid UserId;
+
+    [Required]
+    public Guid ForumPostId;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    public DateTime UpdatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     public int ReplyCount { get; set; } = 0;
 
@@ -33,12 +40,14 @@ public class ForumComment
     /// <summary>
     /// User who created the comment.
     /// </summary>
-    public required User User { get; set; }
+    [ForeignKey("UserId")]
+    public virtual User User { get; set; } = null!;
 
     /// <summary>
     /// Forum post this comment belongs to.
     /// </summary>
-    public required ForumPost ForumPost { get; set; }
+    [ForeignKey("ForumPostId")]
+    public virtual ForumPost ForumPost { get; set; } = null!;
 
     /// <summary>
     /// Parent comment this comment is replying to.

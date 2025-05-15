@@ -101,7 +101,7 @@ namespace StudyConnect.Data.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("UserId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("ForumCommentId");
@@ -126,8 +126,7 @@ namespace StudyConnect.Data.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -313,7 +312,8 @@ namespace StudyConnect.Data.Migrations
                     b.HasOne("StudyConnect.Data.Entities.User", "User")
                         .WithMany("ForumComments")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("ForumPost");
 

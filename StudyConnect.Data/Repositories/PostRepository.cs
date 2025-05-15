@@ -56,8 +56,6 @@ public class PostRepository : BaseRepository, IPostRepository
     {
         var post = await _context.ForumPosts
             .AsNoTracking()
-            .Include(p => p.User)
-            .Include(p => p.ForumCategory)
             .FirstOrDefaultAsync(fp => fp.ForumPostId == id);
 
         return post!.ToForumPostModel(Update);

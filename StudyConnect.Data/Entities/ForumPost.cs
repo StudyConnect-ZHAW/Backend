@@ -19,7 +19,6 @@ public class ForumPost
     public required string Title { get; set; }
 
     [Required]
-    [MaxLength(500)]
     [DataType(DataType.MultilineText)]
     public string? Content { get; set; }
 
@@ -33,12 +32,11 @@ public class ForumPost
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     [Required]
-    public DateTime UpdatedAt { get; set; } 
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow; 
 
     public int ViewCount { get; set; } = 0;
 
     public int CommentCount { get; set; } = 0;
-
 
     /// <summary>
     /// Forum category this post belongs to.
