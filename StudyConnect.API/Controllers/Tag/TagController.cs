@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using StudyConnect.Data.Repositories;
-using StudyConnect.API.Dtos.Responses;
 
 namespace StudyConnect.API.Controllers
 {
@@ -25,14 +24,7 @@ namespace StudyConnect.API.Controllers
                 return NotFound("No tags found.");
             }
 
-            var tagDtos = tags.Select(t => new TagDto
-            {
-                Id = t.Id,
-                Name = t.Name,
-                Description = t.Description
-            });
-
-            return Ok(tagDtos);
+            return Ok(tags);
         }
 
         [HttpPost]
