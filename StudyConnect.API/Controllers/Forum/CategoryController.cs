@@ -33,7 +33,7 @@ public class CategoryController : BaseController
     /// <summary>
     /// Creates a new category.
     /// </summary>
-    /// <param name="categoryDto">A Data Transfer Object containing information for category creating.</param>
+    /// <param name="categoryDto">A DTO containing information for category creating.</param>
     /// <returns>HTTP 501 status code</returns>
     [HttpPost]
     public IActionResult AddCategory([FromBody] CategoryCreateDto categoryDto)
@@ -42,10 +42,10 @@ public class CategoryController : BaseController
     }
 
     /// <summary>
-    /// Get category by id.
+    /// Get category by ID.
     /// </summary>
     /// <param name="cid">The unique identifier of the category.</param>
-    /// <returns>On success a Dto with information about the category, on failure HTTP 400/404 status code.</returns>
+    /// <returns>On success a DTO with information about the category, on failure HTTP 400/404 status code.</returns>
     [HttpGet("{cid:guid}")]
     public async Task<IActionResult> GetCategoryById([FromRoute] Guid cid)
     {
@@ -69,7 +69,7 @@ public class CategoryController : BaseController
     /// Get category by name.
     /// </summary>
     /// <param name="categoryName">The unique name of the category.</param>
-    /// <returns>On success a Dto with information about the category, on failure HTTP 400/404 status code.</returns>
+    /// <returns>On success a DTO with information about the category, on failure HTTP 400/404 status code.</returns>
     [HttpGet("{categoryName}")]
     public async Task<IActionResult> GetCategoriesByName([FromRoute] string categoryName)
     {
@@ -93,7 +93,7 @@ public class CategoryController : BaseController
     /// <summary>
     /// Get all the categories.
     /// </summary>
-    /// <returns>On success a list of Dtos with information about the category, on failure HTTP 400/404 status code.</returns>
+    /// <returns>On success a list of DTOs with information about the category, on failure HTTP 400/404 status code.</returns>
     [HttpGet]
     public async Task<IActionResult> GetAllCategories()
     {
@@ -115,7 +115,7 @@ public class CategoryController : BaseController
     }
 
     /// <summary>
-    /// Delete a category
+    /// Delete a category.
     /// </summary>
     /// <param name="cid">The unique identifier of the category.</param>
     /// <returns>HTTP 501 status code</returns> 
