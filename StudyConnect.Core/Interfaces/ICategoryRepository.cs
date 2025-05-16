@@ -1,47 +1,58 @@
-using StudyConnect.Core.Common;
 using StudyConnect.Core.Models;
 namespace StudyConnect.Core.Interfaces;
 
-
+/// <summary>
+/// Defines repository-level data access methods for forum categories.
+/// </<summary>
 public interface ICategoryRepository
 {
     /// <summary>
-    /// Add a category to the database
+    /// Adds a new category to the data store.
     /// </summary>
-    /// <param name="category"> the category model to add </param>
-    /// <returns> <see cref="OperationResult{T}"/> indicating success or failure.</returns>
+    /// <param name="category">The <see cref="ForumCategory"/> entity to add.</param>
+    /// <returns>The <see cref="Guid"/> of the newly created category.</returns>
     Task<Guid> AddAsync(ForumCategory category);
 
     /// <summary>
-    /// Get category by its id
+    /// Retrieves a category by its ID.
     /// </summary>
-    /// <param name="id"> The unique identifier of the category </param>
-    /// <returns> <see cref="OperationResult{T}"/> containing the category if found, or an error message if not. </returns>
+    /// <param name="id">The unique identifier of the category.</param>
+    /// <returns>The matching <see cref="ForumCategory"/> if found; otherwise, <c>null</c>.</returns>
     Task<ForumCategory?> GetByIdAsync(Guid id);
 
     /// <summary>
-    /// Get category by its name
+    /// Retrieves a category by its name.
     /// </summary>
-    /// <param name="name"> The unique name of the category </param>
-    /// <returns> <see cref="OperationResult{T}"/> containing the category if found, or an error message if not. </returns>
+    /// <param name="name">The name of the category.</param>
+    /// <returns>The matching <see cref="ForumCategory"/> if found; otherwise, <c>null</c>.</returns>
     Task<ForumCategory?> GetByNameAsync(string name);
 
     /// <summary>
-    /// Get all the categories
+    /// Retrieves all categories from the data store.
     /// </summary>
-    /// <returns> <see cref="OperationResult{T}"/> containing  categories if found, or an error message if not. </returns> 
+    /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="ForumCategory"/> objects. Can be empty if none exist.</returns>
     Task<IEnumerable<ForumCategory?>> GetAllAsync();
 
     /// <summary>
-    /// Delete a category based on its GUID
+    /// Deletes the category with the specified unique identifier.
     /// </summary>
-    /// <param name="guid"> The unique identifier of the category </param>
-    /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
+    /// <param name="id">The unique identifier of the category to delete.</param>
+    /// <returns>A task that represents the asynchronous delete operation.</returns>
     Task DeleteAsync(Guid id);
 
+    /// <summary>
+    /// Checks whether a category with the specified ID exists.
+    /// </summary>
+    /// <param name="categoryId">The unique identifier of the category.</param>
+    /// <returns><c>true</c> if the category exists; otherwise, <c>false</c>.</returns>
     Task<bool> CategoryExistAsync(Guid categoryId);
 
-    Task<bool> NameTakenAsync(string name);
+    /// <summary>
+    /// Checks whether the given category name is already in use.
+    /// </summary>
+    /// <param name="name">The name to check for uniqueness.</param>
+    /// <returns><c>true</c> if the name is already taken; otherwise, <c>false</c>.</returns>
+    Task<bool> NameTakenAsync(string nakme);
 
 }
 

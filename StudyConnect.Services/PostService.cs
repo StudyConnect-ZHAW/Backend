@@ -53,9 +53,6 @@ public class PostService : IPostService
         }
         catch (Exception ex)
         {
-            Console.WriteLine("❌ FULL EXCEPTION:");
-            Console.WriteLine(ex.ToString());  // This gives you stack trace + inner exception
-
             return OperationResult<ForumPost>.Failure($"{UnknownError}: {ex}");
         }
     }
@@ -69,9 +66,9 @@ public class PostService : IPostService
     {
         var result = await _postRepository.SearchAsync(userId, categoryName, title, fromDate, toDate);
         if (result == null || !result.Any())
-            return OperationResult<IEnumerable<ForumPost>>.Failure(NotFound);
+            return OperationResult<IEnumerable<ForumPost>>.Failure(QueryFailure);
 
-        return OperationResult<IEnumerable<ForumPost>>.Success(result);
+        return OperationResult<IEnumerable<ForumPost>>.Success(result!);
     }
 
     public async Task<OperationResult<ForumPost>> GetPostByIdAsync(Guid postId)
@@ -86,26 +83,26 @@ public class PostService : IPostService
         return OperationResult<ForumPost>.Success(result);
     }
 
-    public async Task<OperationResult<bool>> UpdatePostAsync(Guid userId, Guid postId, ForumPost post)
+    public async Task<OperationResult<ForumPost>> UpdatePostAsync(Guid userId, Guid postId, ForumPost post)
     {
         if (post == null)
-            return OperationResult<bool>.Failure(PostConentEmpty);
+            return OperationResult<ForumPost>.Failure(PostConentEmpty);
 
         var test = await TestAuthorizationAsync(userId, postId);
         if (!test.IsSuccess)
-            return OperationResult<bool>.Failure(test.ErrorMessage!);
+            return OperationResult<ForumPost>.Failure(test.ErrorMessage!);
 
         try
         {
             await _postRepository.UpdateAsync(postId, post);
-            return OperationResult<bool>.Success(true);
         }
         catch (Exception ex)
         {
-            Console.WriteLine("❌ FULL EXCEPTION:");
-            Console.WriteLine(ex.ToString());
-            return OperationResult<bool>.Failure($"{UnknownError}: {ex}");
+            return OperationResult<ForumPost>.Failure($"{UnknownError}: {ex}");
         }
+
+        var result = await _postRepository.GetByIdAsync(postId);
+        return OperationResult<ForumPost>.Success(result!);
     }
 
     public async Task<OperationResult<bool>> DeletePostAsync(Guid userId, Guid postId)
@@ -122,8 +119,6 @@ public class PostService : IPostService
         }
         catch (Exception ex)
         {
-            Console.WriteLine("❌ FULL EXCEPTION:");
-            Console.WriteLine(ex.ToString());
             return OperationResult<bool>.Failure($"{UnknownError}: {ex}");
         }
     }

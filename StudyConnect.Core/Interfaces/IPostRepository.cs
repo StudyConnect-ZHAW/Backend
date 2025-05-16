@@ -19,7 +19,7 @@ public interface IPostRepository
     /// <param name="categoryName">The unique name of category assigned to the post.</param>
     /// <param name="title">The title of the post.</param>
     /// <returns>An <see cref="OperationResult{T}"/> containing a list of post if found, or an error message if not.</returns>
-    Task<IEnumerable<ForumPost>?> SearchAsync(
+    Task<IEnumerable<ForumPost?>> SearchAsync(
           Guid? userId,
           string? categoryName,
           string? title,

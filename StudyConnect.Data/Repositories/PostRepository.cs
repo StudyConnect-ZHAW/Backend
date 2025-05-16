@@ -27,7 +27,7 @@ public class PostRepository : BaseRepository, IPostRepository
         return newPost.ForumPostId;
     }
 
-    public async Task<IEnumerable<ForumPost>?> SearchAsync(
+    public async Task<IEnumerable<ForumPost?>> SearchAsync(
         Guid? userId,
         string? categoryName,
         string? title,

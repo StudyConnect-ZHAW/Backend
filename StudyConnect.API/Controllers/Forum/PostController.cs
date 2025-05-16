@@ -4,7 +4,8 @@ using StudyConnect.API.Dtos.Requests.Forum;
 using StudyConnect.API.Dtos.Responses.Forum;
 using StudyConnect.API.Dtos.Responses.User;
 using StudyConnect.Core.Models;
-using System.Threading.Tasks;
+using StudyConnect.API.Dtos;
+using static StudyConnect.Core.Common.ErrorMessages;
 
 namespace StudyConnect.API.Controllers.Forum;
 
@@ -48,16 +49,15 @@ public class PostController : BaseController
         var userId = createDto.UserId;
         var categoryId = createDto.ForumCategoryId;
 
-        var result = await _postService.AddPostAsync(userId, categoryId, post);
-        if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+        var newPost = await _postService.AddPostAsync(userId, categoryId, post);
+        if (!newPost.IsSuccess || newPost.Data == null)
+            return newPost.ErrorMessage!.Contains(GeneralNotFound)
+                ? NotFound(new ApiResponse<string>(newPost.ErrorMessage))
+                : BadRequest(new ApiResponse<string>(newPost.ErrorMessage));
 
-        if (result.Data == null)
-            return NotFound(result.ErrorMessage);
+        var result = GeneratePostDto(newPost.Data);
 
-        var output = GeneratePostDto(result.Data);
-
-        return Ok(output);
+        return Ok(new ApiResponse<PostReadDto>(result));
     }
 
     /// <summary>
@@ -71,15 +71,12 @@ public class PostController : BaseController
     public async Task<IActionResult> SearchPosts([FromQuery] Guid? uid, [FromQuery] string? categoryName, [FromQuery] string? title, [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
     {
         var posts = await _postService.SearchPostAsync(uid, categoryName, title, fromDate, toDate);
-        if (!posts.IsSuccess)
-            return BadRequest(posts.ErrorMessage);
-
-        if (posts.Data == null)
-            return NotFound("Queries not found.");
+        if (!posts.IsSuccess || posts.Data == null)
+            return BadRequest(new ApiResponse<string>(posts.ErrorMessage!));
 
         var result = posts.Data.Select(p => GeneratePostDto(p));
 
-        return Ok(result);
+        return Ok(new ApiResponse<IEnumerable<PostReadDto>>(result));
     }
 
     /// <summary>
@@ -91,14 +88,13 @@ public class PostController : BaseController
     public async Task<IActionResult> GetPostById([FromRoute] Guid pid)
     {
         var post = await _postService.GetPostByIdAsync(pid);
-        if (!post.IsSuccess)
-            return BadRequest(post.ErrorMessage);
-
-        if (post.Data == null)
-            return NotFound("Post not found.");
+        if (!post.IsSuccess || post.Data == null)
+            return post.ErrorMessage!.Contains(GeneralNotFound)
+                ? NotFound(new ApiResponse<string>(post.ErrorMessage))
+                : BadRequest(new ApiResponse<string>(post.ErrorMessage));
 
         var result = GeneratePostDto(post.Data);
-        return Ok(result);
+        return Ok(new ApiResponse<PostReadDto>(result));
     }
 
     /// <summary>
@@ -119,14 +115,16 @@ public class PostController : BaseController
             Content = updateDto.Content
         };
 
-        var result = await _postService.UpdatePostAsync(updateDto.UserId, pid, post);
-        if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+        var updatePost = await _postService.UpdatePostAsync(updateDto.UserId, pid, post);
+        if (!updatePost.IsSuccess || updatePost.Data == null)
+        {
+            if (updatePost.ErrorMessage!.Contains(GeneralNotFound)) return NotFound(new ApiResponse<string>(updatePost.ErrorMessage));
+            else if (updatePost.ErrorMessage!.Equals(NotAuthorized)) return Unauthorized(new ApiResponse<string>(updatePost.ErrorMessage));
+            else return BadRequest(new ApiResponse<string>(updatePost.ErrorMessage));
+        }
 
-        if (!result.Data)
-            return NotFound("Post for update was not found.");
-
-        return NoContent();
+        var result = GeneratePostDto(updatePost.Data);
+        return Ok(new ApiResponse<PostReadDto>(result));
     }
 
 
@@ -136,17 +134,18 @@ public class PostController : BaseController
     /// <param name="pid">The unique identifier of the post.</param>
     /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
     [HttpDelete("{pid:guid}")]
-    public async Task<IActionResult> DeletePost([FromRoute] Guid pid, [FromQuery] Guid userId)
+    public async Task<IActionResult> DeletePost([FromRoute] Guid pid, [FromQuery] Guid uid)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var result = await _postService.DeletePostAsync(userId, pid);
-        if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
-
-        if (!result.Data)
-            return NotFound("Post for deletion was not found.");
+        var deletePost = await _postService.DeletePostAsync(uid, pid);
+        if (!deletePost.IsSuccess)
+        {
+            if (deletePost.ErrorMessage!.Contains(GeneralNotFound)) return NotFound(new ApiResponse<string>(deletePost.ErrorMessage));
+            else if (deletePost.ErrorMessage!.Equals(NotAuthorized)) return Unauthorized(new ApiResponse<string>(deletePost.ErrorMessage));
+            else return BadRequest(new ApiResponse<string>(deletePost.ErrorMessage));
+        }
 
         return NoContent();
     }
@@ -196,6 +195,7 @@ public class PostController : BaseController
             Content = post.Content,
             Created = post.CreatedAt,
             Updated = post.UpdatedAt,
+            CommentCount = post.CommentCount,
             Category = post.Category != null
                 ? GenerateCategoryReadDto(post.Category)
                 : null,

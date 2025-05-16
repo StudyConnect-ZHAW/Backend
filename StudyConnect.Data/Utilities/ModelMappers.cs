@@ -41,8 +41,11 @@ public static class ModelMappers
     /// </summary>
     /// <param name="post">A forum post entity to transform.</param>
     /// <returns>A forum post model object.</returns>
-    public static Core.Models.ForumPost ToForumPostModel(this Entities.ForumPost post)
+    public static Core.Models.ForumPost? ToForumPostModel(this Entities.ForumPost? post)
     {
+        if (post == null)
+            return null;
+
         return new Core.Models.ForumPost
         {
             ForumPostId = post.ForumPostId,

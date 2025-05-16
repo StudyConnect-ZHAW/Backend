@@ -17,7 +17,7 @@ public interface IPostService
 
     Task<OperationResult<ForumPost>> GetPostByIdAsync(Guid postId);
 
-    Task<OperationResult<bool>> UpdatePostAsync(Guid userId, Guid postId, ForumPost post);
+    Task<OperationResult<ForumPost>> UpdatePostAsync(Guid userId, Guid postId, ForumPost post);
 
     Task<OperationResult<bool>> DeletePostAsync(Guid userId, Guid postId);
 }
