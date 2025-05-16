@@ -93,7 +93,7 @@ public class CategoryController : BaseController
     /// <summary>
     /// Get all the categories.
     /// </summary>
-    /// <returns>On success a list of DTOs with information about the category, on failure HTTP 400/404 status code.</returns>
+    /// <returns>On success a list of DTOs with information about the categories, on failure HTTP 400/404 status code.</returns>
     [HttpGet]
     public async Task<IActionResult> GetAllCategories()
     {

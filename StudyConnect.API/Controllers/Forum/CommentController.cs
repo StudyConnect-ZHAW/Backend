@@ -35,8 +35,8 @@ public class CommentController : BaseController
     /// Creates a new comment.
     /// </summary>
     /// <param name="pid">The unique identifier of the post.</param>
-    /// <param name="createDto">A Data Transfer Object containing information for comment creation.</param>
-    /// <returns>Returns HTTP 200 OK on success, or 400 Bad Request on failure.</returns>
+    /// <param name="createDto">A DTO containing information for comment creation.</param>
+    /// <returns>On success a DTO with information about the created comment, on failure HTTP 400/404 status code.</returns>
     [Route("v1/posts/{pid:guid}/comments")]
     [HttpPost]
     public async Task<IActionResult> AddComment([FromRoute] Guid pid, [FromBody] CommentCreateDto createDto)
@@ -58,7 +58,7 @@ public class CommentController : BaseController
                 ? NotFound(result.ErrorMessage)
                 : BadRequest(result.ErrorMessage);
 
-        var createdComment = MapCommentToDto(result.Data!);
+        var createdComment = ToCommentReadDto(result.Data!);
 
         return Ok(createdComment);
     }
@@ -67,7 +67,7 @@ public class CommentController : BaseController
     /// Retrieves all comments for a specific post.
     /// </summary>
     /// <param name="pid">The unique identifier of the post.</param>
-    /// <returns>Returns a list of comments on success, or HTTP 400/404 on failure.</returns>
+    /// <returns>On success a list of DTOs with information about the comments, or HTTP 400/404 on failure.</returns>
     [Route("v1/posts/{pid:guid}/comments")]
     [HttpGet]
     public async Task<IActionResult> GetAllCommentsOfPost([FromRoute] Guid pid)
@@ -78,7 +78,7 @@ public class CommentController : BaseController
                 ? NotFound(comments.ErrorMessage)
                 : BadRequest(comments.ErrorMessage);
 
-        var result = comments.Data!.Select(c => MapCommentToDto(c!));
+        var result = comments.Data!.Select(c => ToCommentReadDto(c!));
         return Ok(result);
     }
 
@@ -86,7 +86,7 @@ public class CommentController : BaseController
     /// Retrieves a comment by its ID.
     /// </summary>
     /// <param name="cmid">The unique identifier of the comment.</param>
-    /// <returns>Returns the comment details on success, or HTTP 400/404 on failure.</returns>
+    /// <returns>On success a DTO with information about the comment, on failure HTTP 400/404 status code.</returns>
     [Route("v1/comments/{cmid:guid}")]
     [HttpGet]
     public async Task<IActionResult> GetCommentById([FromRoute] Guid cmid)
@@ -97,7 +97,7 @@ public class CommentController : BaseController
                 ? NotFound(comment.ErrorMessage)
                 : BadRequest(comment.ErrorMessage);
 
-        var result = MapCommentToDto(comment.Data!);
+        var result = ToCommentReadDto(comment.Data!);
 
         return Ok(result);
     }
@@ -107,7 +107,7 @@ public class CommentController : BaseController
     /// </summary>
     /// <param name="cmid">The unique identifier of the comment.</param>
     /// <param name="commentDto">A Data Transfer Object containing updated comment data.</param>
-    /// <returns>Returns HTTP 204 No Content on success, or an appropriate error status code on failure.</returns>
+    /// <returns>On success a DTO with information about the updated comment, on failure HTTP 400/404 status code.</returns>
     [Route("v1/comments/{cmid:guid}")]
     [HttpPut]
     public async Task<IActionResult> UpdateComment([FromRoute] Guid cmid, [FromBody] CommentUpdateDto commentDto)
@@ -128,7 +128,7 @@ public class CommentController : BaseController
             else return BadRequest(result.ErrorMessage);
         }
 
-        return NoContent();
+        return Ok(result);
     }
 
     /// <summary>
@@ -136,7 +136,7 @@ public class CommentController : BaseController
     /// </summary>
     /// <param name="cmid">The unique identifier of the comment.</param>
     /// <param name="userId">The ID of the user requesting the deletion.</param>
-    /// <returns>Returns HTTP 204 No Content on success, or an appropriate error status code on failure.</returns>
+    /// <returns> On success HTTP 204 No Content, or an appropriate error status code on failure.</returns>
     [Route("v1/comments/{cmid:guid}")]
     [HttpDelete]
     public async Task<IActionResult> DeleteComment([FromRoute] Guid cmid, [FromQuery] Guid userId)
@@ -160,7 +160,7 @@ public class CommentController : BaseController
     /// </summary>
     /// <param name="user">The user model.</param>
     /// <returns>A UserReadDto containing user details.</returns>
-    private UserReadDto MapUserToDto(User user)
+    private UserReadDto ToUserReadDto(User user)
     {
         return new UserReadDto
         {
@@ -175,7 +175,7 @@ public class CommentController : BaseController
     /// </summary>
     /// <param name="comment">The comment model.</param>
     /// <returns>A CommentReadDto containing comment details and nested replies, if any.</returns>
-    private CommentReadDto MapCommentToDto(ForumComment comment)
+    private CommentReadDto ToCommentReadDto(ForumComment comment)
     {
         var result = new CommentReadDto
         {
@@ -187,7 +187,7 @@ public class CommentController : BaseController
             Deleted = comment.IsDeleted,
             ReplyCount = comment.ReplyCount,
             User = comment.User != null
-                ? MapUserToDto(comment.User)
+                ? ToUserReadDto(comment.User)
                 : null,
             PostId = comment.PostId,
             ParentCommentId = comment.ParentCommentId
@@ -195,7 +195,7 @@ public class CommentController : BaseController
 
         if (comment.Replies != null && comment.Replies.Count > 0)
         {
-            result.Replies = comment.Replies.Select(c => MapCommentToDto(c)).ToList();
+            result.Replies = comment.Replies.Select(c => ToCommentReadDto(c)).ToList();
         }
 
         return result;

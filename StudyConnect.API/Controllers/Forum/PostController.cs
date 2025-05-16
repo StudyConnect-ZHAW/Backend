@@ -38,7 +38,7 @@ public class PostController : BaseController
     /// Creates a new post.
     /// </summary>
     /// <param name="createDto">A DTO containing information for post creation.</param>
-    /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
+    /// <returns>On success a DTO with information about the created post, on failure HTTP 400/404 status code.</returns>
     [HttpPost]
     public async Task<IActionResult> AddPost([FromBody] PostCreateDto createDto)
     {
@@ -75,7 +75,7 @@ public class PostController : BaseController
     /// <param name="title">The title or part of the title to search for (optional).</param>
     /// <param name="fromDate">The start date to filter posts created on or after this date (optional).</param>
     /// <param name="toDate">The end date to filter posts created on or before this date (optional).</param>
-    /// <returns>On success a list of DTOs with information about the post, on failure HTTP 400/404 status code.</returns>
+    /// <returns>On success a list of DTOs with information about the posts, on failure HTTP 400/404 status code.</returns>
     [HttpGet("search")]
     public async Task<IActionResult> SearchPosts([FromQuery] Guid? uid, [FromQuery] string? categoryName, [FromQuery] string? title, [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
     {
@@ -111,7 +111,7 @@ public class PostController : BaseController
     /// </summary>
     /// <param name="pid">The unique identifier of the post.</param>
     /// <param name="updateDto"> A DTO containing the data for updating the post.</param>
-    /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
+    /// <returns>On success a DTO with information about the updated post, on failure HTTP 400/404 status code.</returns>
     [HttpPut("{pid:guid}")]
     public async Task<IActionResult> UpdatePost([FromRoute] Guid pid, [FromBody] PostUpdateDto updateDto)
     {
@@ -142,7 +142,7 @@ public class PostController : BaseController
     /// </summary>
     /// <param name="pid">The unique identifier of the post.</param>
     /// <param name="uid">The ID of the user requesting the deletion.</param>
-    /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
+    /// <returns>On success HTTP 204 No Content, or an appropriate error status code on failure.</returns>
     [HttpDelete("{pid:guid}")]
     public async Task<IActionResult> DeletePost([FromRoute] Guid pid, [FromQuery] Guid uid)
     {
