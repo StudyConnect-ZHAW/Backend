@@ -15,14 +15,16 @@ namespace StudyConnect.API.Controllers.Forum;
 public class CategoryController : BaseController
 {
     /// <summary>
-    /// The category repository to interact with data.
+    ///  Service responsible for handling business logic related to categories. 
     /// </summary>
     protected readonly ICategoryService _categoryService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CategoryController"/> class.
     /// </summary>
-    /// <param name="categoryRepository">The category repository to interact with data.</param>
+    /// <param name="categoryService">
+    /// The category service used to perform business operations and coordinate data access.
+    /// </param>
     public CategoryController(ICategoryService categoryService)
     {
         _categoryService = categoryService;
@@ -104,9 +106,9 @@ public class CategoryController : BaseController
 
         var result = categories.Data.Select(c => new CategoryReadDto
         {
-            ForumCategoryId = c.ForumCategoryId,
-            Name = c.Name,
-            Description = c.Description
+            ForumCategoryId = c?.ForumCategoryId,
+            Name = c?.Name,
+            Description = c?.Description
         });
 
         return Ok(new ApiResponse<IEnumerable<CategoryReadDto>>(result));

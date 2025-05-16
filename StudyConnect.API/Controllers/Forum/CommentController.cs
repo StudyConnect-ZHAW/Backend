@@ -16,14 +16,16 @@ namespace StudyConnect.API.Controllers.Forum;
 public class CommentController : BaseController
 {
     /// <summary>
-    /// The comment services for data operations.
+    /// Service responsible for handling business logic related to comments. 
     /// </summary>
     protected readonly ICommentService _commentService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CommentController"/> class.
     /// </summary>
-    /// <param name="commentService">The Services used to manage comment logic.</param>
+    /// <param name="commentService">
+    /// The comment service used to perform business operations and coordinate data access.
+    /// </param>
     public CommentController(ICommentService commentService)
     {
         _commentService = commentService;
