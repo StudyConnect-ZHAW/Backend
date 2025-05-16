@@ -47,18 +47,9 @@ public class PostService : IPostService
 
         try
         {
-            var finalpost = new ForumPost
-            {
-                Title = post.Title,
-                Content = post.Content,
-                UserId = userId,
-                ForumCategoryId = categoryId
-            };
-
-            var resultId = await _postRepository.AddAsync(finalpost);
-            var result = await _postRepository.GetByIdAsync(resultId, false);
+            var resultId = await _postRepository.AddAsync(post, userId, categoryId);
+            var result = await _postRepository.GetByIdAsync(resultId);
             return OperationResult<ForumPost>.Success(result!);
-
         }
         catch (Exception ex)
         {
@@ -88,7 +79,7 @@ public class PostService : IPostService
         if (IsInvalid(postId))
             return OperationResult<ForumPost>.Failure(InvalidPostId);
 
-        var result = await _postRepository.GetByIdAsync(postId, false);
+        var result = await _postRepository.GetByIdAsync(postId);
         if (result == null)
             return OperationResult<ForumPost>.Failure(PostNotFound);
 
@@ -103,7 +94,6 @@ public class PostService : IPostService
         var test = await TestAuthorizationAsync(userId, postId);
         if (!test.IsSuccess)
             return OperationResult<bool>.Failure(test.ErrorMessage!);
-
 
         try
         {

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using StudyConnect.Core.Models;
-using StudyConnect.Core.Interfaces;
+using StudyConnect.Core.Interfaces.Services;
 using StudyConnect.API.Dtos.Responses.Forum;
 using StudyConnect.API.Dtos.Requests.Forum;
 using StudyConnect.API.Dtos.Responses.User;
@@ -16,17 +16,17 @@ namespace StudyConnect.API.Controllers.Forum;
 public class CommentController : BaseController
 {
     /// <summary>
-    /// The comment repository for data operations.
+    /// The comment services for data operations.
     /// </summary>
-    protected readonly ICommentRepository _commentRepository;
+    protected readonly ICommentService _commentService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CommentController"/> class.
     /// </summary>
-    /// <param name="commentRepository">The repository used to manage comment data.</param>
-    public CommentController(ICommentRepository commentRepository)
+    /// <param name="commentService">The Services used to manage comment logic.</param>
+    public CommentController(ICommentService commentService)
     {
-        _commentRepository = commentRepository;
+        _commentService = commentService;
     }
 
     /// <summary>
@@ -50,7 +50,7 @@ public class CommentController : BaseController
         Guid userId = createDto.UserId;
         Guid? parentId = createDto.ParentCommentId;
 
-        var result = await _commentRepository.AddAsync(comment, userId, pid, parentId);
+        var result = await _commentService.AddCommentAsync(comment, userId, pid, parentId);
         if (!result.IsSuccess)
             return result.ErrorMessage!.Contains(GeneralNotFound)
                 ? NotFound(result.ErrorMessage)
@@ -70,13 +70,13 @@ public class CommentController : BaseController
     [HttpGet]
     public async Task<IActionResult> GetAllCommentsOfPost([FromRoute] Guid pid)
     {
-        var comments = await _commentRepository.GetAllofPostAsync(pid);
+        var comments = await _commentService.GetAllCommentsOfPostAsync(pid);
         if (!comments.IsSuccess)
             return comments.ErrorMessage!.Contains(GeneralNotFound)
                 ? NotFound(comments.ErrorMessage)
                 : BadRequest(comments.ErrorMessage);
 
-        var result = comments.Data!.Select(c => MapCommentToDto(c));
+        var result = comments.Data!.Select(c => MapCommentToDto(c!));
         return Ok(result);
     }
 
@@ -89,7 +89,7 @@ public class CommentController : BaseController
     [HttpGet]
     public async Task<IActionResult> GetCommentById([FromRoute] Guid cmid)
     {
-        var comment = await _commentRepository.GetByIdAsync(cmid);
+        var comment = await _commentService.GetCommentByIdAsync(cmid);
         if (!comment.IsSuccess)
             return comment.ErrorMessage!.Contains(GeneralNotFound)
                 ? NotFound(comment.ErrorMessage)
@@ -118,7 +118,7 @@ public class CommentController : BaseController
             Content = commentDto.Content
         };
 
-        var result = await _commentRepository.UpdateAsync(cmid, commentDto.UserId, comment);
+        var result = await _commentService.UpdateCommentAsync(cmid, commentDto.UserId, comment);
         if (!result.IsSuccess)
         {
             if (result.ErrorMessage!.Contains(GeneralNotFound)) return NotFound(result.ErrorMessage);
@@ -142,7 +142,7 @@ public class CommentController : BaseController
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var result = await _commentRepository.DeleteAsync(cmid, userId);
+        var result = await _commentService.DeleteCommentAsync(cmid, userId);
         if (!result.IsSuccess)
         {
             if (result.ErrorMessage!.Contains(GeneralNotFound)) return NotFound(result.ErrorMessage);

@@ -33,16 +33,16 @@ public static class EntityMapper
         };
     }
 
-    public static Data.Entities.ForumPost MapFromForumPost(this Core.Models.ForumPost post)
+    public static Data.Entities.ForumComment MapCommentToEntity(this Core.Models.ForumComment comment, Guid userId, Guid postId, Guid? parrentId)
     {
-        return new Data.Entities.ForumPost
+        return new Data.Entities.ForumComment
         {
-            Title = post.Title,
-            Content = post.Content,
-            UpdatedAt = DateTime.UtcNow,
-            ForumCategoryId = post.ForumCategoryId,
-            UserId = post.UserId
+            Content = comment.Content,
+            UserId = userId,
+            ForumPostId = postId,
+            ParentCommentId = parrentId != null
+                ? parrentId
+                : null
         };
     }
-
 }

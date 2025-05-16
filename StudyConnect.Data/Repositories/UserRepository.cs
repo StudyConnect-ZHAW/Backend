@@ -131,6 +131,10 @@ public class UserRepository : BaseRepository, IUserRepository
             return OperationResult<bool>.Failure($"An error occurred while updating the user: {ex.Message}");
         }
 
+
+
     }
 
+    public async Task<bool> UserExistsAsync(Guid userId) =>
+        await _context.Users.AnyAsync(u => u.UserId == userId);
 }

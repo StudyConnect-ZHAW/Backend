@@ -8,7 +8,7 @@ namespace StudyConnect.Core.Interfaces;
 /// Interface for managing user-related operations in the system.
 /// </summary>
 public interface IUserRepository
-{   
+{
     /// <summary>
     /// Get a user by their GUID.
     /// </summary>
@@ -36,4 +36,7 @@ public interface IUserRepository
     /// <param name="guid">The unique identifier of the user to be deleted.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
     Task<OperationResult<bool>> DeleteAsync(Guid guid);
+
+    Task<bool> UserExistsAsync(Guid userId);
+
 }

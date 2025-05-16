@@ -12,9 +12,9 @@ public class ForumPost
 
     public DateTime UpdatedAt { get; set; }
 
-    public Guid ForumCategoryId { get; set; }
+    public int ViewCount { get; set; }
 
-    public Guid UserId { get; set; }
+    public int CommentCount { get; set; }
 
     public User? User { get; set; }
 

@@ -11,22 +11,20 @@ public class PostRepository : BaseRepository, IPostRepository
 
     }
 
-    public async Task<Guid> AddAsync(ForumPost post)
+    public async Task<Guid> AddAsync(ForumPost post, Guid userId, Guid categoryId)
     {
         var newPost = new Entities.ForumPost
         {
             Title = post.Title,
             Content = post.Content,
-            ForumCategoryId = post.ForumCategoryId!,
-            UserId = post.UserId
+            ForumCategoryId = categoryId,
+            UserId = userId
         };
 
         await _context.ForumPosts.AddAsync(newPost);
         await _context.SaveChangesAsync();
 
-        var result = newPost.ForumPostId;
-
-        return result;
+        return newPost.ForumPostId;
     }
 
     public async Task<IEnumerable<ForumPost>?> SearchAsync(
@@ -38,8 +36,6 @@ public class PostRepository : BaseRepository, IPostRepository
     {
         var query = _context.ForumPosts
             .AsNoTracking()
-            .Include(p => p.User)
-            .Include(p => p.ForumCategory)
             .WhereIf(userId.HasValue, p => p.User.UserId == userId)
             .WhereIf(!string.IsNullOrWhiteSpace(categoryName), p => p.ForumCategory.Name == categoryName)
             .WhereIf(!string.IsNullOrWhiteSpace(title), p => EF.Functions.Like(p.Title, $"%{title}%"))
@@ -48,17 +44,17 @@ public class PostRepository : BaseRepository, IPostRepository
 
         var posts = await query.ToListAsync();
 
-        return posts.Select(p => p.ToForumPostModel(false));
+        return posts.Select(p => p.ToForumPostModel());
         ;
     }
 
-    public async Task<ForumPost?> GetByIdAsync(Guid id, bool Update)
+    public async Task<ForumPost?> GetByIdAsync(Guid id)
     {
         var post = await _context.ForumPosts
             .AsNoTracking()
             .FirstOrDefaultAsync(fp => fp.ForumPostId == id);
 
-        return post!.ToForumPostModel(Update);
+        return post!.ToForumPostModel();
     }
 
     public async Task UpdateAsync(Guid postId, ForumPost post)
@@ -80,9 +76,21 @@ public class PostRepository : BaseRepository, IPostRepository
         await _context.SaveChangesAsync();
     }
 
+    public async Task<bool> PostExistsAsync(Guid postId) =>
+        await _context.ForumPosts.AnyAsync(p => p.ForumPostId == postId);
+
     public async Task<bool> TitleExistsAsync(string title) =>
         await _context.ForumPosts.AnyAsync(p => p.Title == title);
 
     public async Task<bool> isAthorizedAsync(Guid userId, Guid postId) =>
         await _context.ForumPosts.AnyAsync(p => p.ForumPostId == postId && p.UserId == userId);
+
+    public async Task IncrementCommentCountAsync(Guid postId)
+    {
+        var post = await _context.ForumPosts.FindAsync(postId);
+
+        post!.CommentCount++;
+        _context.Entry(post).Property(c => c.CommentCount).IsModified = true;
+        await _context.SaveChangesAsync();
+    }
 }

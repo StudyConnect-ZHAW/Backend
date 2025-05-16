@@ -10,7 +10,7 @@ public interface IPostRepository
     /// </summary>
     /// <param name="post">The forumpost to be added.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<Guid> AddAsync(ForumPost post);
+    Task<Guid> AddAsync(ForumPost post, Guid userId, Guid categoryId);
 
     /// <summary>
     /// Search posts based on input.
@@ -32,13 +32,7 @@ public interface IPostRepository
     /// </summary>
     /// <param name="id">the unique identifier of the post.</param>
     /// <returns>An <see cref="OperationResult{T}"/> containing the post if found, or an error message if not.</returns>
-    Task<ForumPost?> GetByIdAsync(Guid id, bool update);
-
-
-    Task<bool> TitleExistsAsync(string title);
-
-
-    Task<bool> isAthorizedAsync(Guid userId, Guid postId);
+    Task<ForumPost?> GetByIdAsync(Guid id);
 
     /// <summary>
     /// Update a Post by its GUID.
@@ -53,4 +47,12 @@ public interface IPostRepository
     /// <param name="id">The unique identifier of the post.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
     Task DeleteAsync(Guid postId);
+
+    Task<bool> TitleExistsAsync(string title);
+
+    Task<bool> isAthorizedAsync(Guid userId, Guid postId);
+
+    Task<bool> PostExistsAsync(Guid postId);
+
+    Task IncrementCommentCountAsync(Guid postId);
 }

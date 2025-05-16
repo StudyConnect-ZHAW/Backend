@@ -38,9 +38,9 @@ public static class ModelMappers
     /// </summary>
     /// <param name="post">A forum post entity to transform.</param>
     /// <returns>A forum post model object.</returns>
-    public static Core.Models.ForumPost ToForumPostModel(this Entities.ForumPost post, bool forUpdate)
+    public static Core.Models.ForumPost ToForumPostModel(this Entities.ForumPost post)
     {
-        var result = new Core.Models.ForumPost
+        return new Core.Models.ForumPost
         {
             ForumPostId = post.ForumPostId,
             Title = post.Title,
@@ -49,19 +49,32 @@ public static class ModelMappers
                 : "",
             CreatedAt = post.CreatedAt,
             UpdatedAt = post.UpdatedAt,
+            Category = post.ForumCategory.ToCategoryModel(),
+            User = post.User.ToUserModel()
         };
+    }
 
-        if (forUpdate)
+    public static Core.Models.ForumComment ToCommentModel(this Entities.ForumComment comment)
+    {
+        return new Core.Models.ForumComment
         {
-            result.ForumCategoryId = post.ForumCategoryId;
-            result.UserId = post.UserId;
-        }
-        else
-        {
-            result.Category = post.ForumCategory.ToCategoryModel();
-            result.User = post.User.ToUserModel();
-        }
-
-        return result;
+            Content = comment.Content,
+            ForumCommentId = comment.ForumCommentId,
+            CreatedAt = comment.CreatedAt,
+            UpdatedAt = comment.UpdatedAt,
+            ReplyCount = comment.ReplyCount,
+            IsEdited = comment.IsEdited,
+            IsDeleted = comment.IsDeleted,
+            PostId = comment.ForumPostId,
+            ParentCommentId = comment.ParentComment != null
+                ? comment.ParentComment.ForumCommentId
+                : null,
+            User = comment.IsDeleted
+                ? null
+                : comment.User.ToUserModel(),
+            Replies = comment.Replies != null
+                ? comment.Replies.Select(c => c.ToCommentModel()).ToList()
+                : null
+        };
     }
 }
