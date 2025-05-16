@@ -13,7 +13,7 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
 
     }
 
-    public async Task<ForumCategory> AddAsync(ForumCategory category)
+    public async Task<Guid> AddAsync(ForumCategory category)
     {
         // Add the category to the database
         var toAdd = new Entities.ForumCategory
@@ -27,7 +27,7 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
         await _context.ForumCategories.AddAsync(toAdd);
         await _context.SaveChangesAsync();
 
-        return toAdd.ToCategoryModel();
+        return toAdd.ForumCategoryId;
     }
 
     public async Task<ForumCategory?> GetByIdAsync(Guid id)
@@ -36,7 +36,7 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.ForumCategoryId == id);
 
-        return category!.ToCategoryModel();
+        return category.ToCategoryModel();
     }
 
     public async Task<ForumCategory?> GetByNameAsync(string name)
@@ -45,10 +45,10 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Name == name);
 
-        return category!.ToCategoryModel();
+        return category.ToCategoryModel();
     }
 
-    public async Task<IEnumerable<ForumCategory>?> GetAllAsync()
+    public async Task<IEnumerable<ForumCategory?>> GetAllAsync()
     {
         var categories = await _context.ForumCategories
             .AsNoTracking()

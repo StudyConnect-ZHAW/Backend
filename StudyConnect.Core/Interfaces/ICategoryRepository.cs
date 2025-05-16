@@ -10,7 +10,7 @@ public interface ICategoryRepository
     /// </summary>
     /// <param name="category"> the category model to add </param>
     /// <returns> <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<ForumCategory> AddAsync(ForumCategory category);
+    Task<Guid> AddAsync(ForumCategory category);
 
     /// <summary>
     /// Get category by its id
@@ -30,7 +30,7 @@ public interface ICategoryRepository
     /// Get all the categories
     /// </summary>
     /// <returns> <see cref="OperationResult{T}"/> containing  categories if found, or an error message if not. </returns> 
-    Task<IEnumerable<ForumCategory>?> GetAllAsync();
+    Task<IEnumerable<ForumCategory?>> GetAllAsync();
 
     /// <summary>
     /// Delete a category based on its GUID

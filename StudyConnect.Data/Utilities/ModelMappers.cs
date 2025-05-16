@@ -23,8 +23,11 @@ public static class ModelMappers
     /// </summary>
     /// <param name="category">A category entity to transform.</param>
     /// <returns>A forumcategory model object.</returns>
-    public static Core.Models.ForumCategory ToCategoryModel(this Entities.ForumCategory category)
+    public static Core.Models.ForumCategory? ToCategoryModel(this Entities.ForumCategory? category)
     {
+        if (category == null)
+            return null;
+
         return new Core.Models.ForumCategory
         {
             ForumCategoryId = category.ForumCategoryId,
@@ -49,6 +52,7 @@ public static class ModelMappers
                 : "",
             CreatedAt = post.CreatedAt,
             UpdatedAt = post.UpdatedAt,
+            CommentCount = post.CommentCount,
             Category = post.ForumCategory.ToCategoryModel(),
             User = post.User.ToUserModel()
         };
@@ -58,7 +62,9 @@ public static class ModelMappers
     {
         return new Core.Models.ForumComment
         {
-            Content = comment.Content,
+            Content = comment.IsDeleted
+                ? ""
+                : comment.Content,
             ForumCommentId = comment.ForumCommentId,
             CreatedAt = comment.CreatedAt,
             UpdatedAt = comment.UpdatedAt,

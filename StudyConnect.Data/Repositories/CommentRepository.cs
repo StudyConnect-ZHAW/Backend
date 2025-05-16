@@ -14,7 +14,14 @@ public class CommentRepository : BaseRepository, ICommentRepository
 
     public async Task<Guid> AddAsync(ForumComment comment, Guid userId, Guid postId, Guid? parentId)
     {
-        var result = comment.MapCommentToEntity(userId, postId, parentId);
+        var result = new Entities.ForumComment
+        {
+            Content = comment.Content,
+            UserId = userId,
+            ForumPostId = postId,
+            ParentCommentId = parentId
+        };
+
         await _context.AddAsync(result);
         await _context.SaveChangesAsync();
 
@@ -37,13 +44,13 @@ public class CommentRepository : BaseRepository, ICommentRepository
         return result;
     }
 
-    public async Task<ForumComment?> GetByIdAsync(Guid commentId)
+    public async Task<ForumComment> GetByIdAsync(Guid commentId)
     {
         var comment = await _context.ForumComments
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.ForumCommentId == commentId);
 
-        return comment!.ToCommentModel();
+        return comment.ToCommentModel();
     }
 
     public async Task UpdateAsync(Guid commentId, ForumComment comment)

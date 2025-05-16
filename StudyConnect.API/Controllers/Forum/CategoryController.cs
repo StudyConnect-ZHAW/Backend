@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using StudyConnect.Core.Interfaces.Services;
 using StudyConnect.API.Dtos.Requests.Forum;
 using StudyConnect.API.Dtos.Responses.Forum;
+using StudyConnect.API.Dtos;
+using static StudyConnect.Core.Common.ErrorMessages;
 
 namespace StudyConnect.API.Controllers.Forum;
 /// <summary>
@@ -45,21 +47,20 @@ public class CategoryController : BaseController
     [HttpGet("{cid:guid}")]
     public async Task<IActionResult> GetCategoryById([FromRoute] Guid cid)
     {
-        var result = await _categoryService.GetCategoryByIdAsync(cid);
-        if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
-
-        if (result.Data == null)
-            return NotFound("Category not found.");
+        var category = await _categoryService.GetCategoryByIdAsync(cid);
+        if (!category.IsSuccess || category.Data == null)
+            return category.ErrorMessage!.Contains(GeneralNotFound)
+                ? NotFound(new ApiResponse<string>(category.ErrorMessage))
+                : BadRequest(new ApiResponse<string>(category.ErrorMessage));
 
         var categoryDto = new CategoryReadDto
         {
-            ForumCategoryId = result.Data.ForumCategoryId,
-            Name = result.Data.Name,
-            Description = result.Data.Description
+            ForumCategoryId = category.Data.ForumCategoryId,
+            Name = category.Data.Name,
+            Description = category.Data.Description
         };
 
-        return Ok(categoryDto);
+        return Ok(new ApiResponse<CategoryReadDto>(categoryDto));
     }
 
     /// <summary>
@@ -70,21 +71,20 @@ public class CategoryController : BaseController
     [HttpGet("{categoryName}")]
     public async Task<IActionResult> GetCategoriesByName([FromRoute] string categoryName)
     {
-        var result = await _categoryService.GetCategoryByNameAsync(categoryName);
-        if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
-
-        if (result.Data == null)
-            return NotFound("Category not found.");
+        var category = await _categoryService.GetCategoryByNameAsync(categoryName);
+        if (!category.IsSuccess || category.Data == null)
+            return category.ErrorMessage!.Contains(GeneralNotFound)
+                ? NotFound(new ApiResponse<string>(category.ErrorMessage))
+                : BadRequest(new ApiResponse<string>(category.ErrorMessage));
 
         var categoryDto = new CategoryReadDto
         {
-            ForumCategoryId = result.Data.ForumCategoryId,
-            Name = result.Data.Name,
-            Description = result.Data.Description
+            ForumCategoryId = category.Data.ForumCategoryId,
+            Name = category.Data.Name,
+            Description = category.Data.Description
         };
 
-        return Ok(categoryDto);
+        return Ok(new ApiResponse<CategoryReadDto>(categoryDto));
     }
 
 
@@ -96,11 +96,11 @@ public class CategoryController : BaseController
     public async Task<IActionResult> GetAllCategories()
     {
         var categories = await _categoryService.GetAllCategoriesAsync();
-        if (!categories.IsSuccess)
-            return BadRequest(categories.ErrorMessage);
+        if (!categories.IsSuccess || categories.Data == null)
+            return categories.ErrorMessage!.Contains(GeneralNotFound)
+                ? NotFound(new ApiResponse<string>(categories.ErrorMessage))
+                : BadRequest(new ApiResponse<string>(categories.ErrorMessage));
 
-        if (categories.Data == null)
-            return NotFound("No categories available.");
 
         var result = categories.Data.Select(c => new CategoryReadDto
         {
@@ -109,7 +109,7 @@ public class CategoryController : BaseController
             Description = c.Description
         });
 
-        return Ok(result);
+        return Ok(new ApiResponse<IEnumerable<CategoryReadDto>>(result));
     }
 
     /// <summary>

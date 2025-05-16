@@ -28,7 +28,7 @@ namespace StudyConnect.Data.Tests
                 await context.SaveChangesAsync();
 
                 var user = new User { 
-                    UserGuid = Guid.NewGuid(),
+                    UserId = Guid.NewGuid(),
                     Email = "test@example.com",
                     FirstName = "Test",
                     LastName = "User",

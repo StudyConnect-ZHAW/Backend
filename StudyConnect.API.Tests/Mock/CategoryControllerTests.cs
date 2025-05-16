@@ -1,22 +1,23 @@
 using Moq;
 using StudyConnect.API.Dtos.Requests.Forum;
-using StudyConnect.Core.Interfaces;
+using StudyConnect.Core.Interfaces.Services;
 using StudyConnect.API.Controllers.Forum;
 using Microsoft.AspNetCore.Mvc;
 using StudyConnect.Core.Models;
 using StudyConnect.API.Dtos.Responses.Forum;
 using StudyConnect.Core.Common;
+using static StudyConnect.Core.Common.ErrorMessages;
 
-namespace StudyConnect.API.Tests;
+namespace StudyConnect.API.Tests.Mock;
 
 public class CategoryControllerTests
 {
-    private readonly Mock<ICategoryRepository> _mockRepo;
+    private readonly Mock<ICategoryService> _mockRepo;
     private readonly CategoryController _controller;
 
     public CategoryControllerTests()
     {
-        _mockRepo = new Mock<ICategoryRepository>();
+        _mockRepo = new Mock<ICategoryService>();
         _controller = new CategoryController(_mockRepo.Object);
     }
 
@@ -45,7 +46,7 @@ public class CategoryControllerTests
             Description = "testing"
         };
 
-        _mockRepo.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+        _mockRepo.Setup(repo => repo.GetCategoryByIdAsync(It.IsAny<Guid>()))
                  .ReturnsAsync(OperationResult<ForumCategory?>.Success(testCategory));
 
         // Act
@@ -61,8 +62,8 @@ public class CategoryControllerTests
     public async Task GetCategoryById_ReturnsBadRequest_WhenNotFound()
     {
         // Arrange
-        _mockRepo.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
-                 .ReturnsAsync(OperationResult<ForumCategory?>.Failure("Category not found."));
+        _mockRepo.Setup(repo => repo.GetCategoryByIdAsync(It.IsAny<Guid>()))
+                 .ReturnsAsync(OperationResult<ForumCategory?>.Failure(CategoryNotFound));
 
         // Act
         var result = await _controller.GetCategoryById(Guid.NewGuid());
@@ -82,8 +83,8 @@ public class CategoryControllerTests
                 new ForumCategory { ForumCategoryId = Guid.NewGuid(), Name = "Category2", Description = "Desc2" }
             };
 
-        _mockRepo.Setup(repo => repo.GetAllAsync())
-             .ReturnsAsync(OperationResult<IEnumerable<ForumCategory>?>.Success(categories));
+        _mockRepo.Setup(repo => repo.GetAllCategoriesAsync())
+             .ReturnsAsync(OperationResult<IEnumerable<ForumCategory>>.Success(categories));
 
         // Act
         var result = await _controller.GetAllCategories();
@@ -111,8 +112,8 @@ public class CategoryControllerTests
     public async Task GetAllCategories_ReturnsBadRequest_WhenError()
     {
         // Arrange
-        _mockRepo.Setup(repo => repo.GetAllAsync())
-                 .ReturnsAsync(OperationResult<IEnumerable<ForumCategory>?>.Failure("Something went wrong"));
+        _mockRepo.Setup(repo => repo.GetAllCategoriesAsync())
+                 .ReturnsAsync(OperationResult<IEnumerable<ForumCategory>>.Failure("Something went wrong"));
 
         // Act
         var result = await _controller.GetAllCategories();

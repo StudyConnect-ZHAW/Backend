@@ -9,6 +9,6 @@ public interface ICategoryService
 
     Task<OperationResult<ForumCategory?>> GetCategoryByNameAsync(string name);
 
-    Task<OperationResult<IEnumerable<ForumCategory>>> GetAllCategoriesAsync();
+    Task<OperationResult<IEnumerable<ForumCategory?>>> GetAllCategoriesAsync();
 }
 

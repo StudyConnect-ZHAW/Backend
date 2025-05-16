@@ -15,13 +15,13 @@ public class CategoryService : ICategoryService
         _categoryRepository = categoryRepository;
     }
 
-    public async Task<OperationResult<IEnumerable<ForumCategory>>> GetAllCategoriesAsync()
+    public async Task<OperationResult<IEnumerable<ForumCategory?>>> GetAllCategoriesAsync()
     {
         var categories = await _categoryRepository.GetAllAsync();
         if (categories == null || !categories.Any())
-            return OperationResult<IEnumerable<ForumCategory>>.Success(new List<ForumCategory>());
+            return OperationResult<IEnumerable<ForumCategory?>>.Success(new List<ForumCategory>());
 
-        return OperationResult<IEnumerable<ForumCategory>>.Success(categories);
+        return OperationResult<IEnumerable<ForumCategory?>>.Success(categories);
     }
 
     public async Task<OperationResult<ForumCategory?>> GetCategoryByIdAsync(Guid categoryId)
