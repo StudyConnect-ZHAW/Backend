@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using StudyConnect.Core.Common;
 using StudyConnect.Core.Interfaces;
 using StudyConnect.Core.Models;
 using StudyConnect.Data.Utilities;
@@ -66,9 +65,9 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<bool> CategoryExistAsync(Guid categoryId) =>
+    public async Task<bool> ExistAsync(Guid categoryId) =>
         await _context.ForumCategories.AnyAsync(c => c.ForumCategoryId == categoryId);
 
-    public async Task<bool> NameTakenAsync(string name) =>
+    public async Task<bool> NameExistsAsync(string name) =>
         await _context.ForumCategories.AnyAsync(c => c.Name == name);
 }

@@ -12,7 +12,7 @@ public class CategoryService : ICategoryService
 
     public CategoryService(ICategoryRepository categoryRepository)
     {
-        _categoryRepository = categoryRepository;
+        _categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));;
     }
 
     public async Task<OperationResult<IEnumerable<ForumCategory?>>> GetAllCategoriesAsync()

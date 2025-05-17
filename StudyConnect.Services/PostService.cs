@@ -37,11 +37,11 @@ public class PostService : IPostService
         if (user.Data == null)
             return OperationResult<ForumPost>.Failure(PostNotFound);
 
-        var category = await _categoryRepository.CategoryExistAsync(categoryId);
+        var category = await _categoryRepository.ExistAsync(categoryId);
         if (!category)
             return OperationResult<ForumPost>.Failure(CategoryNotFound);
 
-        var isTitleTaken = await _postRepository.TitleExistsAsync(post.Title);
+        var isTitleTaken = await _postRepository.TitleExistAsync(post.Title);
         if (isTitleTaken)
             return OperationResult<ForumPost>.Failure(TitleTaken);
 
@@ -133,7 +133,7 @@ public class PostService : IPostService
         if (IsInvalid(userId))
             return OperationResult<bool>.Failure(InvalidUserId);
 
-        var post = await _postRepository.isAthorizedAsync(userId, postId);
+        var post = await _postRepository.ContainsUserAsync(userId, postId);
         if (!post)
             return OperationResult<bool>.Failure(NotAuthorized);
 

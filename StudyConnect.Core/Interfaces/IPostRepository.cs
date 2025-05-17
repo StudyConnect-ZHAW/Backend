@@ -8,8 +8,10 @@ public interface IPostRepository
     /// <summary>
     /// Add a Post to the database.
     /// </summary>
-    /// <param name="post">The forumpost to be added.</param>
-    /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
+    /// <param name="post">The model containing information about the forum post.</param>
+    /// <param name="userId">The unique identifier of the user who created the post.</param>
+    /// <param name="categoryId">The unique identifier of category the post belogns to.</param>
+    /// <returns>The <see cref="Guid"/> of the newly created forum post.</returns>
     Task<Guid> AddAsync(ForumPost post, Guid userId, Guid categoryId);
 
     /// <summary>
@@ -48,11 +50,31 @@ public interface IPostRepository
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
     Task DeleteAsync(Guid postId);
 
-    Task<bool> TitleExistsAsync(string title);
+    /// <summary>
+    /// Tests if if the title is already taken by another forum post in the database.
+    /// </summary>
+    /// <param name="title">The title to check for uniqueness.</param>
+    /// <returns><c>true</c> if the title exists; otherwise, <c>false</c>.</returns>
+    Task<bool> TitleExistAsync(string title);
 
-    Task<bool> isAthorizedAsync(Guid userId, Guid postId);
+    /// <summary>
+    /// Tests if the post cotains the provieded user.
+    /// </summary>
+    /// <param name="userId">The unique idettifier of the user to test for.</param>
+    /// <param name="postId">The unique identifier of the post.</param>
+    /// <returns><c>true</c> if the post contains the user; otherwise, <c>false</c>.</returns>
+    Task<bool> ContainsUserAsync(Guid userId, Guid postId);
 
-    Task<bool> PostExistsAsync(Guid postId);
+    /// <summary>
+    /// Tests if the post exists in the database.
+    /// </summary>
+    /// <param name="postId">The unique idettifier of the post.</param>
+    /// <returns><c>true</c> if the post exists; otherwise, <c>false</c>.</returns>
+    Task<bool> ExistsAsync(Guid postId);
 
+    /// <summary>
+    /// Increments the comment count of the post.
+    /// </summary>
+    /// <param name="postId">The unique identifier of the post.</param>
     Task IncrementCommentCountAsync(Guid postId);
 }

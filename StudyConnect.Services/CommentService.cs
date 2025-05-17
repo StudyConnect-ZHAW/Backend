@@ -15,9 +15,9 @@ public class CommentService : ICommentService
           IPostRepository postRepository,
           IUserRepository userRepository)
     {
-        _commmentRepository = commentRepository;
-        _postRepository = postRepository;
-        _userRepository = userRepository;
+        _commmentRepository = commentRepository ?? throw new ArgumentNullException(nameof(commentRepository));
+        _postRepository = postRepository ?? throw new ArgumentNullException(nameof(postRepository));
+        _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
     }
 
     public async Task<OperationResult<ForumComment>> AddCommentAsync(ForumComment comment, Guid userId, Guid postId, Guid? parentId)
@@ -31,7 +31,7 @@ public class CommentService : ICommentService
         if (comment == null)
             return OperationResult<ForumComment>.Failure(CommentContentEmpty);
 
-        var postExists = await _postRepository.PostExistsAsync(postId);
+        var postExists = await _postRepository.ExistsAsync(postId);
         if (!postExists)
             return OperationResult<ForumComment>.Failure(PostNotFound);
 
@@ -58,8 +58,6 @@ public class CommentService : ICommentService
         }
         catch (Exception ex)
         {
-            Console.WriteLine("❌ FULL EXCEPTION:");
-            Console.WriteLine(ex.ToString());  // This gives you stack trace + inner exception
             return OperationResult<ForumComment>.Failure($"{UnknownError}: {ex}");
         }
     }
@@ -100,8 +98,6 @@ public class CommentService : ICommentService
         }
         catch (Exception ex)
         {
-            Console.WriteLine("❌ FULL EXCEPTION:");
-            Console.WriteLine(ex.ToString());  // This gives you stack trace + inner exception
             return OperationResult<ForumComment>.Failure($"{UnknownError}: {ex}");
         }
 
@@ -121,8 +117,6 @@ public class CommentService : ICommentService
         }
         catch (Exception ex)
         {
-            Console.WriteLine("❌ FULL EXCEPTION:");
-            Console.WriteLine(ex.ToString());  // This gives you stack trace + inner exception
             return OperationResult<bool>.Failure($"{UnknownError}: {ex}");
         }
 
