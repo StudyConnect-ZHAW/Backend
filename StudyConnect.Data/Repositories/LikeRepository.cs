@@ -1,7 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using StudyConnect.Core.Interfaces.Repositories;
-using StudyConnect.Core.Models;
-using StudyConnect.Data.Utilities;
 
 namespace StudyConnect.Data.Repositories;
 
@@ -20,15 +18,6 @@ public class LikeRepository : BaseRepository, ILikeRepository
 
     public async Task<int> GetPostLikeCountAsync(Guid postId) =>
         await _context.ForumLikes.CountAsync(l => l.ForumPostId == postId);
-
-    public async Task<ForumLike?> GetLikeById(Guid likeId)
-    {
-        var like = await _context.ForumLikes
-            .AsNoTracking()
-            .FirstOrDefaultAsync(l => l.LikeId == likeId);
-
-        return like?.ToLikeModel();
-    }
 
     public async Task LikeCommentAsync(Guid userId, Guid commentId)
     {

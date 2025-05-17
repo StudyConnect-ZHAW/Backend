@@ -86,23 +86,4 @@ public static class ModelMappers
                 : null
         };
     }
-
-    public static Core.Models.ForumLike? ToLikeModel(this Entities.ForumLike like)
-    {
-        if (like == null)
-            return null;
-
-        return new Core.Models.ForumLike
-        {
-            ForumLikeId = like.LikeId,
-            LikedAt = like.LikedAt,
-            User = like.User.ToUserModel(),
-            Post = like.ForumPost != null
-                ? like.ForumPost.ToForumPostModel()
-                : null,
-            Comment = like.ForumComment != null
-                ? like.ForumComment.ToCommentModel()
-                : null
-        };
-    }
 }

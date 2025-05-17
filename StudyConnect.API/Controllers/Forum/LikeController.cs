@@ -41,7 +41,7 @@ public class LikeController : BaseController
             return BadRequest(ModelState);
 
         var result = await _likeService.LeaveLikeAsync(likeDto.UserId, likeDto.PostId, null);
-        if (!result.IsSuccess || result.Data == null)
+        if (!result.IsSuccess)
             return result.ErrorMessage!.Contains(GeneralNotFound)
                 ? NotFound(new ApiResponse<string>(result.ErrorMessage))
                 : BadRequest(new ApiResponse<string>(result.ErrorMessage));
@@ -105,7 +105,7 @@ public class LikeController : BaseController
             return BadRequest(ModelState);
 
         var result = await _likeService.LeaveLikeAsync(likeDto.UserId, null, likeDto.CommentId);
-        if (!result.IsSuccess || result.Data == null)
+        if (!result.IsSuccess)
             return result.ErrorMessage!.Contains(GeneralNotFound)
                 ? NotFound(new ApiResponse<string>(result.ErrorMessage))
                 : BadRequest(new ApiResponse<string>(result.ErrorMessage));

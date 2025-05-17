@@ -35,13 +35,6 @@ public interface ILikeRepository
     Task UnlikeCommentAsync(Guid userId, Guid commentId);
 
     /// <summary>
-    /// Get a like by is GUID.
-    /// <summary>
-    /// <paramref name="likeId"/>The unique identifier of the forum like.</param>
-    /// <returns>The matching <see cref="ForumLike"/> if found; otherwise, <c>null</c>.</returns>
-    Task<ForumLike?> GetLikeById(Guid likeId);
-
-    /// <summary>
     /// Get the amount of likes for a given forum post.
     /// </summary>
     /// <param name="postId">The unique identifier of the post.</param>
