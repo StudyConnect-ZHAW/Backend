@@ -1,4 +1,3 @@
-using StudyConnect.Core.Common;
 using StudyConnect.Core.Models;
 
 namespace StudyConnect.Core.Interfaces.Repositories;
@@ -21,7 +20,7 @@ public interface IPostRepository
     /// <param name="categoryName">The unique name of category assigned to the post.</param>
     /// <param name="title">The title of the post.</param>
     /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="ForumPost"/> objects. Can be empty if none exist.</returns>
-    Task<IEnumerable<ForumPost?>> SearchAsync(
+    Task<IEnumerable<ForumPost>> SearchAsync(
           Guid? userId,
           string? categoryName,
           string? title,

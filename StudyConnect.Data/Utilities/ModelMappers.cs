@@ -23,11 +23,8 @@ public static class ModelMappers
     /// </summary>
     /// <param name="category">A category entity to transform.</param>
     /// <returns>A forumcategory model object.</returns>
-    public static Core.Models.ForumCategory? ToCategoryModel(this Entities.ForumCategory? category)
+    public static Core.Models.ForumCategory ToCategoryModel(this Entities.ForumCategory category)
     {
-        if (category == null)
-            return null;
-
         return new Core.Models.ForumCategory
         {
             ForumCategoryId = category.ForumCategoryId,
@@ -41,11 +38,8 @@ public static class ModelMappers
     /// </summary>
     /// <param name="post">A forum post entity to transform.</param>
     /// <returns>A forum post model object.</returns>
-    public static Core.Models.ForumPost? ToForumPostModel(this Entities.ForumPost? post)
+    public static Core.Models.ForumPost ToForumPostModel(this Entities.ForumPost post)
     {
-        if (post == null)
-            return null;
-
         return new Core.Models.ForumPost
         {
             ForumPostId = post.ForumPostId,

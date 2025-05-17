@@ -7,61 +7,60 @@ namespace StudyConnect.Data.Repositories;
 
 public class CategoryRepository : BaseRepository, ICategoryRepository
 {
-    public CategoryRepository(StudyConnectDbContext context) : base(context)
-    {
-
-    }
+    public CategoryRepository(StudyConnectDbContext context) : base(context) { }
 
     public async Task<Guid> AddAsync(ForumCategory category)
     {
-        // Add the category to the database
-        var toAdd = new Entities.ForumCategory
+        var entity = new Entities.ForumCategory
         {
             ForumCategoryId = Guid.NewGuid(),
             Name = category.Name,
-            Description = category.Description,
+            Description = category.Description
         };
 
-        // Add the category to the database context
-        await _context.ForumCategories.AddAsync(toAdd);
+        await _context.ForumCategories.AddAsync(entity);
         await _context.SaveChangesAsync();
 
-        return toAdd.ForumCategoryId;
+        return entity.ForumCategoryId;
     }
 
     public async Task<ForumCategory?> GetByIdAsync(Guid id)
     {
-        var category = await _context.ForumCategories
+        var entity = await _context.ForumCategories
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.ForumCategoryId == id);
 
-        return category.ToCategoryModel();
+        return entity?.ToCategoryModel();
     }
 
     public async Task<ForumCategory?> GetByNameAsync(string name)
     {
-        var category = await _context.ForumCategories
+        if (string.IsNullOrWhiteSpace(name)) return null;
+
+        var entity = await _context.ForumCategories
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Name == name);
 
-        return category.ToCategoryModel();
+        return entity?.ToCategoryModel();
     }
 
-    public async Task<IEnumerable<ForumCategory?>> GetAllAsync()
+    public async Task<IEnumerable<ForumCategory>> GetAllAsync()
     {
-        var categories = await _context.ForumCategories
+        var entities = await _context.ForumCategories
             .AsNoTracking()
             .ToListAsync();
 
-        var result = categories.Select(c => c.ToCategoryModel());
-        return result;
+        return entities
+            .Select(c => c.ToCategoryModel());
     }
+
 
     public async Task DeleteAsync(Guid id)
     {
-        var category = await _context.ForumCategories.FindAsync(id);
+        var entity = await _context.ForumCategories.FindAsync(id);
+        if (entity == null) return;
 
-        _context.ForumCategories.Remove(category!);
+        _context.ForumCategories.Remove(entity);
         await _context.SaveChangesAsync();
     }
 
@@ -71,3 +70,4 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
     public async Task<bool> NameExistsAsync(string name) =>
         await _context.ForumCategories.AnyAsync(c => c.Name == name);
 }
+

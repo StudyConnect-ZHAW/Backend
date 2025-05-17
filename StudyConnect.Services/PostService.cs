@@ -68,7 +68,7 @@ public class PostService : IPostService
         if (result == null || !result.Any())
             return OperationResult<IEnumerable<ForumPost>>.Failure(QueryFailure);
 
-        return OperationResult<IEnumerable<ForumPost>>.Success(result!);
+        return OperationResult<IEnumerable<ForumPost>>.Success(result);
     }
 
     public async Task<OperationResult<ForumPost>> GetPostByIdAsync(Guid postId)
@@ -88,9 +88,9 @@ public class PostService : IPostService
         if (post == null)
             return OperationResult<ForumPost>.Failure(PostConentEmpty);
 
-        var test = await TestAuthorizationAsync(userId, postId);
-        if (!test.IsSuccess)
-            return OperationResult<ForumPost>.Failure(test.ErrorMessage!);
+        var (isAuthorized, error) = await TestAuthorizationAsync(userId, postId);
+        if (!isAuthorized && error != null)
+            return OperationResult<ForumPost>.Failure(error);
 
         try
         {
@@ -107,9 +107,9 @@ public class PostService : IPostService
 
     public async Task<OperationResult<bool>> DeletePostAsync(Guid userId, Guid postId)
     {
-        var actualPost = await TestAuthorizationAsync(userId, postId);
-        if (!actualPost.IsSuccess)
-            return OperationResult<bool>.Failure(actualPost.ErrorMessage!);
+        var (isAuthorized, error) = await TestAuthorizationAsync(userId, postId);
+        if (!isAuthorized && error != null)
+            return OperationResult<bool>.Failure(error);
 
         try
         {
@@ -125,19 +125,20 @@ public class PostService : IPostService
 
     private static bool IsInvalid(Guid id) => id == Guid.Empty;
 
-    private async Task<OperationResult<bool>> TestAuthorizationAsync(Guid userId, Guid postId)
+    private async Task<(bool isAuthorized, string? errorMessage)> TestAuthorizationAsync(Guid userId, Guid postId)
     {
         if (IsInvalid(postId))
-            return OperationResult<bool>.Failure(InvalidPostId);
+            return (false, InvalidPostId);
 
         if (IsInvalid(userId))
-            return OperationResult<bool>.Failure(InvalidUserId);
+            return (false, InvalidUserId);
 
-        var post = await _postRepository.ContainsUserAsync(userId, postId);
-        if (!post)
-            return OperationResult<bool>.Failure(NotAuthorized);
+        var isOwner = await _postRepository.ContainsUserAsync(userId, postId);
+        if (!isOwner)
+            return (false, NotAuthorized);
 
-        return OperationResult<bool>.Success(true);
+        return (true, null);
     }
+
 }
 

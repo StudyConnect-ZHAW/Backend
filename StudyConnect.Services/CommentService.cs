@@ -74,13 +74,13 @@ public class CommentService : ICommentService
         return OperationResult<ForumComment?>.Success(comment);
     }
 
-    public async Task<OperationResult<IEnumerable<ForumComment?>>> GetAllCommentsOfPostAsync(Guid postId)
+    public async Task<OperationResult<IEnumerable<ForumComment>>> GetAllCommentsOfPostAsync(Guid postId)
     {
         var comments = await _commmentRepository.GetAllofPostAsync(postId);
         if (comments == null || !comments.Any())
-            return OperationResult<IEnumerable<ForumComment?>>.Success(new List<ForumComment?>());
+            return OperationResult<IEnumerable<ForumComment>>.Success(new List<ForumComment>());
 
-        return OperationResult<IEnumerable<ForumComment?>>.Success(comments);
+        return OperationResult<IEnumerable<ForumComment>>.Success(comments);
     }
 
     public async Task<OperationResult<ForumComment>> UpdateCommentAsync(Guid commentId, Guid userId, ForumComment comment)
@@ -88,9 +88,9 @@ public class CommentService : ICommentService
         if (comment == null)
             return OperationResult<ForumComment>.Failure(CommentContentEmpty);
 
-        var isAuthorized = await TestAuthorizationAsync(userId, commentId);
-        if (!isAuthorized.IsSuccess)
-            return OperationResult<ForumComment>.Failure(NotAuthorized);
+        var (isAuthorized, error) = await TestAuthorizationAsync(userId, commentId);
+        if (!isAuthorized && error != null)
+            return OperationResult<ForumComment>.Failure(error);
 
         try
         {
@@ -107,9 +107,9 @@ public class CommentService : ICommentService
 
     public async Task<OperationResult<bool>> DeleteCommentAsync(Guid commentId, Guid userId)
     {
-        var isAuthorized = await TestAuthorizationAsync(userId, commentId);
-        if (!isAuthorized.IsSuccess)
-            return OperationResult<bool>.Failure(NotAuthorized);
+        var (isAuthorized, error) = await TestAuthorizationAsync(userId, commentId);
+        if (!isAuthorized && error != null)
+            return OperationResult<bool>.Failure(error);
 
         try
         {
@@ -123,19 +123,19 @@ public class CommentService : ICommentService
         return OperationResult<bool>.Success(true);
     }
 
-    private async Task<OperationResult<bool>> TestAuthorizationAsync(Guid userId, Guid commentId)
+    private async Task<(bool isAuthorized, string? errorMessage)> TestAuthorizationAsync(Guid userId, Guid commentId)
     {
         if (IsInvalid(commentId))
-            return OperationResult<bool>.Failure(InvalidCommentId);
+            return (false, InvalidCommentId);
 
         if (IsInvalid(userId))
-            return OperationResult<bool>.Failure(InvalidUserId);
+            return (false, InvalidUserId);
 
-        var post = await _commmentRepository.ContainsUserAsync(userId, commentId);
-        if (!post)
-            return OperationResult<bool>.Failure(NotAuthorized);
+        var isOwner = await _postRepository.ContainsUserAsync(userId, commentId);
+        if (!isOwner)
+            return (false, NotAuthorized);
 
-        return OperationResult<bool>.Success(true);
+        return (true, null);
     }
 
     private static bool IsInvalid(Guid id) => id == Guid.Empty;

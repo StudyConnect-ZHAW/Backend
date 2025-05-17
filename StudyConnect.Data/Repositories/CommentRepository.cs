@@ -7,14 +7,11 @@ namespace StudyConnect.Data.Repositories;
 
 public class CommentRepository : BaseRepository, ICommentRepository
 {
-    public CommentRepository(StudyConnectDbContext context) : base(context)
-    {
-
-    }
+    public CommentRepository(StudyConnectDbContext context) : base(context) { }
 
     public async Task<Guid> AddAsync(ForumComment comment, Guid userId, Guid postId, Guid? parentId)
     {
-        var result = new Entities.ForumComment
+        var entity = new Entities.ForumComment
         {
             Content = comment.Content,
             UserId = userId,
@@ -22,26 +19,22 @@ public class CommentRepository : BaseRepository, ICommentRepository
             ParentCommentId = parentId
         };
 
-        await _context.AddAsync(result);
+        await _context.ForumComments.AddAsync(entity);
         await _context.SaveChangesAsync();
 
-        return result.ForumCommentId;
+        return entity.ForumCommentId;
     }
 
-    public async Task<IEnumerable<ForumComment>?> GetAllofPostAsync(Guid postId)
+    public async Task<IEnumerable<ForumComment>> GetAllofPostAsync(Guid postId)
     {
-        // Retrieve all comments for the specified post, including related entities
-        var comments = await _context.ForumComments
+        var allComments = await _context.ForumComments
             .AsNoTracking()
-            .Where(c => c.ForumPost.ForumPostId == postId)
+            .Where(c => c.ForumPostId == postId)
             .ToListAsync();
 
-        // Convert top-level comments to model format
-        var result = comments
-          .Where(c => c.ParentComment == null)
-          .Select(c => c.ToCommentModel());
-
-        return result;
+        return allComments
+            .Where(c => c.ParentCommentId == null)
+            .Select(c => c.ToCommentModel());
     }
 
     public async Task<ForumComment?> GetByIdAsync(Guid commentId)
@@ -55,21 +48,28 @@ public class CommentRepository : BaseRepository, ICommentRepository
 
     public async Task UpdateAsync(Guid commentId, ForumComment comment)
     {
-        var result = await _context.ForumComments.FirstOrDefaultAsync(c => c.ForumCommentId == commentId);
-        // Update the comment's content and metadata
-        result!.Content = comment.Content;
-        result!.UpdatedAt = DateTime.UtcNow;
-        result!.IsEdited = true;
+        var existing = await _context.ForumComments
+            .FirstOrDefaultAsync(c => c.ForumCommentId == commentId);
+
+        if (existing == null) return;
+
+        existing.Content = comment.Content;
+        existing.UpdatedAt = DateTime.UtcNow;
+        existing.IsEdited = true;
 
         await _context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(Guid commentId)
     {
-        var result = await _context.ForumComments.FirstOrDefaultAsync(c => c.ForumCommentId == commentId);
-        // Retrieve the comment and ensure the user is authorized to access it
-        result!.IsDeleted = true;
-        result!.IsEdited = false;
+        var comment = await _context.ForumComments
+            .FirstOrDefaultAsync(c => c.ForumCommentId == commentId);
+
+        if (comment == null) return;
+
+        comment.IsDeleted = true;
+        comment.IsEdited = false;
+
         await _context.SaveChangesAsync();
     }
 
@@ -77,17 +77,22 @@ public class CommentRepository : BaseRepository, ICommentRepository
         await _context.ForumComments.AnyAsync(c => c.ForumCommentId == commentId);
 
     public async Task<bool> ContainsPostAsync(Guid postId, Guid commentId) =>
-        await _context.ForumComments.AnyAsync(c => c.ForumCommentId == commentId && c.ForumPostId == postId);
+        await _context.ForumComments.AnyAsync(c =>
+            c.ForumCommentId == commentId && c.ForumPostId == postId);
 
     public async Task<bool> ContainsUserAsync(Guid userId, Guid commentId) =>
-        await _context.ForumComments.AnyAsync(c => c.ForumCommentId == commentId && c.UserId == userId);
+        await _context.ForumComments.AnyAsync(c =>
+            c.ForumCommentId == commentId && c.UserId == userId);
 
     public async Task IncrementReplyCountAsync(Guid commentId)
     {
         var comment = await _context.ForumComments.FindAsync(commentId);
+        if (comment == null) return;
 
-        comment!.ReplyCount++;
+        comment.ReplyCount++;
         _context.Entry(comment).Property(c => c.ReplyCount).IsModified = true;
+
         await _context.SaveChangesAsync();
     }
 }
+

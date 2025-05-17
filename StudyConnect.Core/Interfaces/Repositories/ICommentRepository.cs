@@ -1,4 +1,3 @@
-using StudyConnect.Core.Common;
 using StudyConnect.Core.Models;
 
 namespace StudyConnect.Core.Interfaces.Repositories;
@@ -28,7 +27,7 @@ public interface ICommentRepository
     /// </summary>
     /// <param name="postId">The unique identifier of the post.</param>
     /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="ForumComment"/> objects. Can be empty if none exist.</returns>
-    Task<IEnumerable<ForumComment>?> GetAllofPostAsync(Guid postId);
+    Task<IEnumerable<ForumComment>> GetAllofPostAsync(Guid postId);
 
     /// <summary>
     /// Updates a comment by its GUID.

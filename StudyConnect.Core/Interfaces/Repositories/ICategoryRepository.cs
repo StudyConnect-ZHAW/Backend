@@ -31,7 +31,7 @@ public interface ICategoryRepository
     /// Retrieves all categories from the data store.
     /// </summary>
     /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="ForumCategory"/> objects. Can be empty if none exist.</returns>
-    Task<IEnumerable<ForumCategory?>> GetAllAsync();
+    Task<IEnumerable<ForumCategory>> GetAllAsync();
 
     /// <summary>
     /// Deletes the category with the specified unique identifier.

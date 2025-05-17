@@ -23,7 +23,7 @@ public interface ICommentService
     /// </summary>
     /// <param name="postId">The unique identifier of the post.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<IEnumerable<ForumComment?>>> GetAllCommentsOfPostAsync(Guid postId);
+    Task<OperationResult<IEnumerable<ForumComment>>> GetAllCommentsOfPostAsync(Guid postId);
 
     /// Get a comment by its GUID.
     /// </summary>
