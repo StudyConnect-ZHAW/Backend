@@ -1,5 +1,5 @@
 using StudyConnect.Core.Models;
-namespace StudyConnect.Core.Interfaces;
+namespace StudyConnect.Core.Interfaces.Repositories;
 
 /// <summary>
 /// Defines repository-level data access methods for forum categories.

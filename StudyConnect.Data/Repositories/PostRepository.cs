@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using StudyConnect.Core.Models;
-using StudyConnect.Core.Interfaces;
+using StudyConnect.Core.Interfaces.Repositories;
 using StudyConnect.Data.Utilities;
 namespace StudyConnect.Data.Repositories;
 
@@ -76,13 +76,13 @@ public class PostRepository : BaseRepository, IPostRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<bool> PostExistsAsync(Guid postId) =>
+    public async Task<bool> ExistsAsync(Guid postId) =>
         await _context.ForumPosts.AnyAsync(p => p.ForumPostId == postId);
 
     public async Task<bool> TitleExistsAsync(string title) =>
         await _context.ForumPosts.AnyAsync(p => p.Title == title);
 
-    public async Task<bool> isAthorizedAsync(Guid userId, Guid postId) =>
+    public async Task<bool> ContainsUserAsync(Guid userId, Guid postId) =>
         await _context.ForumPosts.AnyAsync(p => p.ForumPostId == postId && p.UserId == userId);
 
     public async Task IncrementCommentCountAsync(Guid postId)

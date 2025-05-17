@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using StudyConnect.Core.Interfaces;
+using StudyConnect.Core.Interfaces.Repositories;
 using StudyConnect.Data.Repositories;
 using StudyConnect.Core.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;

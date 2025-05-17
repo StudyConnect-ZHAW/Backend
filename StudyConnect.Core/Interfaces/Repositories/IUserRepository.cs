@@ -2,7 +2,7 @@ using System;
 using StudyConnect.Core.Common;
 using StudyConnect.Core.Models;
 
-namespace StudyConnect.Core.Interfaces;
+namespace StudyConnect.Core.Interfaces.Repositories;
 
 /// <summary>
 /// Interface for managing user-related operations in the system.

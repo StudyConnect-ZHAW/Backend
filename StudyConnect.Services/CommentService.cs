@@ -1,5 +1,5 @@
 using StudyConnect.Core.Interfaces.Services;
-using StudyConnect.Core.Interfaces;
+using StudyConnect.Core.Interfaces.Repositories;
 using StudyConnect.Core.Common;
 using StudyConnect.Core.Models;
 using static StudyConnect.Core.Common.ErrorMessages;

@@ -1,7 +1,7 @@
 using StudyConnect.Core.Common;
 using StudyConnect.Core.Models;
 
-namespace StudyConnect.Core.Interfaces;
+namespace StudyConnect.Core.Interfaces.Repositories;
 
 public interface IPostRepository
 {
@@ -55,7 +55,7 @@ public interface IPostRepository
     /// </summary>
     /// <param name="title">The title to check for uniqueness.</param>
     /// <returns><c>true</c> if the title exists; otherwise, <c>false</c>.</returns>
-    Task<bool> TitleExistAsync(string title);
+    Task<bool> TitleExistsAsync(string title);
 
     /// <summary>
     /// Tests if the post cotains the provieded user.

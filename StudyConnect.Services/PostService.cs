@@ -1,5 +1,5 @@
 using StudyConnect.Core.Interfaces.Services;
-using StudyConnect.Core.Interfaces;
+using StudyConnect.Core.Interfaces.Repositories;
 using StudyConnect.Core.Common;
 using StudyConnect.Core.Models;
 using static StudyConnect.Core.Common.ErrorMessages;
@@ -41,7 +41,7 @@ public class PostService : IPostService
         if (!category)
             return OperationResult<ForumPost>.Failure(CategoryNotFound);
 
-        var isTitleTaken = await _postRepository.TitleExistAsync(post.Title);
+        var isTitleTaken = await _postRepository.TitleExistsAsync(post.Title);
         if (isTitleTaken)
             return OperationResult<ForumPost>.Failure(TitleTaken);
 

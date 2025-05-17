@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using StudyConnect.Core.Interfaces;
+using StudyConnect.Core.Interfaces.Repositories;
 using StudyConnect.Core.Models;
 using StudyConnect.Data.Utilities;
 

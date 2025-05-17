@@ -1,7 +1,7 @@
 using StudyConnect.Core.Common;
 using StudyConnect.Core.Models;
 
-namespace StudyConnect.Core.Interfaces;
+namespace StudyConnect.Core.Interfaces.Repositories;
 
 public interface ICommentRepository
 {

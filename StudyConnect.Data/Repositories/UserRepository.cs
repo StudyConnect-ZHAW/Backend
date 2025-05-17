@@ -1,7 +1,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using StudyConnect.Core.Common;
-using StudyConnect.Core.Interfaces;
+using StudyConnect.Core.Interfaces.Repositories;
 using StudyConnect.Core.Models;
 using static StudyConnect.Data.Utilities.ModelMappers;
 
