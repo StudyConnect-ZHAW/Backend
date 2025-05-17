@@ -4,6 +4,7 @@ using StudyConnect.Core.Interfaces.Services;
 using StudyConnect.API.Dtos.Responses.Forum;
 using StudyConnect.API.Dtos.Requests.Forum;
 using StudyConnect.API.Dtos.Responses.User;
+using StudyConnect.API.Dtos;
 using static StudyConnect.Core.Common.ErrorMessages;
 
 namespace StudyConnect.API.Controllers.Forum;
@@ -53,14 +54,14 @@ public class CommentController : BaseController
         Guid? parentId = createDto.ParentCommentId;
 
         var result = await _commentService.AddCommentAsync(comment, userId, pid, parentId);
-        if (!result.IsSuccess)
+        if (!result.IsSuccess || result.Data == null)
             return result.ErrorMessage!.Contains(GeneralNotFound)
-                ? NotFound(result.ErrorMessage)
-                : BadRequest(result.ErrorMessage);
+                ? NotFound(new ApiResponse<string>(result.ErrorMessage))
+                : BadRequest(new ApiResponse<string>(result.ErrorMessage));
 
-        var createdComment = ToCommentReadDto(result.Data!);
+        var newComment = ToCommentReadDto(result.Data);
 
-        return Ok(createdComment);
+        return Ok(new ApiResponse<CommentReadDto>(newComment));
     }
 
     /// <summary>
@@ -73,13 +74,13 @@ public class CommentController : BaseController
     public async Task<IActionResult> GetAllCommentsOfPost([FromRoute] Guid pid)
     {
         var comments = await _commentService.GetAllCommentsOfPostAsync(pid);
-        if (!comments.IsSuccess)
+        if (!comments.IsSuccess || comments.Data == null)
             return comments.ErrorMessage!.Contains(GeneralNotFound)
-                ? NotFound(comments.ErrorMessage)
-                : BadRequest(comments.ErrorMessage);
+                ? NotFound(new ApiResponse<string>(comments.ErrorMessage))
+                : BadRequest(new ApiResponse<string>(comments.ErrorMessage));
 
         var result = comments.Data!.Select(c => ToCommentReadDto(c!));
-        return Ok(result);
+        return Ok(new ApiResponse<IEnumerable<CommentReadDto>>(result));
     }
 
     /// <summary>
@@ -92,14 +93,13 @@ public class CommentController : BaseController
     public async Task<IActionResult> GetCommentById([FromRoute] Guid cmid)
     {
         var comment = await _commentService.GetCommentByIdAsync(cmid);
-        if (!comment.IsSuccess)
+        if (!comment.IsSuccess || comment.Data == null)
             return comment.ErrorMessage!.Contains(GeneralNotFound)
-                ? NotFound(comment.ErrorMessage)
-                : BadRequest(comment.ErrorMessage);
+                ? NotFound(new ApiResponse<string>(comment.ErrorMessage))
+                : BadRequest(new ApiResponse<string>(comment.ErrorMessage));
 
-        var result = ToCommentReadDto(comment.Data!);
-
-        return Ok(result);
+        var result = ToCommentReadDto(comment.Data);
+        return Ok(new ApiResponse<CommentReadDto>(result));
     }
 
     /// <summary>
@@ -115,20 +115,18 @@ public class CommentController : BaseController
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var comment = new ForumComment
-        {
-            Content = commentDto.Content
-        };
+        var comment = new ForumComment { Content = commentDto.Content };
 
-        var result = await _commentService.UpdateCommentAsync(cmid, commentDto.UserId, comment);
-        if (!result.IsSuccess)
+        var updateComment = await _commentService.UpdateCommentAsync(cmid, commentDto.UserId, comment);
+        if (!updateComment.IsSuccess || updateComment.Data == null)
         {
-            if (result.ErrorMessage!.Contains(GeneralNotFound)) return NotFound(result.ErrorMessage);
-            else if (result.ErrorMessage!.Equals(NotAuthorized)) return Unauthorized(result.ErrorMessage);
-            else return BadRequest(result.ErrorMessage);
+            if (updateComment.ErrorMessage!.Contains(GeneralNotFound)) return NotFound(new ApiResponse<string>(updateComment.ErrorMessage));
+            else if (updateComment.ErrorMessage!.Equals(NotAuthorized)) return Unauthorized(new ApiResponse<string>(updateComment.ErrorMessage));
+            else return BadRequest(new ApiResponse<string>(updateComment.ErrorMessage));
         }
 
-        return Ok(result);
+        var result = ToCommentReadDto(updateComment.Data);
+        return Ok(new ApiResponse<CommentReadDto>(result));
     }
 
     /// <summary>
@@ -147,9 +145,9 @@ public class CommentController : BaseController
         var result = await _commentService.DeleteCommentAsync(cmid, userId);
         if (!result.IsSuccess)
         {
-            if (result.ErrorMessage!.Contains(GeneralNotFound)) return NotFound(result.ErrorMessage);
-            else if (result.ErrorMessage!.Equals(NotAuthorized)) return Unauthorized(result.ErrorMessage);
-            else return BadRequest(result.ErrorMessage);
+            if (result.ErrorMessage!.Contains(GeneralNotFound)) return NotFound(new ApiResponse<string>(result.ErrorMessage));
+            else if (result.ErrorMessage!.Equals(NotAuthorized)) return Unauthorized(new ApiResponse<string>(result.ErrorMessage));
+            else return BadRequest(new ApiResponse<string>(result.ErrorMessage));
         }
 
         return NoContent();
