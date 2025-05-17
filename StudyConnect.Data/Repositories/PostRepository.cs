@@ -54,7 +54,7 @@ public class PostRepository : BaseRepository, IPostRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(fp => fp.ForumPostId == id);
 
-        return post!.ToForumPostModel();
+        return post?.ToForumPostModel();
     }
 
     public async Task UpdateAsync(Guid postId, ForumPost post)

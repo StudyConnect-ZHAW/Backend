@@ -9,14 +9,16 @@ public interface ILikeRepository
     /// </summary>
     /// <param name="userId">The unique identifier of user, who has left a like.</param>
     /// <param name="postId">The unique identifier of the post.</param>
-    Task LikePostAsync(Guid userId, Guid postId);
+    /// <returns>The <see cref="Guid"/> of the newly created like.</returns>
+    Task<Guid> LikePostAsync(Guid userId, Guid postId);
 
     /// <summary>
     /// Add a like to forum comment.
     /// </summary>
     /// <param name="userId">The unique identifier of user, who has left a like.</param>
     /// <param name="commentId">The unique identifier of the comment.</param>
-    Task LikeCommentAsync(Guid userId, Guid commentId);
+    /// <returns>The <see cref="Guid"/> of the newly created like.</returns>
+    Task<Guid> LikeCommentAsync(Guid userId, Guid commentId);
 
     /// <summary>
     /// Remove a like from forum post.
@@ -31,6 +33,13 @@ public interface ILikeRepository
     /// <param name="userId">The unique identifier of user, who has left a like.</param>
     /// <param name="commentId">The unique identifier of the comment.</param>
     Task UnlikeCommentAsync(Guid userId, Guid commentId);
+
+    /// <summary>
+    /// Get a like by is GUID.
+    /// <summary>
+    /// <paramref name="likeId"/>The unique identifier of the forum like.</param>
+    /// <returns>The matching <see cref="ForumLike"/> if found; otherwise, <c>null</c>.</returns>
+    Task<ForumLike?> GetLikeById(Guid likeId);
 
     /// <summary>
     /// Get the amount of likes for a given forum post.
