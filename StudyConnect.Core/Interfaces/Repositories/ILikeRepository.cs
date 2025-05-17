@@ -10,7 +10,7 @@ public interface ILikeRepository
     /// <param name="userId">The unique identifier of user, who has left a like.</param>
     /// <param name="postId">The unique identifier of the post.</param>
     /// <returns>The <see cref="Guid"/> of the newly created like.</returns>
-    Task<Guid> LikePostAsync(Guid userId, Guid postId);
+    Task LikePostAsync(Guid userId, Guid postId);
 
     /// <summary>
     /// Add a like to forum comment.
@@ -18,7 +18,7 @@ public interface ILikeRepository
     /// <param name="userId">The unique identifier of user, who has left a like.</param>
     /// <param name="commentId">The unique identifier of the comment.</param>
     /// <returns>The <see cref="Guid"/> of the newly created like.</returns>
-    Task<Guid> LikeCommentAsync(Guid userId, Guid commentId);
+    Task LikeCommentAsync(Guid userId, Guid commentId);
 
     /// <summary>
     /// Remove a like from forum post.

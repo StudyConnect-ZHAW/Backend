@@ -1,7 +1,6 @@
 using StudyConnect.Core.Interfaces.Services;
 using StudyConnect.Core.Interfaces.Repositories;
 using StudyConnect.Core.Common;
-using StudyConnect.Core.Models;
 using static StudyConnect.Core.Common.ErrorMessages;
 
 namespace StudyConnect.Services;
@@ -61,34 +60,32 @@ public class LikeService : ILikeService
     }
 
 
-    public async Task<OperationResult<ForumLike>> LeaveLikeAsync(Guid userId, Guid? postId, Guid? commentId)
+    public async Task<OperationResult<bool>> LeaveLikeAsync(Guid userId, Guid? postId, Guid? commentId)
     {
         if (IsInvalid(userId) || !await _userRepository.UserExistsAsync(userId))
-            return OperationResult<ForumLike>.Failure(UserNotFound);
+            return OperationResult<bool>.Failure(UserNotFound);
 
         if (postId.HasValue == commentId.HasValue)
-            return OperationResult<ForumLike>.Failure(InvalidInput);
+            return OperationResult<bool>.Failure(InvalidInput);
 
         if (postId != null)
         {
             Guid pid = (Guid)postId;
 
             if (IsInvalid(pid) || !await _postRepository.ExistsAsync(pid))
-                return OperationResult<ForumLike>.Failure(PostNotFound);
+                return OperationResult<bool>.Failure(PostNotFound);
 
             var alreadyLiked = await _likeRepository.PostLikeExistsAsync(userId, pid);
             if (alreadyLiked)
-                return OperationResult<ForumLike>.Failure(LikeExists);
+                return OperationResult<bool>.Failure(LikeExists);
 
             try
             {
-                var newLikeId = await _likeRepository.LikePostAsync(userId, pid);
-                var result = await _likeRepository.GetLikeById(newLikeId);
-                return OperationResult<ForumLike>.Success(result!);
+                await _likeRepository.LikePostAsync(userId, pid);
             }
             catch (Exception ex)
             {
-                return OperationResult<ForumLike>.Failure($"{UnknownError}: {ex}");
+                return OperationResult<bool>.Failure($"{UnknownError}: {ex}");
             }
         }
 
@@ -97,25 +94,23 @@ public class LikeService : ILikeService
             Guid cid = (Guid)commentId;
 
             if (IsInvalid(cid) || !await _commentRepository.ExistsAsync(cid))
-                return OperationResult<ForumLike>.Failure(CommentNotFound);
+                return OperationResult<bool>.Failure(CommentNotFound);
 
             var alreadyLiked = await _likeRepository.PostLikeExistsAsync(userId, cid);
             if (alreadyLiked)
-                return OperationResult<ForumLike>.Failure(LikeExists);
+                return OperationResult<bool>.Failure(LikeExists);
 
             try
             {
-                var newLikeId = await _likeRepository.LikeCommentAsync(userId, cid);
-                var result = await _likeRepository.GetLikeById(newLikeId);
-                return OperationResult<ForumLike>.Success(result!);
+                await _likeRepository.LikeCommentAsync(userId, cid);
             }
             catch (Exception ex)
             {
-                return OperationResult<ForumLike>.Failure($"{UnknownError}: {ex}");
+                return OperationResult<bool>.Failure($"{UnknownError}: {ex}");
             }
 
         }
-        return OperationResult<ForumLike>.Failure(UnknownError);
+        return OperationResult<bool>.Success(true);
     }
 
     public async Task<OperationResult<bool>> RemoveLikeAsync(Guid userId, Guid? postId, Guid? commentId)

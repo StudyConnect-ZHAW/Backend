@@ -10,7 +10,7 @@ public class LikeCreateDto
     /// The unique identifier of the current user.
     /// </summary>
     [Required(ErrorMessage = "User Id is Required.")]
-    public required Guid User { get; set; }
+    public required Guid UserId { get; set; }
 
     /// <summary>
     /// The unique identifier of the post to like (optional).

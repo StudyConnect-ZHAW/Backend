@@ -1,5 +1,4 @@
 using StudyConnect.Core.Common;
-using StudyConnect.Core.Models;
 
 namespace StudyConnect.Core.Interfaces.Services;
 
@@ -15,7 +14,7 @@ public interface ILikeService
     /// <param name="postId">The unique identifier of the post (optional).</param>
     /// <param name="commentId">The unique identifier of the comment (optional).</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<ForumLike>> LeaveLikeAsync(Guid userId, Guid? postId, Guid? commentId);
+    Task<OperationResult<bool>> LeaveLikeAsync(Guid userId, Guid? postId, Guid? commentId);
 
     /// <summary>
     /// Remove a like from comment or post.

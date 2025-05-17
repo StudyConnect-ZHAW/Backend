@@ -30,7 +30,7 @@ public class LikeRepository : BaseRepository, ILikeRepository
         return like?.ToLikeModel();
     }
 
-    public async Task<Guid> LikeCommentAsync(Guid userId, Guid commentId)
+    public async Task LikeCommentAsync(Guid userId, Guid commentId)
     {
         var newLike = new Entities.ForumLike
         {
@@ -40,11 +40,9 @@ public class LikeRepository : BaseRepository, ILikeRepository
 
         await _context.ForumLikes.AddAsync(newLike);
         await _context.SaveChangesAsync();
-
-        return newLike.LikeId;
     }
 
-    public async Task<Guid> LikePostAsync(Guid userId, Guid postId)
+    public async Task LikePostAsync(Guid userId, Guid postId)
     {
         var newLike = new Entities.ForumLike
         {
@@ -54,8 +52,6 @@ public class LikeRepository : BaseRepository, ILikeRepository
 
         await _context.ForumLikes.AddAsync(newLike);
         await _context.SaveChangesAsync();
-
-        return newLike.LikeId;
     }
 
     public async Task UnlikeCommentAsync(Guid userId, Guid commentId)
