@@ -165,7 +165,6 @@ public class LikeService : ILikeService
             }
         }
         return OperationResult<bool>.Success(true);
-
     }
 
     private static bool IsInvalid(Guid id) => id == Guid.Empty;
