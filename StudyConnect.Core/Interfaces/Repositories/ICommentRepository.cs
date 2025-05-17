@@ -3,6 +3,7 @@ using StudyConnect.Core.Models;
 
 namespace StudyConnect.Core.Interfaces.Repositories;
 
+
 public interface ICommentRepository
 {
     /// <summary>
@@ -12,21 +13,21 @@ public interface ICommentRepository
     /// <param name="userId">The unique identifier of the user.</param>
     /// <param name="postId">The unique identifier of the post.</param>
     /// <param name="parentId">The unique identifier of the comment parent.</param>
-    /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
+    /// <returns>The <see cref="Guid"/> of the newly created forum comment.</returns>
     Task<Guid> AddAsync(ForumComment comment, Guid userId, Guid postId, Guid? parentId);
 
     /// <summary>
     /// Get a comment by its GUID.
     /// </summary>
     /// <param name="commentId">The unique identifier of the comment.</param>
-    /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
+    /// <returns>The matching <see cref="ForumComment"/> if found; otherwise, <c>null</c>.</returns>
     Task<ForumComment?> GetByIdAsync(Guid commentId);
 
     /// <summary>
     /// Retrieves all comments for a specific post.
     /// </summary>
     /// <param name="postId">The unique identifier of the post.</param>
-    /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
+    /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="ForumComment"/> objects. Can be empty if none exist.</returns>
     Task<IEnumerable<ForumComment>?> GetAllofPostAsync(Guid postId);
 
     /// <summary>
@@ -35,7 +36,6 @@ public interface ICommentRepository
     /// <param name="commentId">The unique identifier of the comment.</param>
     /// <param name="userId">The unique identifier of the current user.</param>
     /// <param name="comment">A comment model containing the updated content.</param>
-    /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
     Task UpdateAsync(Guid commentId, ForumComment comment);
 
     /// <summary>
@@ -43,14 +43,34 @@ public interface ICommentRepository
     /// </summary> 
     /// <param name="commentId">The unique identifier of the comment.</param>
     /// <param name="userId">The unique identifier of the current user.</param>
-    /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
     Task DeleteAsync(Guid commentId);
 
-    Task<bool> CommentExistsAsync(Guid commentId);
+    /// <summary>
+    /// Checks whether a comment with the specified ID exists.
+    /// </summary>
+    /// <param name="commentId">The unique identifier of the comment.</param>
+    /// <returns><c>true</c> if the comment exists; otherwise, <c>false</c>.</returns>
+    Task<bool> ExistsAsync(Guid commentId);
 
-    Task<bool> isChildOfPostAsync(Guid postId, Guid commentId);
+    /// <summary>
+    /// Tests if the comment cotains the provieded post.
+    /// </summary>
+    /// <param name="postId">The unique idettifier of the post to test for.</param>
+    /// <param name="commentId">The unique identifier of the comment.</param>
+    /// <returns><c>true</c> if the comment contains the post; otherwise, <c>false</c>.</returns>
+    Task<bool> ContainsPostAsync(Guid postId, Guid commentId);
 
-    Task<bool> isAuthorizedAsync(Guid userId, Guid commentId);
+    /// <summary>
+    /// Tests if the conment cotains the provieded user.
+    /// </summary>
+    /// <param name="userId">The unique idettifier of the user to test for.</param>
+    /// <param name="commentId">The unique identifier of the comment.</param>
+    /// <returns><c>true</c> if the comment contains the user; otherwise, <c>false</c>.</returns>
+    Task<bool> ContainsUserAsync(Guid userId, Guid commentId);
 
+    /// <summary>
+    /// Increments the reply count of the comment.
+    /// </summary>
+    /// <param name="commentId">The unique identifier of the comment.</param>
     Task IncrementReplyCountAsync(Guid commentId);
 }

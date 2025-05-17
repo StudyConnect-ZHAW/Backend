@@ -20,7 +20,7 @@ public interface IPostRepository
     /// <param name="authorId">The unique identifier of the post creator.</param>
     /// <param name="categoryName">The unique name of category assigned to the post.</param>
     /// <param name="title">The title of the post.</param>
-    /// <returns>An <see cref="OperationResult{T}"/> containing a list of post if found, or an error message if not.</returns>
+    /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="ForumPost"/> objects. Can be empty if none exist.</returns>
     Task<IEnumerable<ForumPost?>> SearchAsync(
           Guid? userId,
           string? categoryName,
@@ -33,21 +33,19 @@ public interface IPostRepository
     /// Get a Post by its GUID.
     /// </summary>
     /// <param name="id">the unique identifier of the post.</param>
-    /// <returns>An <see cref="OperationResult{T}"/> containing the post if found, or an error message if not.</returns>
+    /// <returns>The matching <see cref="ForumPost"/> if found; otherwise, <c>null</c>.</returns>
     Task<ForumPost?> GetByIdAsync(Guid id);
 
     /// <summary>
     /// Update a Post by its GUID.
     /// </summary>
     /// <param name="id">The unique identifier of the post.</param>
-    /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
     Task UpdateAsync(Guid postId, ForumPost post);
 
     /// <summary>
     /// Delete an exitsting post by its GUID.
     /// </summary>
     /// <param name="id">The unique identifier of the post.</param>
-    /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
     Task DeleteAsync(Guid postId);
 
     /// <summary>

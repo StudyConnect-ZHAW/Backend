@@ -41,7 +41,7 @@ public class CommentService : ICommentService
 
         if (parentId != null)
         {
-            var isChild = await _commmentRepository.isChildOfPostAsync(postId, (Guid)parentId);
+            var isChild = await _commmentRepository.ContainsPostAsync(postId, (Guid)parentId);
             if (!isChild)
                 return OperationResult<ForumComment>.Failure(ParentCommentNotFound);
         }
@@ -131,7 +131,7 @@ public class CommentService : ICommentService
         if (IsInvalid(userId))
             return OperationResult<bool>.Failure(InvalidUserId);
 
-        var post = await _commmentRepository.isAuthorizedAsync(userId, commentId);
+        var post = await _commmentRepository.ContainsUserAsync(userId, commentId);
         if (!post)
             return OperationResult<bool>.Failure(NotAuthorized);
 

@@ -44,13 +44,13 @@ public class CommentRepository : BaseRepository, ICommentRepository
         return result;
     }
 
-    public async Task<ForumComment> GetByIdAsync(Guid commentId)
+    public async Task<ForumComment?> GetByIdAsync(Guid commentId)
     {
         var comment = await _context.ForumComments
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.ForumCommentId == commentId);
 
-        return comment.ToCommentModel();
+        return comment?.ToCommentModel();
     }
 
     public async Task UpdateAsync(Guid commentId, ForumComment comment)
@@ -73,13 +73,13 @@ public class CommentRepository : BaseRepository, ICommentRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<bool> CommentExistsAsync(Guid commentId) =>
+    public async Task<bool> ExistsAsync(Guid commentId) =>
         await _context.ForumComments.AnyAsync(c => c.ForumCommentId == commentId);
 
-    public async Task<bool> isChildOfPostAsync(Guid postId, Guid commentId) =>
+    public async Task<bool> ContainsPostAsync(Guid postId, Guid commentId) =>
         await _context.ForumComments.AnyAsync(c => c.ForumCommentId == commentId && c.ForumPostId == postId);
 
-    public async Task<bool> isAuthorizedAsync(Guid userId, Guid commentId) =>
+    public async Task<bool> ContainsUserAsync(Guid userId, Guid commentId) =>
         await _context.ForumComments.AnyAsync(c => c.ForumCommentId == commentId && c.UserId == userId);
 
     public async Task IncrementReplyCountAsync(Guid commentId)

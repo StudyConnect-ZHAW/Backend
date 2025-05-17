@@ -8,12 +8,17 @@ namespace StudyConnect.API.Dtos.Requests.Forum;
 public class PostUpdateDto
 {
 
+    /// <summary>
+    /// The user that created the post.
+    /// </summary>
     public required Guid UserId { get; set; }
+
     /// <summary>
     /// The new title to replace the old.
     /// </summary>
     [StringLength(255)]
     public required string Title { get; set; }
+
     /// <summary>
     /// the new content to replace the old.
     /// </summary>
