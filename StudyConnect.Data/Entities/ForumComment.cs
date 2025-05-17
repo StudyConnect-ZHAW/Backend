@@ -63,4 +63,9 @@ public class ForumComment
     /// This property is initialized to an empty list to avoid null reference exceptions.
     /// </summary>
     public virtual ICollection<ForumComment> Replies { get; set; } = [];
+
+    /// <summary>
+    /// Collection of likes associated with this comment.
+    /// </summary>
+    public virtual ICollection<ForumLike> ForumLikes { get; set; } = [];
 }

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StudyConnect.Data.Entities;
 
-public class ForumLikes
+public class ForumLike
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

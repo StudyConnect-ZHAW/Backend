@@ -23,7 +23,7 @@ public class ForumPost
     public string? Content { get; set; }
 
     [Required]
-    public Guid ForumCategoryId { get; set; } 
+    public Guid ForumCategoryId { get; set; }
 
     [Required]
     public Guid UserId { get; set; }
@@ -32,7 +32,7 @@ public class ForumPost
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     [Required]
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow; 
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     public int ViewCount { get; set; } = 0;
 
@@ -54,4 +54,9 @@ public class ForumPost
     /// Collection of comments associated with this post.
     /// </summary>
     public virtual ICollection<ForumComment> ForumComments { get; set; } = [];
+
+    /// <summary>
+    /// Collection of likes associated with this post.
+    /// </summary>
+    public virtual ICollection<ForumLike> ForumLikes { get; set; } = [];
 }
