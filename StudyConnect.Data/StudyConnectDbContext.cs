@@ -130,6 +130,12 @@ public class StudyConnectDbContext : DbContext
             .WithMany(fc => fc.Replies)
             .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<ForumLike>()
+          .HasOne(l => l.User)
+          .WithMany(u => u.ForumLikes)
+          .HasForeignKey(l => l.UserId)
+          .OnDelete(DeleteBehavior.NoAction);
+
         // Configure Like-ForumPost relationship
         modelBuilder.Entity<ForumLike>()
             .HasOne(l => l.ForumPost)
@@ -142,7 +148,7 @@ public class StudyConnectDbContext : DbContext
             .HasOne(l => l.ForumComment)
             .WithMany(c => c.ForumLikes)
             .HasForeignKey(l => l.ForumCommentId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Configure Unique non-key indexes
         modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
