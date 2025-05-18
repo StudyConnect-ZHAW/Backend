@@ -65,7 +65,7 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
     }
 
     public async Task<bool> ExistAsync(Guid id) =>
-        await _context.ForumCategories.AnyAsync(c => c.ForumCategoryId == categoryId);
+        await _context.ForumCategories.AnyAsync(c => c.ForumCategoryId == id);
 
     public async Task<bool> NameExistsAsync(string name) =>
         await _context.ForumCategories.AnyAsync(c => c.Name == name);

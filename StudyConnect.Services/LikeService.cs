@@ -126,7 +126,7 @@ public class LikeService : ILikeService
 
             var LikeExists = await _likeRepository.PostLikeExistsAsync(userId, pid);
             if (!LikeExists)
-                return OperationResult<bool>.Failure(LIkeNotfound);
+                return OperationResult<bool>.Failure(LikeNotFound);
 
             try
             {
@@ -147,7 +147,7 @@ public class LikeService : ILikeService
 
             var LikeExists = await _likeRepository.PostLikeExistsAsync(userId, cid);
             if (!LikeExists)
-                return OperationResult<bool>.Failure(LIkeNotfound);
+                return OperationResult<bool>.Failure(LikeNotFound);
 
             try
             {

@@ -4,7 +4,7 @@ namespace StudyConnect.API.Dtos.Requests.Forum;
 /// <summary>
 /// Data transfer object for leaving a like.
 /// </summary>
-public class LikeCommentCreateDto
+public class LikeCreateDto
 {
     /// <summary>
     /// The unique identifier of the current user.

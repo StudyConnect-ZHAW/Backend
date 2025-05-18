@@ -31,7 +31,7 @@ public class PostService : IPostService
             return OperationResult<ForumPost>.Failure(CategoryNotFound);
 
         if (post == null)
-            return OperationResult<ForumPost>.Failure(PostConentEmpty);
+            return OperationResult<ForumPost>.Failure(PostContentEmpty);
 
         var user = await _userRepository.GetByIdAsync(userId);
         if (user.Data == null)
@@ -86,7 +86,7 @@ public class PostService : IPostService
     public async Task<OperationResult<ForumPost>> UpdatePostAsync(Guid userId, Guid postId, ForumPost post)
     {
         if (post == null)
-            return OperationResult<ForumPost>.Failure(PostConentEmpty);
+            return OperationResult<ForumPost>.Failure(PostContentEmpty);
 
         var (isAuthorized, error) = await TestAuthorizationAsync(userId, postId);
         if (!isAuthorized && error != null)
