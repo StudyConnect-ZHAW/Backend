@@ -2,7 +2,7 @@ using StudyConnect.Core.Models;
 using StudyConnect.Core.Common;
 using StudyConnect.Core.Interfaces;
 
-namespace StudyConnect.Core.Interfaces.Repositories;
+namespace StudyConnect.Core.Interfaces;
 
 public interface ILikeRepository
 {
@@ -41,14 +41,14 @@ public interface ILikeRepository
     /// </summary>
     /// <param name="postId">The unique identifier of the post.</param>
     /// <returns>Tne number of likes for the post.</returns>
-    Task<OperationResult<int>> GetPostLikeCountAsync(Guid postId);
+    Task<int> GetPostLikeCountAsync(Guid postId);
 
     /// <summary>
     /// Get the amount of likes for a given forum comment.
     /// </summary>
     /// <param name="commentId">The unique identifier of the comment.</param>
     /// <returns>Tne number of likes for the comment.</returns>
-    Task<OperationResult<int>> GetCommentLikeCountAsync(Guid commentId);
+    Task<int> GetCommentLikeCountAsync(Guid commentId);
 
     /// <summary>
     /// Checks whether a like for a post was already made.

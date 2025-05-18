@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using StudyConnect.Core.Interfaces.Repositories;
+using StudyConnect.Core.Interfaces;
 using StudyConnect.Core.Common;
 using static StudyConnect.Core.Common.ErrorMessages;
 
@@ -15,25 +15,11 @@ public class LikeRepository : BaseRepository, ILikeRepository
     public async Task<bool> PostLikeExistsAsync(Guid userId, Guid postId) =>
         await _context.ForumLikes.AnyAsync(l => l.UserId == userId && l.ForumPostId == postId);
 
-    public async Task<OperationResult<int>> GetCommentLikeCountAsync(Guid commentId)
-    {
-        if (commentId == Guid.Empty || !await _context.ForumComments.AnyAsync(cm => cm.ForumCommentId == commentId))
-            return OperationResult<int>.Failure(CommentNotFound);
+    public async Task<int> GetCommentLikeCountAsync(Guid commentId) =>
+        await _context.ForumLikes.CountAsync(l => l.ForumCommentId == commentId);
 
-        var result = await _context.ForumLikes.CountAsync(l => l.ForumCommentId == commentId);
-        return OperationResult<int>.Success(result);
-
-    }
-
-    public async Task<OperationResult<int>> GetPostLikeCountAsync(Guid postId)
-    {
-        if (postId == Guid.Empty || !await _context.ForumPosts.AnyAsync(p => p.ForumPostId == postId))
-            return OperationResult<int>.Failure(PostNotFound);
-
-        var result = await _context.ForumLikes.CountAsync(l => l.ForumPostId == postId);
-        return OperationResult<int>.Success(result);
-    }
-
+    public async Task<int> GetPostLikeCountAsync(Guid postId) =>
+        await _context.ForumLikes.CountAsync(l => l.ForumPostId == postId);
 
     public async Task<OperationResult<bool>> LikeCommentAsync(Guid userId, Guid commentId)
     {
