@@ -3,7 +3,7 @@ namespace StudyConnect.Core.Interfaces.Repositories;
 
 /// <summary>
 /// Defines repository-level data access methods for forum categories.
-/// </<summary>
+/// </summary>
 public interface ICategoryRepository
 {
     /// <summary>

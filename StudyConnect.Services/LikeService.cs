@@ -26,6 +26,7 @@ public class LikeService : ILikeService
 
     public async Task<OperationResult<int>> GetLikeCountAsync(Guid? postId, Guid? commentId)
     {
+        var count = 0;
         if (postId.HasValue == commentId.HasValue)
             return OperationResult<int>.Failure(InvalidInput);
 
@@ -39,8 +40,7 @@ public class LikeService : ILikeService
             if (!await _postRepository.ExistsAsync(pid))
                 return OperationResult<int>.Failure(PostNotFound);
 
-            int count = await _likeRepository.GetPostLikeCountAsync(pid);
-            return OperationResult<int>.Success(count);
+            count = await _likeRepository.GetPostLikeCountAsync(pid);
         }
 
         if (commentId != null)
@@ -53,10 +53,9 @@ public class LikeService : ILikeService
             if (!await _commentRepository.ExistsAsync(cid))
                 return OperationResult<int>.Failure(CommentNotFound);
 
-            int commentCount = await _likeRepository.GetCommentLikeCountAsync(cid);
-            return OperationResult<int>.Success(commentCount);
+            count = await _likeRepository.GetCommentLikeCountAsync(cid);
         }
-        return OperationResult<int>.Failure(UnknownError);
+        return OperationResult<int>.Success(count);
     }
 
 

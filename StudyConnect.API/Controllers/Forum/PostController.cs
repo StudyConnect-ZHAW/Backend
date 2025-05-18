@@ -190,7 +190,7 @@ public class PostController : BaseController
     }
 
     /// <summary>
-    /// A helper function to mapt a post model to DTO.
+    /// A helper function to map a post model to DTO.
     /// </summary>
     /// <param name="post">The forum post model.</param>
     /// <returns>A PostReadDto.</returns>
