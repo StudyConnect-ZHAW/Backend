@@ -46,22 +46,22 @@ public class PostRepository : BaseRepository, IPostRepository
         ;
     }
 
-    public async Task<ForumPost?> GetByIdAsync(Guid postId)
+    public async Task<ForumPost?> GetByIdAsync(Guid id)
     {
         var post = await _context.ForumPosts
             .AsNoTracking()
-            .FirstOrDefaultAsync(p => p.ForumPostId == postId);
+            .FirstOrDefaultAsync(p => p.ForumPostId == id);
 
         return post?.ToForumPostModel();
     }
 
-    public async Task UpdateAsync(Guid postId, ForumPost updatedPost)
+    public async Task UpdateAsync(Guid postId, ForumPost post)
     {
         var existing = await _context.ForumPosts.FirstOrDefaultAsync(p => p.ForumPostId == postId);
         if (existing == null) return;
 
-        existing.Title = updatedPost.Title;
-        existing.Content = updatedPost.Content;
+        existing.Title = post.Title;
+        existing.Content = post.Content;
 
         await _context.SaveChangesAsync();
     }

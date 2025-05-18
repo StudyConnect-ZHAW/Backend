@@ -152,7 +152,7 @@ public class LikeController : BaseController
                 ? NotFound(new ApiResponse<string>(count.ErrorMessage))
                 : BadRequest(new ApiResponse<string>(count.ErrorMessage));
 
-        var result = new LikeReadDto { PostLikeCount = count.Data };
+        var result = new LikeReadDto { CommentLikeCount = count.Data };
         return Ok(new ApiResponse<LikeReadDto>(result));
     }
 

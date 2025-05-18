@@ -52,17 +52,17 @@ public interface ICommentRepository
     Task<bool> ExistsAsync(Guid commentId);
 
     /// <summary>
-    /// Tests if the comment cotains the provieded post.
+    /// Tests if the comment contains the provided post.
     /// </summary>
-    /// <param name="postId">The unique idettifier of the post to test for.</param>
+    /// <param name="postId">The unique identifier of the post to test for.</param>
     /// <param name="commentId">The unique identifier of the comment.</param>
     /// <returns><c>true</c> if the comment contains the post; otherwise, <c>false</c>.</returns>
     Task<bool> ContainsPostAsync(Guid postId, Guid commentId);
 
     /// <summary>
-    /// Tests if the conment cotains the provieded user.
+    /// Tests if the conment contains the provided user.
     /// </summary>
-    /// <param name="userId">The unique idettifier of the user to test for.</param>
+    /// <param name="userId">The unique identifier of the user to test for.</param>
     /// <param name="commentId">The unique identifier of the comment.</param>
     /// <returns><c>true</c> if the comment contains the user; otherwise, <c>false</c>.</returns>
     Task<bool> ContainsUserAsync(Guid userId, Guid commentId);

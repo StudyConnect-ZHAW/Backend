@@ -4,6 +4,8 @@ using StudyConnect.Core.Common;
 using StudyConnect.Core.Models;
 using static StudyConnect.Core.Common.ErrorMessages;
 
+namespace StudyConnect.Services;
+
 public class CommentService : ICommentService
 {
     protected readonly ICommentRepository _commmentRepository;

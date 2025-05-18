@@ -45,14 +45,14 @@ public interface ICategoryRepository
     /// </summary>
     /// <param name="categoryId">The unique identifier of the category.</param>
     /// <returns><c>true</c> if the category exists; otherwise, <c>false</c>.</returns>
-    Task<bool> ExistAsync(Guid categoryId);
+    Task<bool> ExistAsync(Guid id);
 
     /// <summary>
     /// Checks whether the given category name is already in use.
     /// </summary>
     /// <param name="name">The name to check for uniqueness.</param>
     /// <returns><c>true</c> if the name exists; otherwise, <c>false</c>.</returns>
-    Task<bool> NameExistsAsync(string nakme);
+    Task<bool> NameExistsAsync(string name);
 
 }
 
