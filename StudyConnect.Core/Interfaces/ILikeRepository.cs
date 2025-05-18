@@ -41,7 +41,7 @@ public interface ILikeRepository
     /// </summary>
     /// <param name="postId">The unique identifier of the post.</param>
     /// <returns>Tne number of likes for the post.</returns>
-    Task<int> GetPostLikeCountAsync(Guid postId);
+    Task<OperationResult<int>> GetPostLikeCountAsync(Guid postId);
 
     /// <summary>
     /// Get the amount of likes for a given forum comment.
