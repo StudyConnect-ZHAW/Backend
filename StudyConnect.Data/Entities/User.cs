@@ -52,4 +52,9 @@ public class User
     /// Collection of forum comments made by the user.
     /// </summary>
     public virtual ICollection<ForumComment> ForumComments { get; set; } = [];
+
+    /// <summary>
+    /// Collection of the likes made by the user.
+    /// </summary>
+    public virtual ICollection<ForumLike> ForumLikes { get; set; } = [];
 }
