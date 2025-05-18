@@ -8,9 +8,9 @@ namespace StudyConnect.Core.Common
         public const string NotAuthorized = "Not authorized to perform this action.";
         public const string NameRequired = "Name cannot be null, empty or whitespace.";
         public const string TitleTaken = "Title already in use.";
-        public const string LikeExists = "Like already exist.";
+        public const string LikeExists = "Like already exists.";
 
-        public const string QueryFailure = "Malformed or invalid query";
+        public const string QueryFailure = "Malformed or invalid query.";
 
         public const string InvalidInput = "Input is invalid.";
 
@@ -19,7 +19,7 @@ namespace StudyConnect.Core.Common
         public const string InvalidCommentId = "Invalid comment ID.";
         public const string InvalidCategoryId = "Invalid category ID.";
         public const string CommentContentEmpty = "Missing comment content";
-        public const string PostContentEmpty = "Missing post content";
+        public const string PostContentEmpty = "Missing post content.";
 
         public const string GeneralNotFound = "does not exist";
         public const string CategoryNotFound = "Category with specified ID does not exist";
