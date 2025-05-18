@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StudyConnect.Data;
 
@@ -11,9 +12,11 @@ using StudyConnect.Data;
 namespace StudyConnect.Data.Migrations
 {
     [DbContext(typeof(StudyConnectDbContext))]
-    partial class StudyConnectDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250518213812_AddForumLike")]
+    partial class AddForumLike
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -217,7 +220,7 @@ namespace StudyConnect.Data.Migrations
                     b.ToTable("Group", (string)null);
                 });
 
-            modelBuilder.Entity("StudyConnect.Data.Entities.GroupMember", b =>
+            modelBuilder.Entity("StudyConnect.Data.Entities.GroupMembers", b =>
                 {
                     b.Property<Guid>("MemberId")
                         .HasColumnType("uniqueidentifier");
@@ -240,7 +243,7 @@ namespace StudyConnect.Data.Migrations
 
                     b.HasIndex("MemberRoleId");
 
-                    b.ToTable("GroupMember", (string)null);
+                    b.ToTable("GroupMembers", (string)null);
                 });
 
             modelBuilder.Entity("StudyConnect.Data.Entities.MemberRole", b =>
@@ -263,14 +266,6 @@ namespace StudyConnect.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("MemberRole", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            MemberRoleId = new Guid("00000000-0000-0000-0000-000000000010"),
-                            Description = "Is a member of a group",
-                            Name = "GroupMember"
-                        });
                 });
 
             modelBuilder.Entity("StudyConnect.Data.Entities.User", b =>
@@ -415,7 +410,7 @@ namespace StudyConnect.Data.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("StudyConnect.Data.Entities.GroupMember", b =>
+            modelBuilder.Entity("StudyConnect.Data.Entities.GroupMembers", b =>
                 {
                     b.HasOne("StudyConnect.Data.Entities.Group", "Group")
                         .WithMany("GroupMembers")
