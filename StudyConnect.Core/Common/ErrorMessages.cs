@@ -28,7 +28,7 @@ namespace StudyConnect.Core.Common
         public const string PostNotFound = "Post with specified ID does not exist";
         public const string UserNotFound = "User with specified ID does not exist.";
         public const string ParentCommentNotFound = "Parent comment with specified ID does not exist";
-        public const string LikeNotfound = "Like with specified ID does not exist.";
+        public const string LikeNotFound = "Like with specified ID does not exist.";
     }
 }
 
