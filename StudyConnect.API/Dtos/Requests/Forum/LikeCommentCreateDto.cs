@@ -4,7 +4,7 @@ namespace StudyConnect.API.Dtos.Requests.Forum;
 /// <summary>
 /// Data transfer object for leaving a like.
 /// </summary>
-public class LikeCreateDto
+public class LikeCommentCreateDto
 {
     /// <summary>
     /// The unique identifier of the current user.
@@ -13,13 +13,12 @@ public class LikeCreateDto
     public required Guid UserId { get; set; }
 
     /// <summary>
-    /// The unique identifier of the post to like (optional).
-    /// </summary>
-    public Guid? PostId { get; set; }
-
-    /// <summary>
-    /// The unique identifier of the commment to like (optional).
+    /// The unique identifier of the comment to like.
     /// </summary>
     public Guid? CommentId { get; set; }
-      
+
+    /// <summary>
+    /// The unique identifier of the post to like.
+    /// </summary>
+    public Guid? PostId { get; set; }
 }

@@ -138,7 +138,7 @@ public class LikeController : BaseController
     }
 
     /// <summary>
-    /// Get like count of a specific post.
+    /// Get like count of a specific comment.
     /// </summary>
     /// <param name="cmid">he unique identifier of the comment.</param>
     /// <returns>On success a DTO with information about the like, on failure HTTP 400/404 status code.</returns>

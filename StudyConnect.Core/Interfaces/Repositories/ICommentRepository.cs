@@ -6,7 +6,7 @@ namespace StudyConnect.Core.Interfaces.Repositories;
 public interface ICommentRepository
 {
     /// <summary>
-    /// Adds an comment to a post or parent comment.
+    /// Adds a comment to a post or parent comment.
     /// </summary>
     /// <param name="comment">The model containing information about the comment.</param>
     /// <param name="userId">The unique identifier of the user.</param>
@@ -60,7 +60,7 @@ public interface ICommentRepository
     Task<bool> ContainsPostAsync(Guid postId, Guid commentId);
 
     /// <summary>
-    /// Tests if the conment contains the provided user.
+    /// Tests if the comment contains the provided user.
     /// </summary>
     /// <param name="userId">The unique identifier of the user to test for.</param>
     /// <param name="commentId">The unique identifier of the comment.</param>

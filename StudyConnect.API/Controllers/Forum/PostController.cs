@@ -48,9 +48,7 @@ public class PostController : BaseController
         var post = new ForumPost
         {
             Title = createDto.Title,
-            Content = createDto.Content != null
-                ? createDto.Content
-                : ""
+            Content = createDto.Content ?? ""
         };
 
         var userId = createDto.UserId;
