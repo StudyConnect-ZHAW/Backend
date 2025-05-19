@@ -4,6 +4,10 @@ using StudyConnect.API.Dtos.Requests.Forum;
 using StudyConnect.API.Dtos.Responses.Forum;
 using StudyConnect.API.Dtos.Responses.User;
 using StudyConnect.Core.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Identity.Web;
+using static StudyConnect.Core.Common.ErrorMessages;
+
 
 namespace StudyConnect.API.Controllers.Forum;
 
@@ -21,13 +25,17 @@ public class PostController : BaseController
     /// </summary>
     protected readonly IPostRepository _postRepository;
 
+    protected readonly ILikeRepository _likeRepository;
+
+
     /// <summary>
     /// Initializes a new instance of the <see cref="PostController"/> class.
     /// </summary>
     /// <param name="postRepository">The post repository to interact with data.</param>
-    public PostController(IPostRepository postRepository)
+    public PostController(IPostRepository postRepository, ILikeRepository likeRepository)
     {
         _postRepository = postRepository;
+        _likeRepository = likeRepository;
     }
 
     /// <summary>
@@ -36,6 +44,7 @@ public class PostController : BaseController
     /// <param name="createDto">A Date Transfer Object containing information for post creating.</param>
     /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> AddPost([FromBody] PostCreateDto createDto)
     {
         if (!ModelState.IsValid)
@@ -47,18 +56,39 @@ public class PostController : BaseController
             Content = createDto.Content,
         };
 
-        Guid userId = createDto.UserId;
+        var oidClaim = HttpContext.User.GetObjectId();
+        if (string.IsNullOrEmpty(oidClaim))
+            return Unauthorized();
+
+        Guid userId = Guid.Parse(oidClaim);
         Guid forumId = createDto.ForumCategoryId;
 
         var result = await _postRepository.AddAsync(userId, forumId, post);
-        if (!result.IsSuccess)
+        if (!result.IsSuccess || result.Data == null)
             return BadRequest(result.ErrorMessage);
 
-        var postId = result.Data;
-
-        var locationUri = Url.Action(nameof(GetPostById), new { pid = postId });
-        return Created(locationUri, new { pid = postId });
+        return Ok(GeneratePostDto(result.Data));
     }
+
+    // [HttpPost("{pid:guid}/likes")]
+    // [Authorize]
+    // [ProducesResponseType(StatusCodes.Status204NoContent)]
+    // public async Task<IActionResult> AddLike([FromBody] Guid pid)
+    // {
+    //     var oidClaim = HttpContext.User.GetObjectId();
+    //     if (string.IsNullOrEmpty(oidClaim))
+    //         return Unauthorized();
+    //
+    //     var uid = Guid.Parse(oidClaim);
+    //
+    //     var result = await _likeRepository.LikePostAsync(uid, pid);
+    //     if (!result.IsSuccess || !result.Data)
+    //         return result.ErrorMessage!.Contains(GeneralNotFound)
+    //             ? NotFound(result.ErrorMessage)
+    //             : BadRequest(result.ErrorMessage);
+    //
+    //     return NoContent();
+    // }
 
     /// <summary>
     /// Search posts based on provieded queries.
@@ -128,10 +158,16 @@ public class PostController : BaseController
     /// <param name="updateDto"> a dto containing the data for updating the post. </param>
     /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
     [HttpPut("{pid:guid}")]
+    [Authorize]
     public async Task<IActionResult> UpdatePost([FromRoute] Guid pid, [FromBody] PostUpdateDto updateDto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
+
+        var oidClaim = HttpContext.User.GetObjectId();
+        if (string.IsNullOrEmpty(oidClaim))
+            return Unauthorized();
+
 
         var post = new ForumPost
         {
@@ -139,14 +175,37 @@ public class PostController : BaseController
             Content = updateDto.Content
         };
 
-        var result = await _postRepository.UpdateAsync(pid, post);
-        if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+        var result = await _postRepository.UpdateAsync(Guid.Parse(oidClaim), pid, post);
+        if (!result.IsSuccess || result.Data == null)
+            return result.ErrorMessage!.Contains(GeneralNotFound)
+                ? NotFound(result.ErrorMessage)
+                : BadRequest(result.ErrorMessage);
 
-        if (!result.Data)
-            return NotFound("Post for update was not found.");
+        return Ok(result.Data);
+    }
 
-        return Ok("post updated successfully.");
+    [HttpPut("{pid:guid}/likes")]
+    [Authorize]
+    public async Task<IActionResult> ToggleLike([FromRoute] Guid pid)
+    {
+
+        var oidClaim = HttpContext.User.GetObjectId();
+        var uid = oidClaim != null
+            ? Guid.Parse(oidClaim)
+            : Guid.Empty;
+
+
+        var result = await _likeRepository.PostLikeExistsAsync(uid, pid)
+            ? await _likeRepository.UnlikePostAsync(uid, pid)
+            : await _likeRepository.LikePostAsync(uid, pid);
+
+
+        if (!result.IsSuccess && !string.IsNullOrEmpty(result.ErrorMessage))
+            return result.ErrorMessage.Contains(GeneralNotFound)
+                ? NotFound(result.ErrorMessage)
+                : BadRequest(result.ErrorMessage);
+
+        return NoContent();
     }
 
     /// <summary>
@@ -155,20 +214,44 @@ public class PostController : BaseController
     /// <param name="pid">The unique identifier of the post.</param>
     /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
     [HttpDelete("{pid:guid}")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeletePost([FromRoute] Guid pid)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var result = await _postRepository.DeleteAsync(pid);
-        if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+        var oidClaim = HttpContext.User.GetObjectId();
+        if (string.IsNullOrEmpty(oidClaim))
+            return Unauthorized();
 
-        if (!result.Data)
-            return NotFound("Post for deletion was not found.");
+        var result = await _postRepository.DeleteAsync(Guid.Parse(oidClaim), pid);
+        if (!result.IsSuccess || !result.Data)
+            return result.ErrorMessage!.Contains(GeneralNotFound)
+                ? NotFound(result.ErrorMessage)
+                : BadRequest(result.ErrorMessage);
 
-        return Ok("Post deleted successfully.");
+        return NoContent();
     }
+
+    // [HttpDelete("{pid: guid}/likes")]
+    // [Authorize]
+    // public async Task<IActionResult> DeleteLike([FromBody] Guid pid)
+    // {
+    //     var oidClaim = HttpContext.User.GetObjectId();
+    //     if (string.IsNullOrEmpty(oidClaim))
+    //         return Unauthorized();
+    //
+    //     var uid = Guid.Parse(oidClaim);
+    //
+    //     var result = await _likeRepository.UnlikePostAsync(uid, pid);
+    //     if (!result.IsSuccess || !result.Data)
+    //         return result.ErrorMessage!.Contains(GeneralNotFound)
+    //             ? NotFound(result.ErrorMessage)
+    //             : BadRequest(result.ErrorMessage);
+    //
+    //     return NoContent();
+    // }
 
     /// <summary>
     /// A helper function to create user Dto from model.
