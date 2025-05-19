@@ -112,29 +112,24 @@ public class PostRepository : BaseRepository, IPostRepository
 
     public async Task<OperationResult<ForumPost>> UpdateAsync(Guid userId, Guid postId, ForumPost post)
     {
-        if (!await IsValidUser(userId))
-            return OperationResult<ForumPost>.Failure(UserNotFound);
+        if (userId == Guid.Empty)
+            return OperationResult<ForumPost>.Failure(InvalidUserId);
 
-        if (!await IsValidPost(postId))
+        if (postId == Guid.Empty)
             return OperationResult<ForumPost>.Failure(PostNotFound);
 
-        var existing = await _context.ForumPosts
-            .Include(p => p.User)
-            .Include(p => p.ForumCategory)
-            .Include(p => p.ForumLikes)
-            .FirstOrDefaultAsync(p => p.ForumPostId == postId && p.UserId == userId);
+        var (result, error) = await GetAuthorizedCommentAsync(userId, postId);
+        if (result == null)
+            return OperationResult<ForumPost>.Failure(error ?? UnknownError);
 
-        if (existing == null)
-            return OperationResult<ForumPost>.Failure(NotAuthorized);
-
-        existing.Title = post.Title;
-        existing.Content = post.Content;
-        existing.UpdatedAt = DateTime.UtcNow;
+        result.Title = post.Title;
+        result.Content = post.Content;
+        result.UpdatedAt = DateTime.UtcNow;
 
         try
         {
             await _context.SaveChangesAsync();
-            return OperationResult<ForumPost>.Success(MapPostToModel(existing));
+            return OperationResult<ForumPost>.Success(MapPostToModel(result));
         }
         catch (Exception ex)
         {
@@ -144,19 +139,19 @@ public class PostRepository : BaseRepository, IPostRepository
 
     public async Task<OperationResult<bool>> DeleteAsync(Guid userId, Guid postId)
     {
-        if (!await IsValidUser(userId))
-            return OperationResult<bool>.Failure(UserNotFound);
+        if (userId == Guid.Empty)
+            return OperationResult<bool>.Failure(InvalidUserId);
 
-        if (!await IsValidPost(postId))
-            return OperationResult<bool>.Failure(PostNotFound);
+        if (postId == Guid.Empty)
+            return OperationResult<bool>.Failure(InvalidPostId);
 
-        var post = await _context.ForumPosts.FirstOrDefaultAsync(p => p.ForumPostId == postId && p.UserId == userId);
-        if (post == null)
-            return OperationResult<bool>.Failure(NotAuthorized);
+        var (result, error) = await GetAuthorizedCommentAsync(userId, postId);
+        if (result == null)
+            return OperationResult<bool>.Failure(error ?? UnknownError);
 
         try
         {
-            _context.ForumPosts.Remove(post);
+            _context.ForumPosts.Remove(result);
             await _context.SaveChangesAsync();
             return OperationResult<bool>.Success(true);
         }
@@ -177,6 +172,24 @@ public class PostRepository : BaseRepository, IPostRepository
     private async Task<bool> IsValidPost(Guid postId) =>
         postId != Guid.Empty && await _context.ForumPosts.AnyAsync(p => p.ForumPostId == postId);
 
+    private async Task<(Entities.ForumPost? Post, string? ErrorMessage)> GetAuthorizedCommentAsync(Guid userId, Guid postId)
+    {
+        var post = await _context.ForumPosts
+            .Include(p => p.User)
+            .Include(p => p.ForumCategory)
+            .Include(p => p.ForumLikes)
+            .FirstOrDefaultAsync(c => c.ForumPostId == postId);
+
+        if (post == null)
+            return (null, PostNotFound);
+
+        if (post.UserId != userId)
+            return (null, NotAuthorized);
+
+        return (post, null);
+    }
+
+
     public static ForumPost MapPostToModel(Entities.ForumPost post) => new()
     {
         ForumPostId = post.ForumPostId,
@@ -186,7 +199,7 @@ public class PostRepository : BaseRepository, IPostRepository
         UpdatedAt = post.UpdatedAt,
         Category = post.ForumCategory.ToCategoryModel(),
         User = post.User.ToUserModel(),
-        LikeList = post.ForumLikes.Select(l => l.LikeId) ?? []
+        LikeCount = post.ForumLikes.Count()
     };
 }
 

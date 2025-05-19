@@ -302,7 +302,8 @@ public class PostController : BaseController
                 : null,
             Author = post.User != null
                 ? GenerateUserReadDto(post.User)
-                : null
+                : null,
+            LikeCount = post.LikeList?.Count()
         };
     }
 }
