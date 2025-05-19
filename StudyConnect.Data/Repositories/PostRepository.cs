@@ -8,24 +8,21 @@ namespace StudyConnect.Data.Repositories;
 
 public class PostRepository : BaseRepository, IPostRepository
 {
-    public PostRepository(StudyConnectDbContext context) : base(context)
-    {
-
-    }
+    public PostRepository(StudyConnectDbContext context) : base(context) { }
 
     public async Task<OperationResult<ForumPost>> AddAsync(Guid userId, Guid categoryId, ForumPost? post)
     {
-        if (userId == Guid.Empty || !await TestForUser(userId))
+        if (!await IsValidUser(userId))
             return OperationResult<ForumPost>.Failure(UserNotFound);
 
-        if (categoryId == Guid.Empty || !await TestForCategory(categoryId))
+        if (!await IsValidCategory(categoryId))
             return OperationResult<ForumPost>.Failure(CategoryNotFound);
 
         if (post == null)
             return OperationResult<ForumPost>.Failure(PostContentEmpty);
 
-        var testTitle = await _context.ForumPosts.AnyAsync(fp => fp.Title == post.Title);
-        if (testTitle)
+        bool isTitleTaken = await _context.ForumPosts.AnyAsync(fp => fp.Title == post.Title);
+        if (isTitleTaken)
             return OperationResult<ForumPost>.Failure(TitleTaken);
 
         var newPost = new Entities.ForumPost
@@ -40,24 +37,30 @@ public class PostRepository : BaseRepository, IPostRepository
         {
             await _context.ForumPosts.AddAsync(newPost);
             await _context.SaveChangesAsync();
+
+            var created = await _context.ForumPosts
+                .Include(p => p.User)
+                .Include(p => p.ForumCategory)
+                .Include(p => p.ForumLikes)
+                .FirstOrDefaultAsync(p => p.ForumPostId == newPost.ForumPostId);
+
+            if (created is null)
+                return OperationResult<ForumPost>.Failure($"{UnknownError}: Failed to retrieve the newly created post.");
+
+            return OperationResult<ForumPost>.Success(MapPostToModel(created));
+
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.ToString());
-            return OperationResult<ForumPost>.Failure($"{UnknownError}: {ex.ToString()}");
+            // Consider logging this instead of printing
+            Console.WriteLine(ex);
+            return OperationResult<ForumPost>.Failure($"{UnknownError}: {ex.Message}");
         }
-
-        var result = await _context.ForumPosts
-            .Include(p => p.User)
-            .Include(p => p.ForumCategory)
-            .FirstOrDefaultAsync(p => p.ForumPostId == newPost.ForumPostId);
-
-        return OperationResult<ForumPost>.Success(MapPostToModel(result!));
     }
 
     public async Task<OperationResult<IEnumerable<ForumPost>>> SearchAsync(Guid? userId, string? categoryName, string? title)
     {
-        var posts = _context.ForumPosts
+        var query = _context.ForumPosts
             .AsNoTracking()
             .Include(p => p.User)
             .Include(p => p.ForumCategory)
@@ -65,20 +68,16 @@ public class PostRepository : BaseRepository, IPostRepository
             .AsQueryable();
 
         if (userId.HasValue)
-            posts = posts.Where(p => p.User.UserGuid == userId.Value);
+            query = query.Where(p => p.User.UserGuid == userId.Value);
 
-        if (!string.IsNullOrEmpty(categoryName))
-            posts = posts.Where(p => p.ForumCategory.Name == categoryName);
+        if (!string.IsNullOrWhiteSpace(categoryName))
+            query = query.Where(p => p.ForumCategory.Name == categoryName);
 
-        if (!string.IsNullOrEmpty(title))
-            posts = posts.Where(p => EF.Functions.Like(p.Title, $"%{title}%"));
+        if (!string.IsNullOrWhiteSpace(title))
+            query = query.Where(p => EF.Functions.Like(p.Title, $"%{title}%"));
 
-        var queries = await posts.ToListAsync();
-
-        if (queries.Count == 0)
-            return OperationResult<IEnumerable<ForumPost>>.Success([]);
-
-        var result = queries.Select(p => MapPostToModel(p));
+        var posts = await query.ToListAsync();
+        var result = posts.Select(MapPostToModel);
 
         return OperationResult<IEnumerable<ForumPost>>.Success(result);
     }
@@ -92,11 +91,7 @@ public class PostRepository : BaseRepository, IPostRepository
             .Include(p => p.ForumLikes)
             .ToListAsync();
 
-        if (posts.Count == 0)
-            return OperationResult<IEnumerable<ForumPost>>.Success([]);
-
-        var result = posts.Select(p => MapPostToModel(p));
-
+        var result = posts.Select(MapPostToModel);
         return OperationResult<IEnumerable<ForumPost>>.Success(result);
     }
 
@@ -109,66 +104,60 @@ public class PostRepository : BaseRepository, IPostRepository
             .Include(p => p.User)
             .Include(p => p.ForumCategory)
             .AsNoTracking()
-            .FirstOrDefaultAsync(fp => fp.ForumPostId == id);
+            .FirstOrDefaultAsync(p => p.ForumPostId == id);
 
-        if (post == null)
-            return OperationResult<ForumPost?>.Failure(PostNotFound);
-
-        var result = MapPostToModel(post);
-
-        return OperationResult<ForumPost?>.Success(result);
+        return post == null
+            ? OperationResult<ForumPost?>.Failure(PostNotFound)
+            : OperationResult<ForumPost?>.Success(MapPostToModel(post));
     }
 
     public async Task<OperationResult<ForumPost>> UpdateAsync(Guid userId, Guid postId, ForumPost post)
     {
-        if (userId == Guid.Empty || !await TestForUser(userId))
+        if (!await IsValidUser(userId))
             return OperationResult<ForumPost>.Failure(UserNotFound);
 
-        if (postId == Guid.Empty || !await TestForPost(postId))
+        if (!await IsValidPost(postId))
             return OperationResult<ForumPost>.Failure(PostNotFound);
 
-        if (post == null)
-            return OperationResult<ForumPost>.Failure(PostContentEmpty);
-
-        var result = await _context.ForumPosts
+        var existing = await _context.ForumPosts
             .Include(p => p.User)
-            .Include(P => P.ForumCategory)
+            .Include(p => p.ForumCategory)
+            .Include(p => p.ForumLikes)
             .FirstOrDefaultAsync(p => p.ForumPostId == postId && p.UserId == userId);
 
-        if (result == null)
+        if (existing == null)
             return OperationResult<ForumPost>.Failure(NotAuthorized);
+
+        existing.Title = post.Title;
+        existing.Content = post.Content;
+        existing.UpdatedAt = DateTime.UtcNow;
 
         try
         {
-            result.Title = post.Title;
-            result.Content = post.Content;
-            result.UpdatedAt = DateTime.UtcNow;
-
             await _context.SaveChangesAsync();
+            return OperationResult<ForumPost>.Success(MapPostToModel(existing));
         }
         catch (Exception ex)
         {
             return OperationResult<ForumPost>.Failure($"{UnknownError}: {ex.Message}");
         }
-
-        return OperationResult<ForumPost>.Success(MapPostToModel(result));
     }
 
-    public async Task<OperationResult<bool>> DeleteAsync(Guid userId, Guid postid)
+    public async Task<OperationResult<bool>> DeleteAsync(Guid userId, Guid postId)
     {
-        if (userId == Guid.Empty || !await TestForUser(userId))
+        if (!await IsValidUser(userId))
             return OperationResult<bool>.Failure(UserNotFound);
 
-        if (postid == Guid.Empty || !await TestForPost(postid))
+        if (!await IsValidPost(postId))
             return OperationResult<bool>.Failure(PostNotFound);
 
-        var result = await _context.ForumPosts.FirstOrDefaultAsync(p => p.ForumPostId == postid && p.UserId == userId);
-        if (result == null)
+        var post = await _context.ForumPosts.FirstOrDefaultAsync(p => p.ForumPostId == postId && p.UserId == userId);
+        if (post == null)
             return OperationResult<bool>.Failure(NotAuthorized);
 
         try
         {
-            _context.Remove(result);
+            _context.ForumPosts.Remove(post);
             await _context.SaveChangesAsync();
             return OperationResult<bool>.Success(true);
         }
@@ -178,47 +167,27 @@ public class PostRepository : BaseRepository, IPostRepository
         }
     }
 
-    /// <summary>
-    /// Tests if the user exists in the database.
-    /// </summary>
-    /// <param name="postId">The unique idettifier of the user.</param>
-    /// <returns><c>true</c> if the post exists; otherwise, <c>false</c>.</returns>
-    private async Task<bool> TestForUser(Guid userId) =>
-    await _context.Users.AnyAsync(u => u.UserGuid == userId);
+    // -------------------- Helper Methods --------------------
 
-    /// <summary>
-    /// Tests if the category exists in the database.
-    /// </summary>
-    /// <param name="postId">The unique idettifier of the category.</param>
-    /// <returns><c>true</c> if the post exists; otherwise, <c>false</c>.</returns>
-    private async Task<bool> TestForCategory(Guid categoryId) =>
-        await _context.ForumCategories.AnyAsync(c => c.ForumCategoryId == categoryId);
+    private Task<bool> IsValidUser(Guid userId) =>
+        userId != Guid.Empty && _context.Users.AnyAsync(u => u.UserGuid == userId);
 
-    /// <summary>
-    /// Tests if the post exists in the database.
-    /// </summary>
-    /// <param name="postId">The unique idettifier of the post.</param>
-    /// <returns><c>true</c> if the post exists; otherwise, <c>false</c>.</returns>
-    private async Task<bool> TestForPost(Guid postid) =>
-        await _context.ForumPosts.AnyAsync(p => p.ForumPostId == postid);
+    private Task<bool> IsValidCategory(Guid categoryId) =>
+        categoryId != Guid.Empty && _context.ForumCategories.AnyAsync(c => c.ForumCategoryId == categoryId);
 
-    /// <summary>
-    /// A helper function to create a forum post model from entity.
-    /// </summary>
-    /// <param name="post">A forum post entity to transform.</param>
-    /// <returns>A forum post model object.</returns>
-    public static Core.Models.ForumPost MapPostToModel(Entities.ForumPost post)
+    private Task<bool> IsValidPost(Guid postId) =>
+        postId != Guid.Empty && _context.ForumPosts.AnyAsync(p => p.ForumPostId == postId);
+
+    public static ForumPost MapPostToModel(Entities.ForumPost post) => new()
     {
-        return new Core.Models.ForumPost
-        {
-            ForumPostId = post.ForumPostId,
-            Title = post.Title,
-            Content = post.Content,
-            CreatedAt = post.CreatedAt,
-            UpdatedAt = post.UpdatedAt,
-            Category = post.ForumCategory.ToCategoryModel(),
-            User = post.User.ToUserModel(),
-            LikeList = post.ForumLikes.Select(l => l.LikeId)
-        };
-    }
+        ForumPostId = post.ForumPostId,
+        Title = post.Title,
+        Content = post.Content,
+        CreatedAt = post.CreatedAt,
+        UpdatedAt = post.UpdatedAt,
+        Category = post.ForumCategory.ToCategoryModel(),
+        User = post.User.ToUserModel(),
+        LikeList = post.ForumLikes.Select(l => l.LikeId)
+    };
 }
+
