@@ -279,7 +279,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
                 : null,
             User = comment.IsDeleted
                 ? null
-                : ModelMapper.MapUserToModel(comment.User),
+                : comment.User.ToUserModel(),
             Replies = comment.Replies != null
                 ? comment.Replies.Select(MapCommentToModel).ToList()
                 : null

@@ -28,26 +28,31 @@ public class PostRepository : BaseRepository, IPostRepository
         if (testTitle)
             return OperationResult<ForumPost>.Failure(TitleTaken);
 
+        var newPost = new Entities.ForumPost
+        {
+            Title = post.Title,
+            Content = post.Content,
+            ForumCategoryId = categoryId,
+            UserId = userId
+        };
+
         try
         {
-            var newPost = new Entities.ForumPost
-            {
-                Title = post.Title,
-                Content = post.Content,
-                ForumCategoryId = categoryId,
-                UserId = userId
-            };
-
             await _context.ForumPosts.AddAsync(newPost);
             await _context.SaveChangesAsync();
-
-
-            return OperationResult<ForumPost>.Success(MapPostToModel(newPost));
         }
         catch (Exception ex)
         {
-            return OperationResult<ForumPost>.Failure($"{UnknownError}: {ex.Message}");
+            Console.WriteLine(ex.ToString());
+            return OperationResult<ForumPost>.Failure($"{UnknownError}: {ex.ToString()}");
         }
+
+        var result = await _context.ForumPosts
+            .Include(p => p.User)
+            .Include(p => p.ForumCategory)
+            .FirstOrDefaultAsync(p => p.ForumPostId == newPost.ForumPostId);
+
+        return OperationResult<ForumPost>.Success(MapPostToModel(result!));
     }
 
     public async Task<OperationResult<IEnumerable<ForumPost>>> SearchAsync(Guid? userId, string? categoryName, string? title)
@@ -114,18 +119,22 @@ public class PostRepository : BaseRepository, IPostRepository
         return OperationResult<ForumPost?>.Success(result);
     }
 
-    public async Task<OperationResult<ForumPost>> UpdateAsync(Guid userId, Guid postid, ForumPost post)
+    public async Task<OperationResult<ForumPost>> UpdateAsync(Guid userId, Guid postId, ForumPost post)
     {
-        if (userId == Guid.Empty || await TestForUser(userId))
+        if (userId == Guid.Empty || !await TestForUser(userId))
             return OperationResult<ForumPost>.Failure(UserNotFound);
 
-        if (postid == Guid.Empty || await TestForPost(postid))
+        if (postId == Guid.Empty || !await TestForPost(postId))
             return OperationResult<ForumPost>.Failure(PostNotFound);
 
         if (post == null)
             return OperationResult<ForumPost>.Failure(PostContentEmpty);
 
-        var result = await _context.ForumPosts.FirstOrDefaultAsync(p => p.ForumPostId == postid && p.UserId == userId);
+        var result = await _context.ForumPosts
+            .Include(p => p.User)
+            .Include(P => P.ForumCategory)
+            .FirstOrDefaultAsync(p => p.ForumPostId == postId && p.UserId == userId);
+
         if (result == null)
             return OperationResult<ForumPost>.Failure(NotAuthorized);
 
@@ -136,21 +145,21 @@ public class PostRepository : BaseRepository, IPostRepository
             result.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
-
-            return OperationResult<ForumPost>.Success(MapPostToModel(result));
         }
         catch (Exception ex)
         {
             return OperationResult<ForumPost>.Failure($"{UnknownError}: {ex.Message}");
         }
+
+        return OperationResult<ForumPost>.Success(MapPostToModel(result));
     }
 
     public async Task<OperationResult<bool>> DeleteAsync(Guid userId, Guid postid)
     {
-        if (userId == Guid.Empty || await TestForUser(userId))
+        if (userId == Guid.Empty || !await TestForUser(userId))
             return OperationResult<bool>.Failure(UserNotFound);
 
-        if (postid == Guid.Empty || await TestForPost(postid))
+        if (postid == Guid.Empty || !await TestForPost(postid))
             return OperationResult<bool>.Failure(PostNotFound);
 
         var result = await _context.ForumPosts.FirstOrDefaultAsync(p => p.ForumPostId == postid && p.UserId == userId);
