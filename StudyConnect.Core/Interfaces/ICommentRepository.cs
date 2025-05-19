@@ -13,7 +13,7 @@ public interface ICommentRepository
     /// <param name="postId">The unique identifier of the post.</param>
     /// <param name="parentId">The unique identifier of the comment parent.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<ForumComment?>> AddAsync(ForumComment comment, Guid userId, Guid postId, Guid? parentId);
+    Task<OperationResult<ForumComment>> AddAsync(ForumComment comment, Guid userId, Guid postId, Guid? parentId);
 
     /// <summary>
     /// Get a comment by its GUID.
@@ -27,7 +27,7 @@ public interface ICommentRepository
     /// </summary>
     /// <param name="postId">The unique identifier of the post.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<IEnumerable<ForumComment>?>> GetAllofPostAsync(Guid postId);
+    Task<OperationResult<IEnumerable<ForumComment>>> GetAllofPostAsync(Guid postId);
 
     /// <summary>
     /// Updates a comment by its GUID.
@@ -36,7 +36,7 @@ public interface ICommentRepository
     /// <param name="userId">The unique identifier of the current user.</param>
     /// <param name="comment">A comment model containing the updated content.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<bool>> UpdateAsync(Guid commentId, Guid userId, ForumComment comment);
+    Task<OperationResult<ForumComment>> UpdateAsync(Guid userId, Guid commentId, ForumComment comment);
 
     /// <summary>
     /// Delete a comment by its GUID.
@@ -44,5 +44,5 @@ public interface ICommentRepository
     /// <param name="commentId">The unique identifier of the comment.</param>
     /// <param name="userId">The unique identifier of the current user.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<bool>> DeleteAsync(Guid commentId, Guid userId);
+    Task<OperationResult<bool>> DeleteAsync(Guid userId, Guid commentId);
 }

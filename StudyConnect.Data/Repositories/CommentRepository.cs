@@ -13,158 +13,144 @@ public class CommentRepository : BaseRepository, ICommentRepository
 
     }
 
-    public async Task<OperationResult<ForumComment?>> AddAsync(ForumComment comment, Guid userId, Guid postId, Guid? parentId)
+    public async Task<OperationResult<ForumComment>> AddAsync(ForumComment comment, Guid userId, Guid postId, Guid? parentId)
     {
         // Validate the user ID and retrieve the corresponding user entity
-        var userResult = await GetUserAsync(userId);
-        if (!userResult.IsSuccess) return OperationResult<ForumComment?>.Failure(userResult.ErrorMessage!);
+        if (!await IsValidUser(userId))
+            return OperationResult<ForumComment>.Failure(UserNotFound);
 
         // Validate the post ID and retrieve the corresponding forum post entity
-        var postResult = await GetPostAsync(postId);
-        if (!postResult.IsSuccess) return OperationResult<ForumComment?>.Failure(postResult.ErrorMessage!);
+        if (!await IsValidPost(postId))
+            return OperationResult<ForumComment>.Failure(PostNotFound);
 
-        var user = userResult.Data!;
-        var post = postResult.Data!;
-
-        Entities.ForumComment? parent = null;
-
-        // Check if a parent comment ID was provided
         if (parentId.HasValue)
-        {
-            // Attempt to retrieve the parent comment from the database
-            parent = await _context.ForumComments
-                .FirstOrDefaultAsync(c => c.ForumCommentId == parentId && c.ForumPost.ForumPostId == postId);
-
-            // Test for data
-            if (parent == null)
-                return OperationResult<ForumComment?>.Failure(ParentCommentNotFound);
-        }
+            if (!await IsValidParent(parentId, postId))
+                return OperationResult<ForumComment>.Failure(ParentCommentNotFound);
 
         try
         {
             // Increment the reply count for the parent comment and post
-            if (parent != null) parent.ReplyCount++;
-            post.CommentCount++;
+            if (parentId != null)
+                await IncrementReplyCountAsync((Guid)parentId);
 
             // Create the comment entity and populate it with the relevant data
             var result = new Entities.ForumComment
             {
                 Content = comment.Content,
-                User = user,
-                ForumPost = post,
-                ParentComment = parent
+                UserId = userId,
+                ForumPostId = postId,
+                ParentCommentId = parentId
             };
 
             await _context.AddAsync(result);
             await _context.SaveChangesAsync();
 
-            return OperationResult<ForumComment?>.Success(MapCommentToModel(result));
+            await _context.ForumComments.Entry(result)
+                .Reference(cm => cm.User)
+                .LoadAsync();
+
+            return OperationResult<ForumComment>.Success(MapCommentToModel(result));
         }
         catch (Exception ex)
         {
-
-            return OperationResult<ForumComment?>.Failure($"{UnknownError}: {ex.Message}");
+            return OperationResult<ForumComment>.Failure($"{UnknownError}: {ex.Message}");
         }
     }
 
-    public async Task<OperationResult<IEnumerable<ForumComment>?>> GetAllofPostAsync(Guid postId)
+    public async Task<OperationResult<IEnumerable<ForumComment>>> GetAllofPostAsync(Guid postId)
     {
-        if (IsInvalid(postId))
-            return OperationResult<IEnumerable<ForumComment>?>.Failure(InvalidPostId);
+        if (!await IsValidPost(postId))
+            return OperationResult<IEnumerable<ForumComment>>.Failure(PostNotFound);
 
         // Retrieve all comments for the specified post, including related entities
         var comments = await _context.ForumComments
             .AsNoTracking()
-            .Include(c => c.User)
-            .Include(c => c.ForumPost)
-            .Include(c => c.ParentComment)
-            .Where(c => c.ForumPost.ForumPostId == postId)
+            .Include(cm => cm.User)
+            .Include(cm => cm.ForumLikes)
+            .Where(cm => cm.ForumPost.ForumPostId == postId)
             .ToListAsync();
 
         // Test list for data
-        if (comments.Count == 0)
-            return OperationResult<IEnumerable<ForumComment>?>.Failure(CommentsNotFound);
+        if (!comments.Any())
+            return OperationResult<IEnumerable<ForumComment>>.Success(new List<ForumComment>());
 
         // Build the parent-child relationships among the comment entities
         BuildEntityCommentTree(comments);
 
         // Convert top-level comments to model format
         var result = comments
-          .Where(c => c.ParentComment == null)
+          .Where(cm => cm.ParentCommentId == null)
           .Select(MapCommentToModel);
 
-        return OperationResult<IEnumerable<ForumComment>?>.Success(result);
+        return OperationResult<IEnumerable<ForumComment>>.Success(result);
     }
 
     public async Task<OperationResult<ForumComment?>> GetByIdAsync(Guid commentId)
     {
-        if (IsInvalid(commentId))
+        if (commentId == Guid.Empty)
             return OperationResult<ForumComment?>.Failure(InvalidCommentId);
 
         // Retrieve a comment including related entities
-        var comment = await _context.ForumComments
+        var result = await _context.ForumComments
             .AsNoTracking()
-            .Include(c => c.User)
-            .Include(c => c.ForumPost)
+            .Include(cm => cm.User)
+            .Include(cm => cm.ForumLikes)
             .FirstOrDefaultAsync(c => c.ForumCommentId == commentId);
 
         // Test for data
-        if (comment == null)
+        if (result == null)
             return OperationResult<ForumComment?>.Failure(CommentNotFound);
 
-        // Convert comment to model format
-        var result = MapCommentToModel(comment);
-
-        return OperationResult<ForumComment?>.Success(result);
+        return OperationResult<ForumComment?>.Success(MapCommentToModel(result));
     }
 
-    public async Task<OperationResult<bool>> UpdateAsync(Guid commentId, Guid userId, ForumComment comment)
+    public async Task<OperationResult<ForumComment>> UpdateAsync(Guid commentId, Guid userId, ForumComment comment)
     {
-        if (IsInvalid(commentId))
-            return OperationResult<bool>.Failure(InvalidCommentId);
+        if (!await IsValidUser(userId))
+            return OperationResult<ForumComment>.Failure(UserNotFound);
 
-        if (IsInvalid(userId))
-            return OperationResult<bool>.Failure(InvalidUserId);
+        if (!await IsValidComment(commentId))
+            return OperationResult<ForumComment>.Failure(InvalidUserId);
 
         // Retrieve the comment and ensure the user is authorized to access it
-        var result = await GetAuthorizedCommentAsync(commentId, userId);
-        if (!result.IsSuccess)
-            return OperationResult<bool>.Failure(result.ErrorMessage!);
+        var (result, error) = await GetAuthorizedCommentAsync(userId, commentId);
+        if (result == null)
+            return OperationResult<ForumComment>.Failure(error ?? UnknownError);
 
         try
         {
             // Update the comment's content and metadata
-            result.Data!.Content = comment.Content;
-            result.Data!.UpdatedAt = DateTime.UtcNow;
-            result.Data!.IsEdited = true;
+            result.Content = comment.Content;
+            result.UpdatedAt = DateTime.UtcNow;
+            result.IsEdited = true;
 
             await _context.SaveChangesAsync();
 
-            return OperationResult<bool>.Success(true);
+            return OperationResult<ForumComment>.Success(MapCommentToModel(result));
         }
         catch (Exception ex)
         {
-            return OperationResult<bool>.Failure($"{UnknownError}: {ex.Message}");
+            return OperationResult<ForumComment>.Failure($"{UnknownError}: {ex.Message}");
         }
     }
 
-    public async Task<OperationResult<bool>> DeleteAsync(Guid commentId, Guid userId)
+    public async Task<OperationResult<bool>> DeleteAsync(Guid userId, Guid commentId)
     {
-        if (IsInvalid(commentId))
-            return OperationResult<bool>.Failure(InvalidCommentId);
-
-        if (IsInvalid(userId))
+        if (userId == Guid.Empty)
             return OperationResult<bool>.Failure(InvalidUserId);
 
+        if (commentId == Guid.Empty)
+            return OperationResult<bool>.Failure(InvalidPostId);
+
         // Retrieve the comment and ensure the user is authorized to access it
-        var result = await GetAuthorizedCommentAsync(commentId, userId);
-        if (!result.IsSuccess)
-            return OperationResult<bool>.Failure(result.ErrorMessage!);
+        var (result, error) = await GetAuthorizedCommentAsync(userId, commentId);
+        if (result == null)
+            return OperationResult<bool>.Failure(error ?? UnknownError);
 
         try
         {
-            result.Data!.IsDeleted = true;
-            result.Data!.IsEdited = false;
+            result.IsDeleted = true;
+            result.IsEdited = false;
             await _context.SaveChangesAsync();
             return OperationResult<bool>.Success(true);
         }
@@ -174,69 +160,45 @@ public class CommentRepository : BaseRepository, ICommentRepository
         }
     }
 
-    /// <summary>
-    /// A helper function to test whether a GUID is valid.
-    /// </summary>
-    /// <param name="id">The guid to test.</param>
-    /// <returns>A boolean.</returns>
-    private static bool IsInvalid(Guid id) => id == Guid.Empty;
-
-    /// <summary>
-    /// A helper function to fetch user data from the database.
-    /// </summary>
-    /// <param name="userId">The unique identifier of the user.</param>
-    /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    private async Task<OperationResult<Entities.User?>> GetUserAsync(Guid userId)
+    public async Task IncrementReplyCountAsync(Guid commentId)
     {
-        if (IsInvalid(userId))
-            return OperationResult<Entities.User?>.Failure(InvalidUserId);
+        var comment = await _context.ForumComments.FindAsync(commentId);
+        if (comment == null) return;
 
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == userId);
-        return user is null
-            ? OperationResult<Entities.User?>.Failure(UserNotFound)
-            : OperationResult<Entities.User?>.Success(user);
+        comment.ReplyCount++;
+        _context.Entry(comment).Property(c => c.ReplyCount).IsModified = true;
+
+        await _context.SaveChangesAsync();
     }
 
-    /// <summary>
-    /// A helper function to fetch forum post data from the database.
-    /// </summary>
-    /// <param name="postId">The unique identifier of the post.</param>
-    /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    private async Task<OperationResult<Entities.ForumPost?>> GetPostAsync(Guid postId)
-    {
-        if (IsInvalid(postId))
-            return OperationResult<Entities.ForumPost?>.Failure(InvalidPostId);
-
-        var post = await _context.ForumPosts
-            .Include(p => p.User)
-            .Include(p => p.ForumCategory)
-            .FirstOrDefaultAsync(p => p.ForumPostId == postId);
-
-        return post is null
-            ? OperationResult<Entities.ForumPost?>.Failure(PostNotFound)
-            : OperationResult<Entities.ForumPost?>.Success(post);
-    }
-
-    /// <summary>
-    /// Retrieves a forum comment by its ID and verifies that the specified user is the author.
-    /// </summary>
-    /// <param name="commentId">The unique identifier of the comment.</param>
-    /// <param name="userId">The unique identifier of the user requesting access.</param>
-    /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    private async Task<OperationResult<Entities.ForumComment?>> GetAuthorizedCommentAsync(Guid commentId, Guid userId)
+    private async Task<(Entities.ForumComment? Comment, string? ErrorMessage)> GetAuthorizedCommentAsync(Guid userId, Guid commentId)
     {
         var comment = await _context.ForumComments
-            .Include(c => c.User)
+            .Include(cm => cm.User)
+            .Include(cm => cm.ForumLikes)
             .FirstOrDefaultAsync(c => c.ForumCommentId == commentId);
 
         if (comment == null)
-            return OperationResult<Entities.ForumComment?>.Failure(CommentNotFound);
+            return (null, CommentNotFound);
 
-        if (comment.User.UserGuid != userId)
-            return OperationResult<Entities.ForumComment?>.Failure(NotAuthorized);
+        if (comment.UserId != userId)
+            return (null, NotAuthorized);
 
-        return OperationResult<Entities.ForumComment?>.Success(comment);
+        return (comment, null);
     }
+
+
+    private async Task<bool> IsValidUser(Guid userId) =>
+           userId != Guid.Empty && await _context.Users.AnyAsync(u => u.UserGuid == userId);
+
+    private async Task<bool> IsValidPost(Guid postId) =>
+        postId != Guid.Empty && await _context.ForumPosts.AnyAsync(p => p.ForumPostId == postId);
+
+    private async Task<bool> IsValidComment(Guid commentId) =>
+        commentId != Guid.Empty && await _context.ForumComments.AnyAsync(cm => cm.ParentCommentId == commentId);
+
+    private async Task<bool> IsValidParent(Guid? parentId, Guid postId) =>
+        postId != Guid.Empty && await _context.ForumComments.AnyAsync(p => p.ForumCommentId == parentId && p.ForumPostId == postId);
 
     /// <summary>
     /// A helper function to establish parent-child relationships in a list of comment entities.
@@ -267,22 +229,17 @@ public class CommentRepository : BaseRepository, ICommentRepository
         return new ForumComment
         {
             ForumCommentId = comment.ForumCommentId,
-            Content = comment.IsDeleted ? "" : comment.Content,
+            Content = comment.IsDeleted ? string.Empty : comment.Content,
             CreatedAt = comment.CreatedAt,
             UpdatedAt = comment.UpdatedAt,
             ReplyCount = comment.ReplyCount,
             IsEdited = comment.IsEdited,
             IsDeleted = comment.IsDeleted,
             PostId = comment.ForumPost.ForumPostId,
-            ParentCommentId = comment.ParentComment != null
-                ? comment.ParentComment.ForumCommentId
-                : null,
-            User = comment.IsDeleted
-                ? null
-                : comment.User.ToUserModel(),
-            Replies = comment.Replies != null
-                ? comment.Replies.Select(MapCommentToModel).ToList()
-                : null
+            ParentCommentId = comment.ParentComment?.ForumCommentId,
+            User = comment.IsDeleted ? null : comment.User.ToUserModel(),
+            Replies = comment.Replies?.Select(MapCommentToModel).ToList(),
+            ForumLikes = comment.ForumLikes.Select(l => l.LikeId).ToList()
         };
     }
 }

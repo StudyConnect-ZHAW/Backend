@@ -41,7 +41,6 @@ public class PostRepository : BaseRepository, IPostRepository
             var created = await _context.ForumPosts
                 .Include(p => p.User)
                 .Include(p => p.ForumCategory)
-                .Include(p => p.ForumLikes)
                 .FirstOrDefaultAsync(p => p.ForumPostId == newPost.ForumPostId);
 
             if (created is null)
@@ -187,7 +186,7 @@ public class PostRepository : BaseRepository, IPostRepository
         UpdatedAt = post.UpdatedAt,
         Category = post.ForumCategory.ToCategoryModel(),
         User = post.User.ToUserModel(),
-        LikeList = post.ForumLikes.Select(l => l.LikeId)
+        LikeList = post.ForumLikes.Select(l => l.LikeId) ?? []
     };
 }
 

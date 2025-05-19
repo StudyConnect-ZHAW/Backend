@@ -23,4 +23,6 @@ public class ForumComment
     public User? User { get; set; }
 
     public ICollection<ForumComment>? Replies { get; set; }
+
+    public ICollection<Guid>? ForumLikes { get; set; }
 }
