@@ -71,9 +71,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSameDomain", policy =>
     {
-        policy.WithOrigins("https://api-scmy-studyconnect-staging.pm4.init-lab.ch", "http://localhost:3000")
+        policy.WithOrigins("https://api-scmy-studyconnect-staging.pm4.init-lab.ch", "http://localhost:3000","http://localhost:5000")
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();              
     });
 });
 
@@ -104,6 +105,8 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine($"An error occurred while applying migrations: {ex.Message}");
     }
 }
+
+app.UseRouting();
 
 // Configure CORS to use the defined policy
 app.UseCors("AllowSameDomain");
