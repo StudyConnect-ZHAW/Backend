@@ -18,7 +18,8 @@ namespace StudyConnect.Core.Common
         public const string InvalidPostId = "Invalid post ID.";
         public const string InvalidCommentId = "Invalid comment ID.";
         public const string InvalidCategoryId = "Invalid category ID.";
-        public const string CommentContentEmpty = "Missing comment content";
+
+        public const string CommentContentEmpty = "Missing comment content.";
         public const string PostContentEmpty = "Missing post content.";
 
         public const string GeneralNotFound = "does not exist.";

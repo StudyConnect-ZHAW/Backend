@@ -6,11 +6,13 @@ namespace StudyConnect.Core.Interfaces;
 public interface IPostRepository
 {
     /// <summary>
-    /// Add a Post to the database.
+    /// Adds a new forum post to the database.
     /// </summary>
-    /// <param name="post">The forumpost to be added.</param>
+    /// <param name="userId">The unique identifier of the user who created the post.</param>
+    /// <param name="categoryId">The unique identifier of category the post belogns to.</param>
+    /// <param name="post">The model containing information about the forum post.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<Guid?>> AddAsync(Guid userId, Guid categoryId, ForumPost? post);
+    Task<OperationResult<ForumPost>> AddAsync(Guid userId, Guid categoryId, ForumPost? post);
 
     /// <summary>
     /// Search posts based on input.
@@ -19,32 +21,35 @@ public interface IPostRepository
     /// <param name="categoryName">The unique name of category assigned to the post.</param>
     /// <param name="title">The title of the post.</param>
     /// <returns>An <see cref="OperationResult{T}"/> containing a list of post if found, or an error message if not.</returns>
-    Task<OperationResult<IEnumerable<ForumPost>?>> SearchAsync(Guid? userId, string? categoryName, string? title);
+    Task<OperationResult<IEnumerable<ForumPost>>> SearchAsync(Guid? userId, string? categoryName, string? title);
 
     /// <summary>
-    /// Get a Post by its GUID.
+    /// Retrieves a post by its unique identifier.
     /// </summary>
-    /// <param name="id">the unique identifier of the post.</param>
+    /// <param name="postId">The unique identifier of the post.</param> 
     /// <returns>An <see cref="OperationResult{T}"/> containing the post if found, or an error message if not.</returns>
-    Task<OperationResult<ForumPost?>> GetByIdAsync(Guid id);
+    Task<OperationResult<ForumPost?>> GetByIdAsync(Guid postId);
 
     /// <summary>
     /// Get all Post of the forum.
     /// </summary>
     /// <returns>An <see cref="OperationResult{T}"/> containing a list of post if found, or an error message if not.</returns>
-    Task<OperationResult<IEnumerable<ForumPost>?>> GetAllAsync();
+    Task<OperationResult<IEnumerable<ForumPost>>> GetAllAsync();
 
     /// <summary>
-    /// Update a Post by its GUID.
+    /// Updates an existing post.
     /// </summary>
-    /// <param name="id">The unique identifier of the post.</param>
+    /// <param name="userId">The unique identifier of the user who created the post.</param>
+    /// <param name="postId">The unique identifier of the post, that shoudl be updated.</param>
+    /// <param name="post">The model containing the information about the forum post for the update.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<bool>> UpdateAsync(Guid id, ForumPost post);
+    Task<OperationResult<ForumPost>> UpdateAsync(Guid userId, Guid postId, ForumPost post);
 
     /// <summary>
-    /// Delete an exitsting post by its GUID.
+    /// Deletes an exsiting post.
     /// </summary>
-    /// <param name="id">The unique identifier of the post.</param>
+    /// <param name="userId">The unique identifier of the user who created the post.</param>
+    /// <param name="postId">The unique identifier of the post, that shoudl be deleted.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<bool>> DeleteAsync(Guid id);
+    Task<OperationResult<bool>> DeleteAsync(Guid userId, Guid postId);
 }
