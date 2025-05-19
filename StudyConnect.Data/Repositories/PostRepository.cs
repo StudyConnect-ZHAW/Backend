@@ -169,14 +169,14 @@ public class PostRepository : BaseRepository, IPostRepository
 
     // -------------------- Helper Methods --------------------
 
-    private Task<bool> IsValidUser(Guid userId) =>
-        userId != Guid.Empty && _context.Users.AnyAsync(u => u.UserGuid == userId);
+    private async Task<bool> IsValidUser(Guid userId) =>
+        userId != Guid.Empty && await _context.Users.AnyAsync(u => u.UserGuid == userId);
 
-    private Task<bool> IsValidCategory(Guid categoryId) =>
-        categoryId != Guid.Empty && _context.ForumCategories.AnyAsync(c => c.ForumCategoryId == categoryId);
+    private async Task<bool> IsValidCategory(Guid categoryId) =>
+        categoryId != Guid.Empty && await _context.ForumCategories.AnyAsync(c => c.ForumCategoryId == categoryId);
 
-    private Task<bool> IsValidPost(Guid postId) =>
-        postId != Guid.Empty && _context.ForumPosts.AnyAsync(p => p.ForumPostId == postId);
+    private async Task<bool> IsValidPost(Guid postId) =>
+        postId != Guid.Empty && await _context.ForumPosts.AnyAsync(p => p.ForumPostId == postId);
 
     public static ForumPost MapPostToModel(Entities.ForumPost post) => new()
     {
