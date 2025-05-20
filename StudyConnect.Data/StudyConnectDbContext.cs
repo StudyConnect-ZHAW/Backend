@@ -8,7 +8,7 @@ namespace StudyConnect.Data;
 
 /// <summary>
 /// Represents the database context for the StudyConnect application.
-/// /// This context is responsible for managing the connection to the database and providing access to the entities in the application.
+/// This context is responsible for managing the connection to the database and providing access to the entities in the application.
 /// It includes DbSet properties for each entity type, allowing for CRUD operations and LINQ queries.
 /// </summary>
 public class StudyConnectDbContext : DbContext
@@ -54,10 +54,10 @@ public class StudyConnectDbContext : DbContext
             .WithMany(ur => ur.Users)
             .HasForeignKey("URoleId")
             .OnDelete(DeleteBehavior.Restrict);
-        
+
         // Create a Default UserRole Student
         modelBuilder.Entity<UserRole>().HasData(new UserRole
-        {   
+        {
             URoleId = new Guid("00000000-0000-0000-0000-000000000001"),
             Name = "Student",
             Description = "Student is the default role with no rights."
@@ -130,11 +130,16 @@ public class StudyConnectDbContext : DbContext
             .WithMany(fc => fc.Replies)
             .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<Tag>().HasKey(t => t.TagId);
+        modelBuilder.Entity<Tag>().Property(t => t.Name).IsRequired().HasMaxLength(100);
+        modelBuilder.Entity<Tag>().Property(t => t.Description).HasMaxLength(500);
+
         // Configure Unique non-key indexes
         modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
         modelBuilder.Entity<UserRole>().HasIndex(u => u.Name).IsUnique();
         modelBuilder.Entity<MemberRole>().HasIndex(m => m.Name).IsUnique();
         modelBuilder.Entity<ForumCategory>().HasIndex(f => f.Name).IsUnique();
+        modelBuilder.Entity<Tag>().HasIndex(t => t.Name).IsUnique();
 
         // Configure table names to match SQL schema
         modelBuilder.Entity<User>().ToTable("User");
@@ -145,6 +150,7 @@ public class StudyConnectDbContext : DbContext
         modelBuilder.Entity<ForumCategory>().ToTable("ForumCategory");
         modelBuilder.Entity<ForumPost>().ToTable("ForumPost");
         modelBuilder.Entity<ForumComment>().ToTable("ForumComment");
+        modelBuilder.Entity<Tag>().ToTable("Tag");
 
         modelBuilder.Entity<ForumCategory>().HasData(
             new ForumCategory
@@ -172,15 +178,76 @@ public class StudyConnectDbContext : DbContext
                 Description = "General Kontext"
             }
         );
+        modelBuilder.Entity<Tag>().HasData(
+            new Tag
+            {
+                TagId = new Guid("dba25ed0-ea90-4de8-9b73-bedd16d15a5f"),
+                Name = "Question",
+                Description = "Ask your question here"
+            },
+            new Tag
+            {
+                TagId = new Guid("27a0d0a6-9df8-429e-b473-129533d460d5"),
+                Name = "Looking for Group",
+                Description = "Looking for study group members"
+            },
+            new Tag
+            {
+                TagId = new Guid("46fd2f68-df2d-4a0a-9137-f8556b4f132f"),
+                Name = "Discussion",
+                Description = "Discuss the topic here"
+            },
+            new Tag
+            {
+                TagId = new Guid("9d2f3e3f-0f58-4d55-8337-84fecd2b84d3"),
+                Name = "Issue",
+                Description = "Check existing problems or issues"
+            }
+        );
 
     }
-
+    /// <summary>
+    /// Gets or sets the Users table.
+    /// </summary>
     public DbSet<User> Users { get; set; }
+
+    /// <summary>
+    /// Gets or sets the UserRoles table.
+    /// </summary>
     public DbSet<UserRole> UserRoles { get; set; }
+
+    /// <summary>
+    /// Gets or sets the Groups table.
+    /// </summary>
     public DbSet<Group> Groups { get; set; }
+
+    /// <summary>
+    /// Gets or sets the GroupMembers table.
+    /// </summary>
     public DbSet<GroupMembers> GroupMembers { get; set; }
+
+    /// <summary>
+    /// Gets or sets the MemberRoles table.
+    /// </summary>
     public DbSet<MemberRole> MemberRoles { get; set; }
+
+    /// <summary>
+    /// Gets or sets the ForumCategories table.
+    /// </summary>
     public DbSet<ForumCategory> ForumCategories { get; set; }
+
+    /// <summary>
+    /// Gets or sets the ForumPosts table.
+    /// </summary>
     public DbSet<ForumPost> ForumPosts { get; set; }
+
+    /// <summary>
+    /// Gets or sets the ForumComments table.
+    /// </summary>
     public DbSet<ForumComment> ForumComments { get; set; }
+
+    /// <summary>
+    /// Gets or sets the Tags table.
+    /// </summary>
+    public DbSet<Tag> Tags { get; set; }
 }
