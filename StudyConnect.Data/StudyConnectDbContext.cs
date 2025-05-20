@@ -202,6 +202,8 @@ public class StudyConnectDbContext : DbContext
         modelBuilder.Entity<ForumPost>().ToTable("ForumPost");
         modelBuilder.Entity<ForumComment>().ToTable("ForumComment");
         modelBuilder.Entity<ForumLike>().ToTable("ForumLike");
+        modelBuilder.Entity<GroupPost>().ToTable("GroupPost");
+        modelBuilder.Entity<GroupComment>().ToTable("GroupComment");
 
         modelBuilder.Entity<ForumCategory>().HasData(
             new ForumCategory
@@ -249,4 +251,6 @@ public class StudyConnectDbContext : DbContext
     public DbSet<ForumPost> ForumPosts { get; set; }
     public DbSet<ForumComment> ForumComments { get; set; }
     public DbSet<ForumLike> ForumLikes { get; set; }
+    public DbSet<GroupPost> GroupPosts { get; set; }
+    public DbSet<GroupComment> groupComments { get; set; }
 }
