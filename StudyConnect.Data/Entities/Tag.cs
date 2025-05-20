@@ -8,15 +8,24 @@ namespace StudyConnect.Data.Entities
     /// </summary>
     public class Tag
     {
+        /// <summary>
+        /// Gets or sets the unique identifier for the tag.
+        /// </summary>
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Required]
         public Guid TagId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the name of the tag.
+        /// </summary>
         [Required]
         [MaxLength(100)]
         public required string Name { get; set; }
 
+        /// <summary>
+        /// Gets or sets the optional description of the tag.
+        /// </summary>
         [MaxLength(500)]
         [DataType(DataType.MultilineText)]
         public string? Description { get; set; }
