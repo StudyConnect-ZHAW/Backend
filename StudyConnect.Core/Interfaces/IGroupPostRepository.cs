@@ -12,21 +12,21 @@ public interface IGroupPostRepository
     /// <param name="groupId">The unique identifier of group the post belogns to.</param>
     /// <param name="post">The model containing information about the forum post.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<ForumPost>> AddAsync(Guid userId, Guid groupId, GroupPost? post);
+    Task<OperationResult<GroupPost>> AddAsync(Guid userId, Guid groupId, GroupPost? post);
 
     /// <summary>
     /// Retrieves a post by its unique identifier.
     /// </summary>
     /// <param name="postId">The unique identifier of the post.</param> 
     /// <returns>An <see cref="OperationResult{T}"/> containing the post if found, or an error message if not.</returns>
-    Task<OperationResult<ForumPost?>> GetByIdAsync(Guid postId);
+    Task<OperationResult<GroupPost?>> GetByIdAsync(Guid postId);
 
     /// <summary>
     /// Get all Post of the forum.
     /// </summary>
     /// <param name="groupId">the unique identifier of the group the post belogns to.</param>
     /// <returns>An <see cref="OperationResult{T}"/> containing a list of post if found, or an error message if not.</returns>
-    Task<OperationResult<IEnumerable<ForumPost>>> GetAllAsync(Guid groupId);
+    Task<OperationResult<IEnumerable<GroupPost>>> GetAllAsync(Guid groupId);
 
     /// <summary>
     /// Updates an existing post.
@@ -36,7 +36,7 @@ public interface IGroupPostRepository
     /// <param name="postId">The unique identifier of the post, that shoudl be updated.</param>
     /// <param name="post">The model containing the information about the forum post for the update.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<ForumPost>> UpdateAsync(Guid userId, Guid groupId, Guid postId, GroupPost post);
+    Task<OperationResult<GroupPost>> UpdateAsync(Guid userId, Guid groupId, Guid postId, GroupPost post);
 
     /// <summary>
     /// Deletes an exsiting post.
