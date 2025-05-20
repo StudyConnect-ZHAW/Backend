@@ -8,7 +8,7 @@ namespace StudyConnect.Data;
 
 /// <summary>
 /// Represents the database context for the StudyConnect application.
-/// /// This context is responsible for managing the connection to the database and providing access to the entities in the application.
+/// This context is responsible for managing the connection to the database and providing access to the entities in the application.
 /// It includes DbSet properties for each entity type, allowing for CRUD operations and LINQ queries.
 /// </summary>
 public class StudyConnectDbContext : DbContext
@@ -157,6 +157,9 @@ public class StudyConnectDbContext : DbContext
             entity.Property(t => t.Name).IsRequired().HasMaxLength(100);
             entity.Property(t => t.Description).HasMaxLength(500);
         });
+        modelBuilder.Entity<Tag>().HasKey(t => t.TagId);
+        modelBuilder.Entity<Tag>().Property(t => t.Name).IsRequired().HasMaxLength(100);
+        modelBuilder.Entity<Tag>().Property(t => t.Description).HasMaxLength(500);
 
         // Configure Unique non-key indexes
         modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
@@ -164,6 +167,7 @@ public class StudyConnectDbContext : DbContext
         modelBuilder.Entity<MemberRole>().HasIndex(m => m.Name).IsUnique();
         modelBuilder.Entity<ForumCategory>().HasIndex(f => f.Name).IsUnique();
         modelBuilder.Entity<ForumLike>().HasIndex(l => new { l.UserId, l.ForumPostId, l.ForumCommentId }).IsUnique();
+        modelBuilder.Entity<Tag>().HasIndex(t => t.Name).IsUnique();
 
         // Configure table names to match SQL schema
         modelBuilder.Entity<User>().ToTable("User");
@@ -175,6 +179,7 @@ public class StudyConnectDbContext : DbContext
         modelBuilder.Entity<ForumPost>().ToTable("ForumPost");
         modelBuilder.Entity<ForumComment>().ToTable("ForumComment");
         modelBuilder.Entity<ForumLike>().ToTable("ForumLike");
+        modelBuilder.Entity<Tag>().ToTable("Tag");
 
         modelBuilder.Entity<ForumCategory>().HasData(
             new ForumCategory
@@ -238,14 +243,45 @@ public class StudyConnectDbContext : DbContext
         );
 
     }
-
+    /// <summary>
+    /// Gets or sets the Users table.
+    /// </summary>
     public DbSet<User> Users { get; set; }
+
+    /// <summary>
+    /// Gets or sets the UserRoles table.
+    /// </summary>
     public DbSet<UserRole> UserRoles { get; set; }
+
+    /// <summary>
+    /// Gets or sets the Groups table.
+    /// </summary>
     public DbSet<Group> Groups { get; set; }
     public DbSet<GroupMember> GroupMembers { get; set; }
+
+    /// <summary>
+    /// Gets or sets the GroupMembers table.
+    /// </summary>
+    public DbSet<GroupMembers> GroupMembers { get; set; }
+
+    /// <summary>
+    /// Gets or sets the MemberRoles table.
+    /// </summary>
     public DbSet<MemberRole> MemberRoles { get; set; }
+
+    /// <summary>
+    /// Gets or sets the ForumCategories table.
+    /// </summary>
     public DbSet<ForumCategory> ForumCategories { get; set; }
+
+    /// <summary>
+    /// Gets or sets the ForumPosts table.
+    /// </summary>
     public DbSet<ForumPost> ForumPosts { get; set; }
+
+    /// <summary>
+    /// Gets or sets the ForumComments table.
+    /// </summary>
     public DbSet<ForumComment> ForumComments { get; set; }
     public DbSet<ForumLike> ForumLikes { get; set; }
     public DbSet<Core.Models.Tag> Tags { get; set; }
