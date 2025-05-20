@@ -29,10 +29,6 @@ public class CommentRepository : BaseRepository, ICommentRepository
 
         try
         {
-            // Increment the reply count for the parent comment and post
-            if (parentId != null)
-                await IncrementReplyCountAsync((Guid)parentId);
-
             // Create the comment entity and populate it with the relevant data
             var result = new Entities.ForumComment
             {
@@ -104,13 +100,13 @@ public class CommentRepository : BaseRepository, ICommentRepository
         return OperationResult<ForumComment?>.Success(MapCommentToModel(result));
     }
 
-    public async Task<OperationResult<ForumComment>> UpdateAsync(Guid commentId, Guid userId, ForumComment comment)
+    public async Task<OperationResult<ForumComment>> UpdateAsync(Guid userId, Guid commentId, ForumComment comment)
     {
-        if (!await IsValidUser(userId))
-            return OperationResult<ForumComment>.Failure(UserNotFound);
-
-        if (!await IsValidComment(commentId))
+        if (userId == Guid.Empty)
             return OperationResult<ForumComment>.Failure(InvalidUserId);
+
+        if (commentId == Guid.Empty)
+            return OperationResult<ForumComment>.Failure(InvalidCommentId);
 
         // Retrieve the comment and ensure the user is authorized to access it
         var (result, error) = await GetAuthorizedCommentAsync(userId, commentId);
@@ -140,7 +136,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
             return OperationResult<bool>.Failure(InvalidUserId);
 
         if (commentId == Guid.Empty)
-            return OperationResult<bool>.Failure(InvalidPostId);
+            return OperationResult<bool>.Failure(InvalidCommentId);
 
         // Retrieve the comment and ensure the user is authorized to access it
         var (result, error) = await GetAuthorizedCommentAsync(userId, commentId);
@@ -160,17 +156,6 @@ public class CommentRepository : BaseRepository, ICommentRepository
         }
     }
 
-    public async Task IncrementReplyCountAsync(Guid commentId)
-    {
-        var comment = await _context.ForumComments.FindAsync(commentId);
-        if (comment == null) return;
-
-        comment.ReplyCount++;
-        _context.Entry(comment).Property(c => c.ReplyCount).IsModified = true;
-
-        await _context.SaveChangesAsync();
-    }
-
     private async Task<(Entities.ForumComment? Comment, string? ErrorMessage)> GetAuthorizedCommentAsync(Guid userId, Guid commentId)
     {
         var comment = await _context.ForumComments
@@ -178,7 +163,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
             .Include(cm => cm.ForumLikes)
             .FirstOrDefaultAsync(c => c.ForumCommentId == commentId);
 
-        if (comment == null)
+        if (comment == null || comment.IsDeleted)
             return (null, CommentNotFound);
 
         if (comment.UserId != userId)
@@ -210,8 +195,8 @@ public class CommentRepository : BaseRepository, ICommentRepository
 
         foreach (var comment in comments)
         {
-            if (comment.ParentComment != null &&
-                commentDict.TryGetValue(comment.ParentComment.ForumCommentId, out var parent))
+            if (comment.ParentCommentId != null &&
+                commentDict.TryGetValue(comment.ParentCommentId.Value, out var parent))
             {
                 parent.Replies ??= new List<Entities.ForumComment>();
                 parent.Replies.Add(comment);
@@ -224,6 +209,7 @@ public class CommentRepository : BaseRepository, ICommentRepository
     /// </summary>
     /// <param name="comment">A comment entity to transform.</param>
     /// <returns>A forum comment model object.</returns>
+    ///
     private ForumComment MapCommentToModel(Entities.ForumComment comment)
     {
         return new ForumComment
@@ -232,14 +218,14 @@ public class CommentRepository : BaseRepository, ICommentRepository
             Content = comment.IsDeleted ? string.Empty : comment.Content,
             CreatedAt = comment.CreatedAt,
             UpdatedAt = comment.UpdatedAt,
-            ReplyCount = comment.ReplyCount,
+            ReplyCount = comment.Replies.Count(),
             IsEdited = comment.IsEdited,
             IsDeleted = comment.IsDeleted,
-            PostId = comment.ForumPost.ForumPostId,
-            ParentCommentId = comment.ParentComment?.ForumCommentId,
+            PostId = comment.ForumPostId,
+            ParentCommentId = comment.ParentCommentId,
             User = comment.IsDeleted ? null : comment.User.ToUserModel(),
             Replies = comment.Replies?.Select(MapCommentToModel).ToList(),
-            ForumLikes = comment.ForumLikes.Select(l => l.LikeId).ToList()
+            LikeCount = comment.ForumLikes.Count()
         };
     }
 }

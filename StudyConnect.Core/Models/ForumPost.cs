@@ -14,6 +14,8 @@ public class ForumPost
 
     public int LikeCount { get; set; }
 
+    public int CommentCount { get; set; }
+
     public ForumCategory? Category { get; set; }
 
     public User? User { get; set; }

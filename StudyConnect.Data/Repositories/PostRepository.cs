@@ -51,18 +51,23 @@ public class PostRepository : BaseRepository, IPostRepository
         }
         catch (Exception ex)
         {
-            // Consider logging this instead of printing
-            Console.WriteLine(ex);
             return OperationResult<ForumPost>.Failure($"{UnknownError}: {ex.Message}");
         }
     }
 
-    public async Task<OperationResult<IEnumerable<ForumPost>>> SearchAsync(Guid? userId, string? categoryName, string? title)
+    public async Task<OperationResult<IEnumerable<ForumPost>>> SearchAsync(
+        Guid? userId,
+        string? categoryName,
+        string? title, DateTime?
+        fromDate,
+        DateTime? toDate
+    )
     {
         var query = _context.ForumPosts
             .AsNoTracking()
             .Include(p => p.User)
             .Include(p => p.ForumCategory)
+            .Include(p => p.ForumComments)
             .Include(p => p.ForumLikes)
             .AsQueryable();
 
@@ -75,20 +80,29 @@ public class PostRepository : BaseRepository, IPostRepository
         if (!string.IsNullOrWhiteSpace(title))
             query = query.Where(p => EF.Functions.Like(p.Title, $"%{title}%"));
 
+        if (fromDate.HasValue)
+            query = query.Where(p => p.CreatedAt >= fromDate);
+
+        if (toDate.HasValue)
+            query = query.Where(p => p.CreatedAt <= toDate);
+
         var posts = await query.ToListAsync();
         var result = posts.Select(MapPostToModel);
+
 
         return OperationResult<IEnumerable<ForumPost>>.Success(result);
     }
 
     public async Task<OperationResult<IEnumerable<ForumPost>>> GetAllAsync()
     {
+
         var posts = await _context.ForumPosts
-            .AsNoTracking()
-            .Include(p => p.User)
-            .Include(p => p.ForumCategory)
-            .Include(p => p.ForumLikes)
-            .ToListAsync();
+              .AsNoTracking()
+              .Include(p => p.User)
+              .Include(p => p.ForumCategory)
+              .Include(p => p.ForumLikes)
+              .Include(p => p.ForumComments)
+              .ToListAsync();
 
         var result = posts.Select(MapPostToModel);
         return OperationResult<IEnumerable<ForumPost>>.Success(result);
@@ -100,9 +114,10 @@ public class PostRepository : BaseRepository, IPostRepository
             return OperationResult<ForumPost?>.Failure(InvalidPostId);
 
         var post = await _context.ForumPosts
+            .AsNoTracking()
             .Include(p => p.User)
             .Include(p => p.ForumCategory)
-            .AsNoTracking()
+            .Include(p => p.ForumComments)
             .FirstOrDefaultAsync(p => p.ForumPostId == id);
 
         return post == null
@@ -116,11 +131,11 @@ public class PostRepository : BaseRepository, IPostRepository
             return OperationResult<ForumPost>.Failure(InvalidUserId);
 
         if (postId == Guid.Empty)
-            return OperationResult<ForumPost>.Failure(PostNotFound);
+            return OperationResult<ForumPost>.Failure(InvalidPostId);
 
         var (result, error) = await GetAuthorizedCommentAsync(userId, postId);
         if (result == null)
-            return OperationResult<ForumPost>.Failure(error ?? UnknownError);
+            return OperationResult<ForumPost>.Failure(error ?? NotAuthorized);
 
         result.Title = post.Title;
         result.Content = post.Content;
@@ -147,7 +162,7 @@ public class PostRepository : BaseRepository, IPostRepository
 
         var (result, error) = await GetAuthorizedCommentAsync(userId, postId);
         if (result == null)
-            return OperationResult<bool>.Failure(error ?? UnknownError);
+            return OperationResult<bool>.Failure(error ?? NotAuthorized);
 
         try
         {
@@ -160,8 +175,6 @@ public class PostRepository : BaseRepository, IPostRepository
             return OperationResult<bool>.Failure($"{UnknownError}: {ex.Message}");
         }
     }
-
-    // -------------------- Helper Methods --------------------
 
     private async Task<bool> IsValidUser(Guid userId) =>
         userId != Guid.Empty && await _context.Users.AnyAsync(u => u.UserGuid == userId);
@@ -199,7 +212,8 @@ public class PostRepository : BaseRepository, IPostRepository
         UpdatedAt = post.UpdatedAt,
         Category = post.ForumCategory.ToCategoryModel(),
         User = post.User.ToUserModel(),
-        LikeCount = post.ForumLikes.Count()
+        LikeCount = post.ForumLikes.Count(),
+        CommentCount = post.ForumComments.Count()
     };
 }
 
