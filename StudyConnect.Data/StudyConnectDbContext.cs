@@ -100,6 +100,20 @@ public class StudyConnectDbContext : DbContext
             .WithOne(fp => fp.User)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // Configure Group-GroupPost relationship
+        modelBuilder.Entity<Group>()
+            .HasMany(g => g.GroupPosts)
+            .WithOne(p => p.Group)
+            .HasForeignKey(p => p.GroupId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure GroupMembers-GroupPost relationship
+        modelBuilder.Entity<GroupMembers>()
+            .HasMany(gm => gm.GroupPosts)
+            .WithOne(p => p.GroupMember)
+            .HasForeignKey(p => new { p.GroupId, p.UserId })
+            .OnDelete(DeleteBehavior.Cascade);
+
         // Configure Category-ForumPost relationship
         modelBuilder.Entity<ForumPost>()
             .HasOne(fp => fp.ForumCategory)
@@ -118,11 +132,32 @@ public class StudyConnectDbContext : DbContext
             .WithOne(fc => fc.ForumPost)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // Configure GroupPost-GroupComments relationship
+        modelBuilder.Entity<GroupPost>()
+            .HasMany(gp => gp.GroupComments)
+            .WithOne(gc => gc.GroupPost)
+            .HasForeignKey(gc => gc.GroupPostId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         // Configure User-ForumComment relationship
         modelBuilder.Entity<User>()
             .HasMany(u => u.ForumComments)
             .WithOne(fc => fc.User)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure Group-GroupComments relationship
+        modelBuilder.Entity<Group>()
+            .HasMany(g => g.GroupComments)
+            .WithOne(p => p.Group)
+            .HasForeignKey(p => p.GroupId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure GroupMembers-GroupComments relationship
+        modelBuilder.Entity<GroupMembers>()
+            .HasMany(gm => gm.GroupComments)
+            .WithOne(gc => gc.GroupMember)
+            .HasForeignKey(p => new { p.GroupId, p.UserId })
+            .OnDelete(DeleteBehavior.Cascade);
 
         // Configure ForumComment-ForumComment relationship
         modelBuilder.Entity<ForumComment>()

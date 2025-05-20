@@ -41,5 +41,14 @@ public class GroupMember
     /// Role of the member within the group, such as admin, moderator, or member.
     /// </summary>
     [ForeignKey("MemberRoleId")]
+<<<<<<< HEAD:StudyConnect.Data/Entities/GroupMember.cs
     public MemberRole MemberRole { get; set; } = null!;
+=======
+    public required MemberRole MemberRole { get; set; }
+
+
+    public virtual ICollection<GroupPost> GroupPosts { get; set; } = [];
+
+    public virtual ICollection<GroupComment> GroupComments { get; set; } = [];
+>>>>>>> fdceb49 (feat: adjutsted enttites and relatons for Group Post and Comments [#99]):StudyConnect.Data/Entities/GroupMembers.cs
 }

@@ -39,11 +39,7 @@ public class Group
     /// </summary>
     public virtual ICollection<GroupMember> GroupMembers { get; set; } = [];
 
+    public virtual ICollection<GroupPost> GroupPosts { get; set; } = [];
 
-
-
-
-
-
-
+    public virtual ICollection<GroupComment> GroupComments { get; set; } = [];
 }
