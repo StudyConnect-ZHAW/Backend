@@ -23,7 +23,12 @@ public class PostReadDto
     public string? Content { get; set; }
 
     /// <summary>
-    /// The number of likes the post has.
+    /// The number of comments the post has.
+    /// </summary>
+    public int? CommentCount { get; set; }
+
+    /// <summary>
+    /// The number of likes the post has received.
     /// </summary>
     public int? LikeCount { get; set; }
 

@@ -8,12 +8,6 @@ namespace StudyConnect.API.Dtos.Requests.Forum;
 public class CommentCreateDto
 {
     /// <summary>
-    /// The unique identifier of the creator.
-    /// </summary>
-    [Required(ErrorMessage = "User Id is required.")]
-    public required Guid UserId { get; set; }
-
-    /// <summary>
     /// The unique identifier of the parent comment.
     /// </summary>
     public Guid? ParentCommentId { get; set; }
@@ -22,5 +16,5 @@ public class CommentCreateDto
     /// The Content of the forum comment.
     /// </summary>
     [Required(ErrorMessage = "Content is required.")]
-    public required string Content { get; set; } 
+    public required string Content { get; set; }
 }

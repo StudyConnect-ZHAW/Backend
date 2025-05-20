@@ -25,6 +25,9 @@ public class PostController : BaseController
     /// </summary>
     protected readonly IPostRepository _postRepository;
 
+    /// <summary>
+    /// The like repository to interact with data.
+    /// </summary>
     protected readonly ILikeRepository _likeRepository;
 
 
@@ -56,39 +59,15 @@ public class PostController : BaseController
             Content = createDto.Content,
         };
 
-        var oidClaim = HttpContext.User.GetObjectId();
-        if (string.IsNullOrEmpty(oidClaim))
-            return Unauthorized();
+        Guid uid = GetIdFromToken();
+        Guid pid = createDto.ForumCategoryId;
 
-        Guid userId = Guid.Parse(oidClaim);
-        Guid forumId = createDto.ForumCategoryId;
-
-        var result = await _postRepository.AddAsync(userId, forumId, post);
+        var result = await _postRepository.AddAsync(uid, pid, post);
         if (!result.IsSuccess || result.Data == null)
             return BadRequest(result.ErrorMessage);
 
         return Ok(GeneratePostDto(result.Data));
     }
-
-    // [HttpPost("{pid:guid}/likes")]
-    // [Authorize]
-    // [ProducesResponseType(StatusCodes.Status204NoContent)]
-    // public async Task<IActionResult> AddLike([FromBody] Guid pid)
-    // {
-    //     var oidClaim = HttpContext.User.GetObjectId();
-    //     if (string.IsNullOrEmpty(oidClaim))
-    //         return Unauthorized();
-    //
-    //     var uid = Guid.Parse(oidClaim);
-    //
-    //     var result = await _likeRepository.LikePostAsync(uid, pid);
-    //     if (!result.IsSuccess || !result.Data)
-    //         return result.ErrorMessage!.Contains(GeneralNotFound)
-    //             ? NotFound(result.ErrorMessage)
-    //             : BadRequest(result.ErrorMessage);
-    //
-    //     return NoContent();
-    // }
 
     /// <summary>
     /// Search posts based on provieded queries.
@@ -132,10 +111,10 @@ public class PostController : BaseController
     }
 
     /// <summary>
-    /// Get a post by its ID
+    /// Get a post by its ID.
     /// </summary>
     /// <param name="pid">The unique identifier of the post.</param>
-    /// <returns>On success a Dto with information about the post, on failure HTTP 400/404 status code.</returns>
+    /// <returns>On success a DTO with information about the post, on failure HTTP 400/404 status code.</returns>
     [HttpGet("{pid:guid}")]
     public async Task<IActionResult> GetPostById([FromRoute] Guid pid)
     {
@@ -164,10 +143,7 @@ public class PostController : BaseController
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var oidClaim = HttpContext.User.GetObjectId();
-        if (string.IsNullOrEmpty(oidClaim))
-            return Unauthorized();
-
+        var uid = GetIdFromToken();
 
         var post = new ForumPost
         {
@@ -175,8 +151,8 @@ public class PostController : BaseController
             Content = updateDto.Content
         };
 
-        var result = await _postRepository.UpdateAsync(Guid.Parse(oidClaim), pid, post);
-        if (!result.IsSuccess || result.Data == null)
+        var result = await _postRepository.UpdateAsync(uid, pid, post);
+        if (!result.IsSuccess)
             return result.ErrorMessage!.Contains(GeneralNotFound)
                 ? NotFound(result.ErrorMessage)
                 : BadRequest(result.ErrorMessage);
@@ -188,17 +164,11 @@ public class PostController : BaseController
     [Authorize]
     public async Task<IActionResult> ToggleLike([FromRoute] Guid pid)
     {
-
-        var oidClaim = HttpContext.User.GetObjectId();
-        var uid = oidClaim != null
-            ? Guid.Parse(oidClaim)
-            : Guid.Empty;
-
+        var uid = GetIdFromToken();
 
         var result = await _likeRepository.PostLikeExistsAsync(uid, pid)
             ? await _likeRepository.UnlikePostAsync(uid, pid)
             : await _likeRepository.LikePostAsync(uid, pid);
-
 
         if (!result.IsSuccess && !string.IsNullOrEmpty(result.ErrorMessage))
             return result.ErrorMessage.Contains(GeneralNotFound)
@@ -208,24 +178,22 @@ public class PostController : BaseController
         return NoContent();
     }
 
+
+
+
     /// <summary>
-    /// Deletes an existing post
+    /// Deletes an existing post.
     /// </summary>
     /// <param name="pid">The unique identifier of the post.</param>
-    /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
+    /// <returns>On success HTTP 204 No Content, or an appropriate error status code on failure.</returns>
     [HttpDelete("{pid:guid}")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeletePost([FromRoute] Guid pid)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        var uid = GetIdFromToken();
 
-        var oidClaim = HttpContext.User.GetObjectId();
-        if (string.IsNullOrEmpty(oidClaim))
-            return Unauthorized();
-
-        var result = await _postRepository.DeleteAsync(Guid.Parse(oidClaim), pid);
+        var result = await _postRepository.DeleteAsync(uid, pid);
         if (!result.IsSuccess || !result.Data)
             return result.ErrorMessage!.Contains(GeneralNotFound)
                 ? NotFound(result.ErrorMessage)
@@ -234,24 +202,13 @@ public class PostController : BaseController
         return NoContent();
     }
 
-    // [HttpDelete("{pid: guid}/likes")]
-    // [Authorize]
-    // public async Task<IActionResult> DeleteLike([FromBody] Guid pid)
-    // {
-    //     var oidClaim = HttpContext.User.GetObjectId();
-    //     if (string.IsNullOrEmpty(oidClaim))
-    //         return Unauthorized();
-    //
-    //     var uid = Guid.Parse(oidClaim);
-    //
-    //     var result = await _likeRepository.UnlikePostAsync(uid, pid);
-    //     if (!result.IsSuccess || !result.Data)
-    //         return result.ErrorMessage!.Contains(GeneralNotFound)
-    //             ? NotFound(result.ErrorMessage)
-    //             : BadRequest(result.ErrorMessage);
-    //
-    //     return NoContent();
-    // }
+    private Guid GetIdFromToken()
+    {
+        var oidClaim = HttpContext.User.GetObjectId();
+        return oidClaim != null
+            ? Guid.Parse(oidClaim)
+            : Guid.Empty;
+    }
 
     /// <summary>
     /// A helper function to create user Dto from model.
@@ -297,13 +254,15 @@ public class PostController : BaseController
             Content = post.Content,
             Created = post.CreatedAt,
             Updated = post.UpdatedAt,
+            CommentCount = post.CommentCount,
+            LikeCount = post.LikeCount,
             Category = post.Category != null
                 ? GenerateCategoryReadDto(post.Category)
                 : null,
             Author = post.User != null
                 ? GenerateUserReadDto(post.User)
                 : null,
-            LikeCount = post.LikeList?.Count()
+
         };
     }
 }
