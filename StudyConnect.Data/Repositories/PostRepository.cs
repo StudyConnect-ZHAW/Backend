@@ -46,7 +46,7 @@ public class PostRepository : BaseRepository, IPostRepository
             if (created is null)
                 return OperationResult<ForumPost>.Failure($"{UnknownError}: Failed to retrieve the newly created post.");
 
-            return OperationResult<ForumPost>.Success(MapPostToModel(created));
+            return OperationResult<ForumPost>.Success(MapToPostModel(created));
 
         }
         catch (Exception ex)
@@ -87,7 +87,7 @@ public class PostRepository : BaseRepository, IPostRepository
             query = query.Where(p => p.CreatedAt <= toDate);
 
         var posts = await query.ToListAsync();
-        var result = posts.Select(MapPostToModel);
+        var result = posts.Select(MapToPostModel);
 
 
         return OperationResult<IEnumerable<ForumPost>>.Success(result);
@@ -104,7 +104,7 @@ public class PostRepository : BaseRepository, IPostRepository
               .Include(p => p.ForumComments)
               .ToListAsync();
 
-        var result = posts.Select(MapPostToModel);
+        var result = posts.Select(MapToPostModel);
         return OperationResult<IEnumerable<ForumPost>>.Success(result);
     }
 
@@ -122,7 +122,7 @@ public class PostRepository : BaseRepository, IPostRepository
 
         return post == null
             ? OperationResult<ForumPost?>.Failure(PostNotFound)
-            : OperationResult<ForumPost?>.Success(MapPostToModel(post));
+            : OperationResult<ForumPost?>.Success(MapToPostModel(post));
     }
 
     public async Task<OperationResult<ForumPost>> UpdateAsync(Guid userId, Guid postId, ForumPost post)
@@ -133,7 +133,7 @@ public class PostRepository : BaseRepository, IPostRepository
         if (postId == Guid.Empty)
             return OperationResult<ForumPost>.Failure(InvalidPostId);
 
-        var (result, error) = await GetAuthorizedCommentAsync(userId, postId);
+        var (result, error) = await GetAuthorizedPostAsync(userId, postId);
         if (result == null)
             return OperationResult<ForumPost>.Failure(error ?? NotAuthorized);
 
@@ -144,7 +144,7 @@ public class PostRepository : BaseRepository, IPostRepository
         try
         {
             await _context.SaveChangesAsync();
-            return OperationResult<ForumPost>.Success(MapPostToModel(result));
+            return OperationResult<ForumPost>.Success(MapToPostModel(result));
         }
         catch (Exception ex)
         {
@@ -160,7 +160,7 @@ public class PostRepository : BaseRepository, IPostRepository
         if (postId == Guid.Empty)
             return OperationResult<bool>.Failure(InvalidPostId);
 
-        var (result, error) = await GetAuthorizedCommentAsync(userId, postId);
+        var (result, error) = await GetAuthorizedPostAsync(userId, postId);
         if (result == null)
             return OperationResult<bool>.Failure(error ?? NotAuthorized);
 
@@ -176,16 +176,29 @@ public class PostRepository : BaseRepository, IPostRepository
         }
     }
 
+    /// <summary>
+    /// Validates if a user exists in the database.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user.</param>
+    /// <returns><c>true</c> if the user exists; otherwise, <c>false</c>.</returns>
     private async Task<bool> IsValidUser(Guid userId) =>
         userId != Guid.Empty && await _context.Users.AnyAsync(u => u.UserGuid == userId);
 
+    /// <summary>
+    /// Validates if a category exists in the database.
+    /// </summary>
+    /// <param name="categoryId">The unique identifier of the category.</param>
+    /// <returns><c>true</c> if the category exists; otherwise, <c>false</c>.</returns>
     private async Task<bool> IsValidCategory(Guid categoryId) =>
         categoryId != Guid.Empty && await _context.ForumCategories.AnyAsync(c => c.ForumCategoryId == categoryId);
 
-    private async Task<bool> IsValidPost(Guid postId) =>
-        postId != Guid.Empty && await _context.ForumPosts.AnyAsync(p => p.ForumPostId == postId);
-
-    private async Task<(Entities.ForumPost? Post, string? ErrorMessage)> GetAuthorizedCommentAsync(Guid userId, Guid postId)
+    /// <summary>
+    /// Tests a post for existence and authorization.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user.</param>
+    /// <param name="postId">The unique identifier of the post.</param>
+    /// <returns>A post entity on succes or an errormessage on failure.</returns>
+    private async Task<(Entities.ForumPost? Post, string? ErrorMessage)> GetAuthorizedPostAsync(Guid userId, Guid postId)
     {
         var post = await _context.ForumPosts
             .Include(p => p.User)
@@ -202,8 +215,12 @@ public class PostRepository : BaseRepository, IPostRepository
         return (post, null);
     }
 
-
-    public static ForumPost MapPostToModel(Entities.ForumPost post) => new()
+    /// <summary>
+    /// Maps the post entity to a model.
+    /// </summary>
+    /// <param name="post">The post entity to map.</param>
+    /// <returns>A <see cref="ForumPost"/> </returns>
+    private ForumPost MapToPostModel(Entities.ForumPost post) => new()
     {
         ForumPostId = post.ForumPostId,
         Title = post.Title,
@@ -212,8 +229,8 @@ public class PostRepository : BaseRepository, IPostRepository
         UpdatedAt = post.UpdatedAt,
         Category = post.ForumCategory.ToCategoryModel(),
         User = post.User.ToUserModel(),
-        LikeCount = post.ForumLikes.Count(),
-        CommentCount = post.ForumComments.Count()
+        LikeCount = post.ForumLikes.Count,
+        CommentCount = post.ForumComments.Count
     };
 }
 

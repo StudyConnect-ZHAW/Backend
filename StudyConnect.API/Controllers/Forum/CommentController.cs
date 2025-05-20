@@ -142,6 +142,11 @@ public class CommentController : BaseController
         return Ok(MapToCommentDto(result.Data));
     }
 
+    /// <summary>
+    /// Adds or Removes a like to/from comment.
+    /// </summary>
+    /// <param name="cmid">The unique identifier of the comment.</param>
+    /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
     [Route("v1/comments/{cmid:guid}/likes")]
     [HttpPut]
     [Authorize]

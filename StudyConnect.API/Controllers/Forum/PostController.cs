@@ -75,11 +75,19 @@ public class PostController : BaseController
     /// <param name="uid">The unique identifier of the post creator.</param>
     /// <param name="categoryName">The unique name of the category the post belongs to.</param>
     /// <param name="title">the post title or substring of post title</param>
+    /// <param name="fromDate">The start date to filter posts created on or after this date (optional).</param>
+    /// <param name="toDate">The end date to filter posts created on or before this date (optional).</param>
     /// <returns>On success a list of Dtoa with information about the post, on failure HTTP 400/404 status code.</returns>
     [HttpGet("search")]
-    public async Task<IActionResult> SearchPosts([FromQuery] Guid? uid, [FromQuery] string? categoryName, [FromQuery] string? title)
+    public async Task<IActionResult> SearchPosts(
+        [FromQuery] Guid? uid,
+        [FromQuery] string? categoryName,
+        [FromQuery] string? title,
+        [FromQuery] DateTime? fromDate,
+        [FromQuery] DateTime? toDate
+    )
     {
-        var posts = await _postRepository.SearchAsync(uid, categoryName, title);
+        var posts = await _postRepository.SearchAsync(uid, categoryName, title, fromDate, toDate);
         if (!posts.IsSuccess)
             return BadRequest(posts.ErrorMessage);
 
@@ -160,6 +168,11 @@ public class PostController : BaseController
         return Ok(result.Data);
     }
 
+    /// <summary>
+    /// Adds or Removes a like to/from post.
+    /// </summary>
+    /// <param name="pid">The unique identifier of the post.</param>
+    /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
     [HttpPut("{pid:guid}/likes")]
     [Authorize]
     public async Task<IActionResult> ToggleLike([FromRoute] Guid pid)

@@ -23,9 +23,8 @@ public class CommentRepository : BaseRepository, ICommentRepository
         if (!await IsValidPost(postId))
             return OperationResult<ForumComment>.Failure(PostNotFound);
 
-        if (parentId.HasValue)
-            if (!await IsValidParent(parentId, postId))
-                return OperationResult<ForumComment>.Failure(ParentCommentNotFound);
+        if (parentId.HasValue && !await IsValidParent(parentId, postId))
+            return OperationResult<ForumComment>.Failure(ParentCommentNotFound);
 
         try
         {
@@ -156,6 +155,37 @@ public class CommentRepository : BaseRepository, ICommentRepository
         }
     }
 
+    /// <summary>
+    /// Validates if a user exists in the database.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user.</param>
+    /// <returns><c>true</c> if the user exists; otherwise, <c>false</c>.</returns>
+    private async Task<bool> IsValidUser(Guid userId) =>
+           userId != Guid.Empty && await _context.Users.AnyAsync(u => u.UserGuid == userId);
+
+    /// <summary>
+    /// Validates if a post exists in the database.
+    /// </summary>
+    /// <param name="postId">The unique identifier of the post.</param>
+    /// <returns><c>true</c> if the post exists; otherwise, <c>false</c>.</returns>
+    private async Task<bool> IsValidPost(Guid postId) =>
+        postId != Guid.Empty && await _context.ForumPosts.AnyAsync(p => p.ForumPostId == postId);
+
+    /// <summary>
+    /// Validates if a parent comment exists in the database.
+    /// </summary>
+    /// <param name="parentid">The unique identifier of the parent comment.</param>
+    /// <param name="postId">The unique identifier of the comment.</param>
+    /// <returns><c>true</c> if the user exists; otherwise, <c>false</c>.</returns>
+    private async Task<bool> IsValidParent(Guid? parentId, Guid postId) =>
+        postId != Guid.Empty && await _context.ForumComments.AnyAsync(p => p.ForumCommentId == parentId && p.ForumPostId == postId);
+
+    /// <summary>
+    /// Tests a comment for existence and authorization.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user.</param>
+    /// <param name="postId">The unique identifier of the comment.</param>
+    /// <returns>A post entity on succes or an errormessage on failure.</returns>
     private async Task<(Entities.ForumComment? Comment, string? ErrorMessage)> GetAuthorizedCommentAsync(Guid userId, Guid commentId)
     {
         var comment = await _context.ForumComments
@@ -171,19 +201,6 @@ public class CommentRepository : BaseRepository, ICommentRepository
 
         return (comment, null);
     }
-
-
-    private async Task<bool> IsValidUser(Guid userId) =>
-           userId != Guid.Empty && await _context.Users.AnyAsync(u => u.UserGuid == userId);
-
-    private async Task<bool> IsValidPost(Guid postId) =>
-        postId != Guid.Empty && await _context.ForumPosts.AnyAsync(p => p.ForumPostId == postId);
-
-    private async Task<bool> IsValidComment(Guid commentId) =>
-        commentId != Guid.Empty && await _context.ForumComments.AnyAsync(cm => cm.ParentCommentId == commentId);
-
-    private async Task<bool> IsValidParent(Guid? parentId, Guid postId) =>
-        postId != Guid.Empty && await _context.ForumComments.AnyAsync(p => p.ForumCommentId == parentId && p.ForumPostId == postId);
 
     /// <summary>
     /// A helper function to establish parent-child relationships in a list of comment entities.
@@ -218,14 +235,14 @@ public class CommentRepository : BaseRepository, ICommentRepository
             Content = comment.IsDeleted ? string.Empty : comment.Content,
             CreatedAt = comment.CreatedAt,
             UpdatedAt = comment.UpdatedAt,
-            ReplyCount = comment.Replies.Count(),
+            ReplyCount = comment.Replies.Count,
             IsEdited = comment.IsEdited,
             IsDeleted = comment.IsDeleted,
             PostId = comment.ForumPostId,
             ParentCommentId = comment.ParentCommentId,
             User = comment.IsDeleted ? null : comment.User.ToUserModel(),
             Replies = comment.Replies?.Select(MapCommentToModel).ToList(),
-            LikeCount = comment.ForumLikes.Count()
+            LikeCount = comment.ForumLikes.Count
         };
     }
 }
