@@ -13,7 +13,7 @@ public interface IGroupCommentRepository
     /// <param name="postId">The unique identifier of the post.</param>
     /// <param name="groupId">The unique identifier of group the post belogns to.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<GroupComment>> AddAsync(Guid userId, Guid groupId, Guid postId, ForumComment comment);
+    Task<OperationResult<GroupComment>> AddAsync(Guid userId, Guid groupId, Guid postId, GroupComment comment);
 
     /// <summary>
     /// Get a comment by its GUID.
