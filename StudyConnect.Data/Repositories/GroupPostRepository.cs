@@ -55,7 +55,6 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
 
     public async Task<OperationResult<IEnumerable<GroupPost>>> GetAllAsync(Guid groupId)
     {
-
         var posts = await _context.GroupPosts
               .AsNoTracking()
               .Include(p => p.GroupMember)
@@ -89,7 +88,7 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
             return OperationResult<GroupPost>.Failure(InvalidUserId);
 
         if (groupId == Guid.Empty)
-            return OperationResult<GroupPost>.Failure("Invalid Group Id.");
+            return OperationResult<GroupPost>.Failure(InvalidGroupId);
 
         if (postId == Guid.Empty)
             return OperationResult<GroupPost>.Failure(InvalidPostId);
@@ -119,7 +118,7 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
             return OperationResult<bool>.Failure(InvalidUserId);
 
         if (groupId == Guid.Empty)
-            return OperationResult<bool>.Failure("Invalid Group Id.");
+            return OperationResult<bool>.Failure(InvalidGroupId);
 
         if (postId == Guid.Empty)
             return OperationResult<bool>.Failure(InvalidPostId);

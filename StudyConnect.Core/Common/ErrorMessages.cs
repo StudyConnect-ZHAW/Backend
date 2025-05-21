@@ -33,10 +33,10 @@ namespace StudyConnect.Core.Common
         public const string CommentsNotFound = "Comments with specified ID does not exist.";
         public const string PostNotFound = "Post with specified ID does not exist.";
         public const string UserNotFound = "User with specified ID does not exist.";
+        public const string GroupNotFound = "Group with specified ID does not exist.";
         public const string ParentCommentNotFound = "Parent comment with specified ID does not exist.";
         public const string LikeNotFound = "Like with specified ID does not exist.";
         public const string GroupNotFound = "Group with specified ID does not exist.";
         public const string MemberNotFound = "GroupMember with specified ID does not exist.";
     }
 }
-
