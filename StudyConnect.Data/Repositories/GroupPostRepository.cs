@@ -1,0 +1,189 @@
+using Microsoft.EntityFrameworkCore;
+using StudyConnect.Core.Common;
+using StudyConnect.Core.Models;
+using StudyConnect.Core.Interfaces;
+using static StudyConnect.Core.Common.ErrorMessages;
+
+namespace StudyConnect.Data.Repositories;
+
+public class GroupPostRepository : BaseRepository, IGroupPostRepository
+{
+    public GroupPostRepository(StudyConnectDbContext context) : base(context) { }
+
+    public async Task<OperationResult<GroupPost>> AddAsync(Guid userId, Guid groupId, GroupPost? post)
+    {
+
+        if (!await IsValidMember(userId, groupId))
+            return OperationResult<GroupPost>.Failure(PostNotFound);
+
+        if (post == null)
+            return OperationResult<GroupPost>.Failure(PostContentEmpty);
+
+        bool isTitleTaken = await _context.GroupPosts.AnyAsync(gp => gp.Title == post.Title);
+        if (isTitleTaken)
+            return OperationResult<GroupPost>.Failure(TitleTaken);
+
+        var newPost = new Entities.GroupPost
+        {
+            Title = post.Title,
+            Content = post.Content,
+            GroupId = groupId,
+            UserId = userId
+        };
+
+        try
+        {
+            await _context.GroupPosts.AddAsync(newPost);
+            await _context.SaveChangesAsync();
+
+            var created = await _context.GroupPosts
+                .Include(p => p.GroupMember)
+                .FirstOrDefaultAsync(p => p.GroupPostId == newPost.GroupPostId);
+
+            if (created is null)
+                return OperationResult<GroupPost>.Failure($"{UnknownError}: Failed to retrieve the newly created post.");
+
+            return OperationResult<GroupPost>.Success(MapToPostGroupModel(created));
+
+        }
+        catch (Exception ex)
+        {
+            return OperationResult<GroupPost>.Failure($"{UnknownError}: {ex.Message}");
+        }
+    }
+
+    public async Task<OperationResult<IEnumerable<GroupPost>>> GetAllAsync(Guid groupId)
+    {
+
+        var posts = await _context.GroupPosts
+              .AsNoTracking()
+              .Include(p => p.GroupMember)
+                .ThenInclude(gm => gm.Member)
+              .Where(p => p.GroupId == groupId)
+              .ToListAsync();
+
+        var result = posts.Select(MapToPostGroupModel);
+        return OperationResult<IEnumerable<GroupPost>>.Success(result);
+    }
+
+    public async Task<OperationResult<GroupPost?>> GetByIdAsync(Guid postId)
+    {
+        if (postId == Guid.Empty)
+            return OperationResult<GroupPost?>.Failure(InvalidPostId);
+
+        var post = await _context.GroupPosts
+            .AsNoTracking()
+            .Include(p => p.GroupMember)
+              .ThenInclude(gm => gm.Member)
+            .FirstOrDefaultAsync(p => p.GroupPostId == postId);
+
+        return post == null
+            ? OperationResult<GroupPost?>.Failure(PostNotFound)
+            : OperationResult<GroupPost?>.Success(MapToPostGroupModel(post));
+    }
+
+    public async Task<OperationResult<GroupPost>> UpdateAsync(Guid userId, Guid groupId, Guid postId, GroupPost post)
+    {
+        if (userId == Guid.Empty)
+            return OperationResult<GroupPost>.Failure(InvalidUserId);
+
+        if (groupId == Guid.Empty)
+            return OperationResult<GroupPost>.Failure("Invalid Group Id.");
+
+        if (postId == Guid.Empty)
+            return OperationResult<GroupPost>.Failure(InvalidPostId);
+
+        var (result, error) = await GetAuthorizedPostAsync(userId, groupId, postId);
+        if (result == null)
+            return OperationResult<GroupPost>.Failure(error ?? NotAuthorized);
+
+        result.Title = post.Title;
+        result.Content = post.Content;
+        result.UpdatedAt = DateTime.UtcNow;
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            return OperationResult<GroupPost>.Success(MapToPostGroupModel(result));
+        }
+        catch (Exception ex)
+        {
+            return OperationResult<GroupPost>.Failure($"{UnknownError}: {ex.Message}");
+        }
+    }
+
+    public async Task<OperationResult<bool>> DeleteAsync(Guid userId, Guid groupId, Guid postId)
+    {
+        if (userId == Guid.Empty)
+            return OperationResult<bool>.Failure(InvalidUserId);
+
+        if (groupId == Guid.Empty)
+            return OperationResult<bool>.Failure("Invalid Group Id.");
+
+        if (postId == Guid.Empty)
+            return OperationResult<bool>.Failure(InvalidPostId);
+
+        var (result, error) = await GetAuthorizedPostAsync(userId, groupId, postId);
+        if (result == null)
+            return OperationResult<bool>.Failure(error ?? NotAuthorized);
+
+        try
+        {
+            _context.GroupPosts.Remove(result);
+            await _context.SaveChangesAsync();
+            return OperationResult<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return OperationResult<bool>.Failure($"{UnknownError}: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Validates if a member exists in the database.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user.</param>
+    /// <param name="groupId">The unique identifier of the group.</param>
+    /// <returns><c>true</c> if the member exists; otherwise, <c>false</c>.</returns>
+    private async Task<bool> IsValidMember(Guid userId, Guid groupId) =>
+        userId != Guid.Empty && groupId == Guid.Empty && await _context.GroupMembers.AnyAsync(m => m.MemberId == userId && m.GroupId == groupId);
+
+    /// <summary>
+    /// Tests a post for existence and authorization.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user.</param>
+    /// <param name="postId">The unique identifier of the post.</param>
+    /// <returns>A post entity on succes or an errormessage on failure.</returns>
+    private async Task<(Entities.GroupPost? Post, string? ErrorMessage)> GetAuthorizedPostAsync(Guid userId, Guid groupId, Guid postId)
+    {
+        var post = await _context.GroupPosts
+            .Include(p => p.GroupMember)
+              .ThenInclude(gm => gm.Member)
+            .FirstOrDefaultAsync(c => c.GroupPostId == postId);
+
+        if (post == null)
+            return (null, PostNotFound);
+
+        if (post.UserId != userId || post.GroupId != groupId)
+            return (null, NotAuthorized);
+
+        return (post, null);
+    }
+
+    /// <summary>
+    /// Maps the post entity to a model.
+    /// </summary>
+    /// <param name="post">The post entity to map.</param>
+    /// <returns>A <see cref="ForumPost"/> </returns>
+    private GroupPost MapToPostGroupModel(Entities.GroupPost post) => new()
+    {
+        GroupPostId = post.GroupPostId,
+        Title = post.Title,
+        Content = post.Content,
+        CreatedAt = post.CreatedAt,
+        UpdatedAt = post.UpdatedAt,
+        Group = post.Group.ToGroupModel(),
+        MemberId = post.UserId,
+    };
+}
+

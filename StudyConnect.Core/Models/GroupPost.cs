@@ -14,5 +14,5 @@ public class GroupPost
 
     public Group? Group { get; set; }
 
-    public User? User { get; set; }
+    public Guid? MemberId { get; set; }
 }
