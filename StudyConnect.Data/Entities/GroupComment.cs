@@ -15,7 +15,7 @@ public class GroupComment
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Required]
-    public Guid ForumCommentId { get; set; }
+    public Guid GroupCommentId { get; set; }
 
     [Required]
     public required string Content { get; set; }

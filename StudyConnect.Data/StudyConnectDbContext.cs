@@ -252,5 +252,5 @@ public class StudyConnectDbContext : DbContext
     public DbSet<ForumComment> ForumComments { get; set; }
     public DbSet<ForumLike> ForumLikes { get; set; }
     public DbSet<GroupPost> GroupPosts { get; set; }
-    public DbSet<GroupComment> groupComments { get; set; }
+    public DbSet<GroupComment> GroupComments { get; set; }
 }

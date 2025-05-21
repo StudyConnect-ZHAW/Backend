@@ -9,11 +9,7 @@ public static class ModelMapper
     /// </summary>
     /// <param name="user">A user entity to transform.</param>
     /// <returns>A User model object.</returns>
-<<<<<<< HEAD
     public static Core.Models.User ToUserModel(this User user)
-=======
-    public static Core.Models.User ToUserModel(User user)
->>>>>>> b4e57e7 (feat: implemented GroupPostRepository [#99])
     {
         return new()
         {
