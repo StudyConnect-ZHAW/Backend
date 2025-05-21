@@ -33,8 +33,6 @@ public class GroupComment
 
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-    public int ReplyCount { get; set; } = 0;
-
     public bool IsEdited { get; set; } = false;
 
     public bool IsDeleted { get; set; } = false;
