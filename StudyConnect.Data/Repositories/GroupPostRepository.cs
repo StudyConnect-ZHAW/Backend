@@ -183,8 +183,8 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
         Content = post.Content,
         CreatedAt = post.CreatedAt,
         UpdatedAt = post.UpdatedAt,
-        Group = post.Group.ToGroupModel(),
-        MemberId = post.UserId,
+        GroupId = post.GroupId,
+        User = post.GroupMember.Member.ToUserModel(),
     };
 }
 
