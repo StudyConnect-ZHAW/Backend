@@ -373,5 +373,5 @@ public class StudyConnectDbContext : DbContext
 
     public DbSet<PostTag> PostTags { get; set; }
     public DbSet<GroupPost> GroupPosts { get; set; }
-    public DbSet<GroupComment> groupComments { get; set; }
+    public DbSet<GroupComment> GroupComments { get; set; }
 }

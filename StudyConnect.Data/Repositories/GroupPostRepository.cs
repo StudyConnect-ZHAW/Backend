@@ -38,6 +38,7 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
 
             var created = await _context.GroupPosts
                 .Include(p => p.GroupMember)
+                    .ThenInclude(gm => gm.Member)
                 .FirstOrDefaultAsync(p => p.GroupPostId == newPost.GroupPostId);
 
             if (created is null)
