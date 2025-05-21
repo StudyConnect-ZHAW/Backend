@@ -108,9 +108,9 @@ public class PostRepository : BaseRepository, IPostRepository
         return OperationResult<IEnumerable<ForumPost>>.Success(result);
     }
 
-    public async Task<OperationResult<ForumPost?>> GetByIdAsync(Guid id)
+    public async Task<OperationResult<ForumPost?>> GetByIdAsync(Guid postId)
     {
-        if (id == Guid.Empty)
+        if (postId == Guid.Empty)
             return OperationResult<ForumPost?>.Failure(InvalidPostId);
 
         var post = await _context.ForumPosts
@@ -118,7 +118,7 @@ public class PostRepository : BaseRepository, IPostRepository
             .Include(p => p.User)
             .Include(p => p.ForumCategory)
             .Include(p => p.ForumComments)
-            .FirstOrDefaultAsync(p => p.ForumPostId == id);
+            .FirstOrDefaultAsync(p => p.ForumPostId == postId);
 
         return post == null
             ? OperationResult<ForumPost?>.Failure(PostNotFound)
