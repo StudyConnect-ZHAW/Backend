@@ -197,6 +197,33 @@ namespace StudyConnect.API.Controllers.Users
             return BadRequest("Not implemented yet.");
         }
 
+        [Route("v1/users/{userId}/groups")]
+        [HttpGet]
+        public async Task<IActionResult> GetGroupsMemberOfAsync([FromRoute] Guid userId)
+        {
+            var groups = await _userRepository.GetGroupsMemberOfAsync(userId);
+
+            if (!groups.IsSuccess)
+            {
+                return BadRequest(groups.ErrorMessage);
+            }
+
+            if (groups == null)
+            {
+                return NotFound("Groups not Found");
+            }
+
+            var result = groups.Data.Select(g => new GroupReadDto
+            {
+                GroupId = g.GroupId,
+                OwnerId = g.OwnerId,
+                Name = g.Name,
+                Description = g.Description,
+                CreatedAt = g.CreatedAt
+            }).ToList();
+
+            return Ok(result);
+        }
 
     }
 }

@@ -26,4 +26,9 @@ public class GroupReadDto
     /// The description of the group.
     /// </summary>
     public string Description { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Timestamp when the group was created.
+    /// </summary>
+    public DateTime CreatedAt { get; set; }
 }

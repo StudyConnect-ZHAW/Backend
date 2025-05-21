@@ -7,7 +7,7 @@ namespace StudyConnect.Data.Entities;
 /// Represents a member of a group in the system, including their role and status within the group.
 /// The member can be a user with specific permissions and responsibilities within the group context.
 /// </summary>
-public class GroupMembers
+public class GroupMember
 {
     [Required]
     [Key]
@@ -15,10 +15,10 @@ public class GroupMembers
 
     [Required]
     [Key]
-    public Guid GroupId { get; set; } = Guid.NewGuid();
+    public Guid GroupId { get; set; }
 
     [Required]
-    public Guid MemberRoleId { get; set; } = Guid.NewGuid();
+    public Guid MemberRoleId { get; set; }
 
     public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
 
@@ -27,18 +27,19 @@ public class GroupMembers
     /// <summary>
     /// Unique identifier for the group member.
     /// </summary>
+
     [ForeignKey("MemberId")]
-    public required User Member { get; set; }
+    public User Member { get; set; } = null!;
 
     /// <summary>
     /// Unique identifier for the group to which the member belongs.
     /// </summary>
     [ForeignKey("GroupId")]
-    public required Group Group { get; set; }
+    public Group Group { get; set; } = null!;
 
     /// <summary>
     /// Role of the member within the group, such as admin, moderator, or member.
     /// </summary>
     [ForeignKey("MemberRoleId")]
-    public required MemberRole MemberRole { get; set; }
+    public MemberRole MemberRole { get; set; } = null!;
 }

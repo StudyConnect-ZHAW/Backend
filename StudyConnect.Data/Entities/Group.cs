@@ -37,7 +37,7 @@ public class Group
     /// <summary>
     /// Collection of members in the group.
     /// </summary>
-    public virtual ICollection<GroupMembers> GroupMembers { get; set; } = [];
+    public virtual ICollection<GroupMember> GroupMembers { get; set; } = [];
 
 
 

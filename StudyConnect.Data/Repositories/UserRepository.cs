@@ -94,6 +94,35 @@ public class UserRepository : BaseRepository, IUserRepository
         return OperationResult<User?>.Success(userToReturn);
     }
 
+    public async Task<OperationResult<IEnumerable<Group>>> GetGroupsMemberOfAsync(Guid userId)
+    {
+        if (userId == Guid.Empty)
+        {
+            return OperationResult<IEnumerable<Group>>.Failure("Invalid GUID.");
+        }
+
+        var existingUser = await _context.Users
+        .Include(u => u.GroupMembers)
+            .ThenInclude(gm => gm.Group)
+        .FirstOrDefaultAsync(u => u.UserGuid == userId);
+
+        if (existingUser == null)
+        {
+            return OperationResult<IEnumerable<Group>>.Failure("User not found");
+        }
+
+        var groups = existingUser.GroupMembers.Select(gm => new Group
+        {
+            GroupId = gm.GroupId,
+            OwnerId = gm.Group.OwnerId,
+            Name = gm.Group.Name,
+            Description = gm.Group.Description,
+            CreatedAt = gm.Group.CreatedAt
+        }).ToList();
+
+        return OperationResult<IEnumerable<Group>>.Success(groups);
+    }
+
     public async Task<OperationResult<bool>> UpdateAsync(User user)
     {
         if (user == null)

@@ -24,6 +24,12 @@ public interface IGroupRepository
     Task<OperationResult<IEnumerable<Group>>> GetAllAsync();
 
     /// <summary>
+    /// Retrieves all groupsmember from the group.
+    /// </summary>
+    /// <returns>An operation result containing a collection of all groupsmembers.</returns>
+    Task<OperationResult<IEnumerable<GroupMember>>> GetMembersAsync(Guid GroupId);
+
+    /// <summary>
     /// Adds a new group to the system.
     /// </summary>
     /// <param name="group">The group to add.</param>
