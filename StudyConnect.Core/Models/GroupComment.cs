@@ -20,5 +20,4 @@ public class GroupComment
 
     public User? User { get; set; }
 
-    public Group? Group { get; set; }
 }
