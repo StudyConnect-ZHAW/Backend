@@ -78,8 +78,7 @@ namespace StudyConnect.Data.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -93,7 +92,7 @@ namespace StudyConnect.Data.Migrations
                     b.Property<bool>("IsEdited")
                         .HasColumnType("bit");
 
-                    b.Property<Guid?>("ParentCommentId")
+                    b.Property<Guid?>("ParentCommentForumCommentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("ReplyCount")
@@ -102,49 +101,18 @@ namespace StudyConnect.Data.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("UserGuid")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("ForumCommentId");
 
                     b.HasIndex("ForumPostId");
 
-                    b.HasIndex("ParentCommentId");
+                    b.HasIndex("ParentCommentForumCommentId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserGuid");
 
                     b.ToTable("ForumComment", (string)null);
-                });
-
-            modelBuilder.Entity("StudyConnect.Data.Entities.ForumLike", b =>
-                {
-                    b.Property<Guid>("LikeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ForumCommentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ForumPostId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("LikedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("LikeId");
-
-                    b.HasIndex("ForumCommentId");
-
-                    b.HasIndex("ForumPostId");
-
-                    b.HasIndex("UserId", "ForumPostId", "ForumCommentId")
-                        .IsUnique()
-                        .HasFilter("[ForumPostId] IS NOT NULL AND [ForumCommentId] IS NOT NULL");
-
-                    b.ToTable("ForumLike", (string)null);
                 });
 
             modelBuilder.Entity("StudyConnect.Data.Entities.ForumPost", b =>
@@ -175,14 +143,17 @@ namespace StudyConnect.Data.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("UserGuid")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("int");
 
                     b.HasKey("ForumPostId");
 
                     b.HasIndex("ForumCategoryId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserGuid");
 
                     b.ToTable("ForumPost", (string)null);
                 });
@@ -344,43 +315,18 @@ namespace StudyConnect.Data.Migrations
 
                     b.HasOne("StudyConnect.Data.Entities.ForumComment", "ParentComment")
                         .WithMany("Replies")
-                        .HasForeignKey("ParentCommentId")
+                        .HasForeignKey("ParentCommentForumCommentId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("StudyConnect.Data.Entities.User", "User")
                         .WithMany("ForumComments")
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("UserGuid")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("ForumPost");
 
                     b.Navigation("ParentComment");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("StudyConnect.Data.Entities.ForumLike", b =>
-                {
-                    b.HasOne("StudyConnect.Data.Entities.ForumComment", "ForumComment")
-                        .WithMany("ForumLikes")
-                        .HasForeignKey("ForumCommentId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("StudyConnect.Data.Entities.ForumPost", "ForumPost")
-                        .WithMany("ForumLikes")
-                        .HasForeignKey("ForumPostId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("StudyConnect.Data.Entities.User", "User")
-                        .WithMany("ForumLikes")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ForumComment");
-
-                    b.Navigation("ForumPost");
 
                     b.Navigation("User");
                 });
@@ -395,7 +341,7 @@ namespace StudyConnect.Data.Migrations
 
                     b.HasOne("StudyConnect.Data.Entities.User", "User")
                         .WithMany("ForumPosts")
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("UserGuid")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -460,16 +406,12 @@ namespace StudyConnect.Data.Migrations
 
             modelBuilder.Entity("StudyConnect.Data.Entities.ForumComment", b =>
                 {
-                    b.Navigation("ForumLikes");
-
                     b.Navigation("Replies");
                 });
 
             modelBuilder.Entity("StudyConnect.Data.Entities.ForumPost", b =>
                 {
                     b.Navigation("ForumComments");
-
-                    b.Navigation("ForumLikes");
                 });
 
             modelBuilder.Entity("StudyConnect.Data.Entities.Group", b =>
@@ -485,8 +427,6 @@ namespace StudyConnect.Data.Migrations
             modelBuilder.Entity("StudyConnect.Data.Entities.User", b =>
                 {
                     b.Navigation("ForumComments");
-
-                    b.Navigation("ForumLikes");
 
                     b.Navigation("ForumPosts");
 
