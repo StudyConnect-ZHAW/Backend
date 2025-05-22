@@ -33,6 +33,11 @@ public class GroupPostReadDto
     public DateTime? Updated { get; set; }
 
     /// <summary>
+    /// Teh date and time of when the user joined the group.
+    /// </summary>
+    public DateTime? JoinedAt { get; set; }
+
+    /// <summary>
     /// The unique identifier of the group the post belongs to.
     /// </summary>
     public Guid GroupId { get; set; }
