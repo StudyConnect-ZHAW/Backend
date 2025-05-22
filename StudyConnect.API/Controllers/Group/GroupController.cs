@@ -188,7 +188,7 @@ namespace StudyConnect.API.Controllers.Groups
 
             var groups = result.Data ?? [];
 
-            var dtoList = result.Data.Select(g => new GroupReadDto
+            var dtoList = groups.Select(g => new GroupReadDto
             {
                 GroupId = g.GroupId,
                 OwnerId = g.OwnerId,
@@ -264,7 +264,9 @@ namespace StudyConnect.API.Controllers.Groups
             if (!result.IsSuccess)
                 return BadRequest(result.ErrorMessage);
 
-            var dto = result.Data.Select(m => new GroupMemberReadDto
+            var members = result.Data ?? [];
+
+            var dto = members.Select(m => new GroupMemberReadDto
             {
                 MemberId = m.MemberId,
                 GroupId = m.GroupId,
@@ -275,6 +277,32 @@ namespace StudyConnect.API.Controllers.Groups
             });
 
             return Ok(dto);
+        }
+
+        [Route("v1/users/{userId}/groups")]
+        [HttpGet]
+        public async Task<IActionResult> GetGroupsForUserAsync([FromRoute] Guid userId)
+        {
+            var groupsList = await _groupRepository.GetGroupsForUserAsync(userId);
+
+            if (!groupsList.IsSuccess)
+            {
+                return BadRequest(groupsList.ErrorMessage);
+            }
+
+
+            var groups = groupsList.Data ?? [];
+
+            var result = groups.Select(g => new GroupReadDto
+            {
+                GroupId = g.GroupId,
+                OwnerId = g.OwnerId,
+                Name = g.Name,
+                Description = g.Description,
+                CreatedAt = g.CreatedAt
+            }).ToList();
+
+            return Ok(result);
         }
     }
 }

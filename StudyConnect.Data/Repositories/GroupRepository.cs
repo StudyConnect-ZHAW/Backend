@@ -42,7 +42,7 @@ public class GroupRepository : BaseRepository, IGroupRepository
         {
             return OperationResult<bool>.Failure("Invalid GUID.");
         }
-    
+
         var existingGroup = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == group.GroupId);
         if (existingGroup == null)
         {
@@ -122,10 +122,10 @@ public class GroupRepository : BaseRepository, IGroupRepository
                 $"An error occurred while fetching groups: {ex.Message}"
             );
         }
-        
+
 
         // In Domain-/DTO-Modell zurückmappen
-            var model = new Group
+        var model = new Group
         {
             GroupId = entity.GroupId,
             OwnerId = entity.OwnerId,
@@ -201,4 +201,37 @@ public class GroupRepository : BaseRepository, IGroupRepository
         }
     }
 
+    public async Task<OperationResult<IEnumerable<Group>>> GetGroupsForUserAsync(Guid userId)
+    {
+        if (userId == Guid.Empty)
+        {
+            return OperationResult<IEnumerable<Group>>.Failure("Invalid GUID.");
+        }
+
+        var existingUser = await _context.GroupMembers
+        .Include(gm => gm.Group)
+        .Where(u => u.MemberId == userId)
+        .ToListAsync();
+
+        if (existingUser == null)
+        {
+            return OperationResult<IEnumerable<Group>>.Failure("User not found");
+        }
+
+        var groups = existingUser.Select(gm => new Group
+        {
+            GroupId = gm.GroupId,
+            OwnerId = gm.Group.OwnerId,
+            Name = gm.Group.Name,
+            Description = gm.Group.Description,
+            CreatedAt = gm.Group.CreatedAt
+        }).ToList();
+
+        return OperationResult<IEnumerable<Group>>.Success(groups);
+    }
+
+    public Task<OperationResult<IEnumerable<Group>>> GetOwnedGroupsForUserAsync(Guid userId)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -132,7 +132,7 @@ namespace StudyConnect.API.Controllers.Users
             if (!result.Data)
             {
                 return NotFound("User not found.");
-            }  
+            }
 
             return Ok("User updated successfully.");
         }
@@ -146,7 +146,7 @@ namespace StudyConnect.API.Controllers.Users
         [Route("v1/users")]
         [HttpPut]
         [Authorize]
-        [ProducesResponseType(StatusCodes.Status204NoContent)] 
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> UpdateUser([FromBody] UserUpdateDto userUpdateDto)
         {
             //Read the ObjectId claim from the token
@@ -156,7 +156,7 @@ namespace StudyConnect.API.Controllers.Users
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            
+
             // Create a updated User object with the new information
             var user = new User
             {
@@ -178,7 +178,7 @@ namespace StudyConnect.API.Controllers.Users
             if (!result.Data)
             {
                 return NotFound("User not found.");
-            }       
+            }
 
             return NoContent();
         }
@@ -197,33 +197,7 @@ namespace StudyConnect.API.Controllers.Users
             return BadRequest("Not implemented yet.");
         }
 
-        [Route("v1/users/{userId}/groups")]
-        [HttpGet]
-        public async Task<IActionResult> GetGroupsMemberOfAsync([FromRoute] Guid userId)
-        {
-            var groups = await _userRepository.GetGroupsMemberOfAsync(userId);
 
-            if (!groups.IsSuccess)
-            {
-                return BadRequest(groups.ErrorMessage);
-            }
-
-            if (groups == null)
-            {
-                return NotFound("Groups not Found");
-            }
-
-            var result = groups.Data.Select(g => new GroupReadDto
-            {
-                GroupId = g.GroupId,
-                OwnerId = g.OwnerId,
-                Name = g.Name,
-                Description = g.Description,
-                CreatedAt = g.CreatedAt
-            }).ToList();
-
-            return Ok(result);
-        }
 
     }
 }

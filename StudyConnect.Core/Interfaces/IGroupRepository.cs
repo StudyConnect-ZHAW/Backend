@@ -30,6 +30,27 @@ public interface IGroupRepository
     Task<OperationResult<IEnumerable<GroupMember>>> GetMembersAsync(Guid GroupId);
 
     /// <summary>
+    /// Retrieves all groups the specified user is a member of.
+    /// </summary>
+    /// <param name="userId">The user’s unique identifier.</param>
+    /// <returns>
+    // An <see cref="OperationResult{T}"/> whose <c>Data</c> property
+    /// contains a collection of <see cref="Group"/> objects.
+    /// </returns>
+    Task<OperationResult<IEnumerable<Group>>> GetGroupsForUserAsync(Guid userId);
+
+    /// <summary>
+    /// Retrieves all groups the specified user is a owner of.
+    /// </summary>
+    /// <param name="userId">The user’s unique identifier.</param>
+    /// <returns>
+    // An <see cref="OperationResult{T}"/> whose <c>Data</c> property
+    /// contains a collection of <see cref="Group"/> objects.
+    /// </returns>
+    Task<OperationResult<IEnumerable<Group>>> GetOwnedGroupsForUserAsync(Guid userId);
+
+
+    /// <summary>
     /// Adds a new group to the system.
     /// </summary>
     /// <param name="group">The group to add.</param>
