@@ -46,5 +46,5 @@ public interface IGroupCommentRepository
     /// <param name="userId">The unique identifier of the current user.</param>
     /// <param name="groupId">The unique identifier of group the post belogns to.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<bool>> DeleteAsync(Guid commentId, Guid userId, Guid groupId);
+    Task<OperationResult<bool>> DeleteAsync(Guid userId, Guid groupId, Guid commentId);
 }

@@ -207,7 +207,6 @@ public class GroupCommentRepository : BaseRepository, IGroupCommentRepository
         IsDeleted = comment.IsDeleted,
         JointedAt = comment.GroupMember.JoinedAt,
         User = comment.GroupMember.Member.ToUserModel(),
-        Group = comment.Group.ToGroupModel()
     };
 
 }

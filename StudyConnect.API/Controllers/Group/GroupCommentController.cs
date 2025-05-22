@@ -106,13 +106,14 @@ public class CommentController : BaseController
     /// <summary>
     /// Updates an existing comment.
     /// </summary>
+    /// <param name="gid">The unique identifier of group the member belongs to.</param>
     /// <param name="cmid">The unique identifier of the comment.</param>
     /// <param name="commentDto">A Data Transfer Object containing updated comment data.</param>
     /// <returns>Returns HTTP 204 No Content on success, or an appropriate error status code on failure.</returns>
     [Route("v1/groups/{gid:guid}/comments/{cmid:guid}")]
     [HttpPut]
     [Authorize]
-    public async Task<IActionResult> UpdateComment([FromRoute] Guid cmid, [FromBody] GroupCommentDto commentDto)
+    public async Task<IActionResult> UpdateComment([FromRoute] Guid gid, [FromRoute] Guid cmid, [FromBody] GroupCommentDto commentDto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -123,7 +124,7 @@ public class CommentController : BaseController
         };
 
         var uid = GetIdFromToken();
-        var result = await _commentRepository.UpdateAsync();
+        var result = await _commentRepository.UpdateAsync(uid, gid, cmid, comment);
         if (!result.IsSuccess || result.Data == null)
         {
             if (result.ErrorMessage!.Contains(GeneralNotFound)) return NotFound(result.ErrorMessage);
@@ -135,44 +136,21 @@ public class CommentController : BaseController
     }
 
     /// <summary>
-    /// Adds or Removes a like to/from comment.
-    /// </summary>
-    /// <param name="cmid">The unique identifier of the comment.</param>
-    /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
-    [Route("v1/comments/{cmid:guid}/likes")]
-    [HttpPut]
-    [Authorize]
-    public async Task<IActionResult> ToggleLike([FromRoute] Guid cmid)
-    {
-        var uid = GetIdFromToken();
-
-        var result = await _likeRepository.CommentLikeExistsAsync(uid, cmid)
-            ? await _likeRepository.UnlikeCommentAsync(uid, cmid)
-            : await _likeRepository.LikeCommentAsync(uid, cmid);
-
-        if (!result.IsSuccess && !string.IsNullOrEmpty(result.ErrorMessage))
-            return result.ErrorMessage.Contains(GeneralNotFound)
-                ? NotFound(result.ErrorMessage)
-                : BadRequest(result.ErrorMessage);
-
-        return NoContent();
-    }
-
-    /// <summary>
     /// Deletes an existing comment.
     /// </summary>
+    /// <param name="gid">the uniq identifier of the group the member belongs to.</param>
     /// <param name="cmid">The unique identifier of the comment.</param>
     /// <returns>Returns HTTP 204 No Content on success, or an appropriate error status code on failure.</returns>
-    [Route("v1/comments/{cmid:guid}")]
+    [Route("v1/groups/{gid}/comments/{cmid:guid}")]
     [HttpDelete]
     [Authorize]
-    public async Task<IActionResult> DeleteComment([FromRoute] Guid cmid)
+    public async Task<IActionResult> DeleteComment([FromBody] Guid gid,[FromRoute] Guid cmid)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
         var uid = GetIdFromToken();
-        var result = await _commentRepository.DeleteAsync(uid, cmid);
+        var result = await _commentRepository.DeleteAsync(uid, gid, cmid);
         if (!result.IsSuccess)
         {
             if (result.ErrorMessage!.Contains(GeneralNotFound)) return NotFound(result.ErrorMessage);
