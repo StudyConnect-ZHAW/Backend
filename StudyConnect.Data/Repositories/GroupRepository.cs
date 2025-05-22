@@ -171,18 +171,18 @@ public class GroupRepository : BaseRepository, IGroupRepository
             {
                 return OperationResult<IEnumerable<GroupMember>>.Failure("Invalid GroupId");
             }
-            var group = await _context.Groups
+            var groupmembers = await _context.GroupMembers
                 .AsNoTracking()
-                .Include(g => g.GroupMembers)
-                    .ThenInclude(gm => gm.Member)
-                .FirstOrDefaultAsync(g => g.GroupId == GroupId);
+                .Include(gm => gm.Member)
+                .Where(gm => gm.GroupId == GroupId)
+                .ToListAsync();
 
-            if (group == null)
+            if (groupmembers == null)
             {
                 return OperationResult<IEnumerable<GroupMember>>.Failure("Group not found");
             }
 
-            var members = group.GroupMembers.Select(g => new GroupMember
+            var members = groupmembers.Select(g => new GroupMember
             {
                 GroupId = g.GroupId,
                 MemberId = g.MemberId,

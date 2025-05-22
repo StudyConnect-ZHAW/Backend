@@ -101,17 +101,17 @@ public class UserRepository : BaseRepository, IUserRepository
             return OperationResult<IEnumerable<Group>>.Failure("Invalid GUID.");
         }
 
-        var existingUser = await _context.Users
-        .Include(u => u.GroupMembers)
-            .ThenInclude(gm => gm.Group)
-        .FirstOrDefaultAsync(u => u.UserGuid == userId);
+        var existingUser = await _context.GroupMembers
+        .Include(gm => gm.Group)
+        .Where(u => u.MemberId == userId)
+        .ToListAsync();
 
         if (existingUser == null)
         {
             return OperationResult<IEnumerable<Group>>.Failure("User not found");
         }
 
-        var groups = existingUser.GroupMembers.Select(gm => new Group
+        var groups = existingUser.Select(gm => new Group
         {
             GroupId = gm.GroupId,
             OwnerId = gm.Group.OwnerId,
