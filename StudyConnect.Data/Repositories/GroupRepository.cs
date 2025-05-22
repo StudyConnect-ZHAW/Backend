@@ -21,6 +21,11 @@ public class GroupRepository : BaseRepository, IGroupRepository
         var entity = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == groupId);
         if (entity == null)
         {
+            return await Task.FromResult(OperationResult<Group?>.Failure("Group not found."));
+        }
+        var entity = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == groupId);
+        if (entity == null)
+        {
             return OperationResult<Group?>.Success(null);
         }
 
@@ -35,13 +40,33 @@ public class GroupRepository : BaseRepository, IGroupRepository
         return OperationResult<Group?>.Success(groupToReturn);
     }
 
+    /// <summary>
+    /// Updates the specified group's name and description in the database.
+    /// </summary>
+    /// <param name="group">The group object with updated information.</param>
+    /// <returns>An operation result indicating success or failure.</returns>
     public async Task<OperationResult<bool>> UpdateAsync(Group group)
+    {
+        if (group == null)
+        {
+            return OperationResult<bool>.Failure("Group cannot be null.");
+        }
+
+        if (group.GroupId == Guid.Empty)
+        {
+            return OperationResult<bool>.Failure("Invalid GUID.");
+        }
     {
         if (group.GroupId == Guid.Empty)
         {
             return OperationResult<bool>.Failure("Invalid GUID.");
         }
 
+        var existingGroup = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == group.GroupId);
+        if (existingGroup == null)
+        {
+            return OperationResult<bool>.Failure("Group not found.");
+        }
         var existingGroup = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == group.GroupId);
         if (existingGroup == null)
         {
@@ -64,6 +89,20 @@ public class GroupRepository : BaseRepository, IGroupRepository
         }
     }
 
+    /// <summary>
+    /// Deletes a group from the database based on its unique identifier.
+    /// </summary>
+    /// <param name="groupId">The ID of the group to delete.</param>
+    /// <returns>An operation result indicating success or failure.</returns>
+    public async Task<OperationResult<bool>> DeleteAsync(Guid groupId)
+    {
+        if (groupId == Guid.Empty)
+        {
+            return OperationResult<bool>.Failure("Invalid GUID.");
+        }
+        }
+    }
+
     public async Task<OperationResult<bool>> DeleteAsync(Guid groupId)
     {
         if (groupId == Guid.Empty)
@@ -71,6 +110,11 @@ public class GroupRepository : BaseRepository, IGroupRepository
             return OperationResult<bool>.Failure("Invalid GUID.");
         }
 
+        var entity = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == groupId);
+        if (entity == null)
+        {
+            return OperationResult<bool>.Failure("Group not found.");
+        }
         var entity = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == groupId);
         if (entity == null)
         {
@@ -89,6 +133,43 @@ public class GroupRepository : BaseRepository, IGroupRepository
         }
     }
 
+    /// <summary>
+    /// Adds a new group to the database if it does not already exist.
+    /// </summary>
+    /// <param name="group">The group object to be added.</param>
+    /// <returns>An operation result indicating success or failure.</returns>
+    public async Task<OperationResult<bool>> AddAsync(Group group)
+    {
+        if (group == null)
+        {
+            return OperationResult<bool>.Failure("Group cannot be null.");
+        }
+
+        var existingGroup = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == group.GroupId);
+        if (existingGroup != null)
+        {
+            return OperationResult<bool>.Failure("A group with the same ID already exists.");
+        }
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == group.OwnerId);
+        if (user == null)
+        {
+            return OperationResult<bool>.Failure("Owner user not found.");
+        }
+
+        try
+        {
+            var entity = new Data.Entities.Group
+            {
+                GroupId = group.GroupId != Guid.Empty ? group.GroupId : Guid.NewGuid(),
+                OwnerId = group.OwnerId,
+                Name = group.Name,
+                Description = group.Description,
+                Owner = user 
+            };
+        }
+    }
+
     public async Task<OperationResult<Group>> AddAsync(Group group)
     {
         var entity = new Data.Entities.Group
@@ -101,9 +182,16 @@ public class GroupRepository : BaseRepository, IGroupRepository
                 ?? throw new InvalidOperationException("Owner user not found."),
         };
 
-        await _context.Groups.AddAsync(entity);
-        await _context.SaveChangesAsync();
+            await _context.Groups.AddAsync(entity);
+            await _context.SaveChangesAsync();
 
+            return OperationResult<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+        return OperationResult<bool>.Failure($"An error occurred while adding the group: {ex.Message}");
+        }
+    }
         // In Domain-/DTO-Modell zurückmappen
         var model = new Group
         {
