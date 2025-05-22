@@ -196,9 +196,6 @@ namespace StudyConnect.API.Controllers.Users
             //Not implemented yet
             return BadRequest("Not implemented yet.");
         }
-
-
-
     }
 }
 

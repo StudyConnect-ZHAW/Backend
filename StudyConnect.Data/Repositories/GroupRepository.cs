@@ -208,17 +208,17 @@ public class GroupRepository : BaseRepository, IGroupRepository
             return OperationResult<IEnumerable<Group>>.Failure("Invalid GUID.");
         }
 
-        var existingUser = await _context.GroupMembers
+        var existingMembers = await _context.GroupMembers
         .Include(gm => gm.Group)
         .Where(u => u.MemberId == userId)
         .ToListAsync();
 
-        if (existingUser == null)
+        if (existingMembers == null)
         {
-            return OperationResult<IEnumerable<Group>>.Failure("User not found");
+            return OperationResult<IEnumerable<Group>>.Success([]);
         }
 
-        var groups = existingUser.Select(gm => new Group
+        var groups = existingMembers.Select(gm => new Group
         {
             GroupId = gm.GroupId,
             OwnerId = gm.Group.OwnerId,
@@ -230,8 +230,32 @@ public class GroupRepository : BaseRepository, IGroupRepository
         return OperationResult<IEnumerable<Group>>.Success(groups);
     }
 
-    public Task<OperationResult<IEnumerable<Group>>> GetOwnedGroupsForUserAsync(Guid userId)
+    public async Task<OperationResult<IEnumerable<Group>>> GetOwnedGroupsForUserAsync(Guid userId)
     {
-        throw new NotImplementedException();
+        if (userId == Guid.Empty)
+        {
+            return OperationResult<IEnumerable<Group>>.Failure("Invalid GUID.");
+        }
+
+        var existingGroups = await _context.Groups
+        .Include(g => g.Owner)
+        .Where(g => g.OwnerId == userId)
+        .ToListAsync();
+
+        if (existingGroups == null)
+        {
+            return OperationResult<IEnumerable<Group>>.Success([]);
+        }
+
+        var groups = existingGroups.Select(gm => new Group
+        {
+            GroupId = gm.GroupId,
+            OwnerId = gm.OwnerId,
+            Name = gm.Name,
+            Description = gm.Description,
+            CreatedAt = gm.CreatedAt
+        }).ToList();
+
+        return OperationResult<IEnumerable<Group>>.Success(groups);
     }
 }

@@ -51,7 +51,7 @@ public class UserRepository : BaseRepository, IUserRepository
             await _context.Users.AddAsync(userToAdd);
             // Save changes to the database
             await _context.SaveChangesAsync();
-            
+
             return OperationResult<bool>.Success(true);
         }
         catch (InvalidOperationException ex)
@@ -92,35 +92,6 @@ public class UserRepository : BaseRepository, IUserRepository
         };
 
         return OperationResult<User?>.Success(userToReturn);
-    }
-
-    public async Task<OperationResult<IEnumerable<Group>>> GetGroupsMemberOfAsync(Guid userId)
-    {
-        if (userId == Guid.Empty)
-        {
-            return OperationResult<IEnumerable<Group>>.Failure("Invalid GUID.");
-        }
-
-        var existingUser = await _context.GroupMembers
-        .Include(gm => gm.Group)
-        .Where(u => u.MemberId == userId)
-        .ToListAsync();
-
-        if (existingUser == null)
-        {
-            return OperationResult<IEnumerable<Group>>.Failure("User not found");
-        }
-
-        var groups = existingUser.Select(gm => new Group
-        {
-            GroupId = gm.GroupId,
-            OwnerId = gm.Group.OwnerId,
-            Name = gm.Group.Name,
-            Description = gm.Group.Description,
-            CreatedAt = gm.Group.CreatedAt
-        }).ToList();
-
-        return OperationResult<IEnumerable<Group>>.Success(groups);
     }
 
     public async Task<OperationResult<bool>> UpdateAsync(User user)

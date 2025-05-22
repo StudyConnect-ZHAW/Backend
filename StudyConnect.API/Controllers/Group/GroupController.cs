@@ -279,11 +279,51 @@ namespace StudyConnect.API.Controllers.Groups
             return Ok(dto);
         }
 
+        /// <summary>
+        /// Retrieves every group the user has joinded.
+        /// </summary>
+        /// <param name="userId">Identifier of the user whose joined groups are requested.</param>
+        /// <returns>
+        /// 200 OK with a collection of <see cref="GroupReadDto"/>; 400 Bad Request when the repository reports an error.
+        /// </returns>
         [Route("v1/users/{userId}/groups")]
         [HttpGet]
         public async Task<IActionResult> GetGroupsForUserAsync([FromRoute] Guid userId)
         {
             var groupsList = await _groupRepository.GetGroupsForUserAsync(userId);
+
+            if (!groupsList.IsSuccess)
+            {
+                return BadRequest(groupsList.ErrorMessage);
+            }
+
+
+            var groups = groupsList.Data ?? [];
+
+            var result = groups.Select(g => new GroupReadDto
+            {
+                GroupId = g.GroupId,
+                OwnerId = g.OwnerId,
+                Name = g.Name,
+                Description = g.Description,
+                CreatedAt = g.CreatedAt
+            }).ToList();
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Retrieves every group the user owns.
+        /// </summary>
+        /// <param name="userId">Identifier of the user who owns some groups.</param>
+        /// <returns>
+        /// 200 OK with a collection of <see cref="GroupReadDto"/>; 400 Bad Request when the repository reports an error.
+        /// </returns>
+        [Route("v1/users/{userId}/owned")]
+        [HttpGet]
+        public async Task<IActionResult> GetOwnedGroupsForUserAsync([FromRoute] Guid userId)
+        {
+            var groupsList = await _groupRepository.GetOwnedGroupsForUserAsync(userId);
 
             if (!groupsList.IsSuccess)
             {
