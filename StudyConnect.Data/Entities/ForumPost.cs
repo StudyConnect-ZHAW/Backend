@@ -27,7 +27,7 @@ public class ForumPost
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     [Required]
-    public DateTime UpdatedAt { get; set; } 
+    public DateTime UpdatedAt { get; set; }
 
     public int ViewCount { get; set; } = 0;
 
@@ -47,4 +47,6 @@ public class ForumPost
     /// Collection of comments associated with this post.
     /// </summary>
     public virtual ICollection<ForumComment> ForumComments { get; set; } = new List<ForumComment>();
+    
+    public virtual ICollection<PostTag> PostTags { get; set; } = [];
 }

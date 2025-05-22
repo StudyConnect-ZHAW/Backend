@@ -130,9 +130,16 @@ public class StudyConnectDbContext : DbContext
             .WithMany(fc => fc.Replies)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Tag>().HasKey(t => t.TagId);
-        modelBuilder.Entity<Tag>().Property(t => t.Name).IsRequired().HasMaxLength(100);
-        modelBuilder.Entity<Tag>().Property(t => t.Description).HasMaxLength(500);
+        // Configure PostTag-ForumPost relationship
+        modelBuilder.Entity<PostTag>()
+            .HasKey(pt => new { pt.ForumPostId, pt.TagId });
+        
+        // Configure Tag-PostTag relationship
+        modelBuilder.Entity<Tag>()
+            .HasMany(t => t.PostTags)
+            .WithOne(pt => pt.Tag)
+            .HasForeignKey(pt => pt.TagId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Configure Unique non-key indexes
         modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
@@ -151,6 +158,7 @@ public class StudyConnectDbContext : DbContext
         modelBuilder.Entity<ForumPost>().ToTable("ForumPost");
         modelBuilder.Entity<ForumComment>().ToTable("ForumComment");
         modelBuilder.Entity<Tag>().ToTable("Tag");
+        modelBuilder.Entity<PostTag>().ToTable("PostTag");
 
         modelBuilder.Entity<ForumCategory>().HasData(
             new ForumCategory
@@ -250,4 +258,7 @@ public class StudyConnectDbContext : DbContext
     /// Gets or sets the Tags table.
     /// </summary>
     public DbSet<Tag> Tags { get; set; }
+
+
+    public DbSet<PostTag> PostTags { get; set; }
 }
