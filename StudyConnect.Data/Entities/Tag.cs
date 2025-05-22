@@ -33,5 +33,6 @@ namespace StudyConnect.Data.Entities
         /// <summary>
         /// Future: Collection of related posts (optional navigation property).
         /// </summary>
+        public virtual ICollection<PostTag>? PostTags { get; set; } = [];
     }
 }
