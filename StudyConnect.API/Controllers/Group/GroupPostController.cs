@@ -187,6 +187,7 @@ public class PostController : BaseController
         Created = post.CreatedAt,
         Updated = post.UpdatedAt,
         GroupId = post.GroupId,
+        JoinedAt = post.JoinedAt,
         User = post.User != null
                 ? GenerateUserReadDto(post.User)
                 : null,

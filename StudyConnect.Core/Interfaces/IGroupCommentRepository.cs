@@ -37,7 +37,7 @@ public interface IGroupCommentRepository
     /// <param name="comment">A comment model containing the updated content.</param>
     /// <param name="groupId">The unique identifier of group the post belogns to.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns> 
-    Task<OperationResult<GroupComment>> UpdateAsync(Guid commentId, Guid userId, Guid groupId, GroupComment comment);
+    Task<OperationResult<GroupComment>> UpdateAsync(Guid userId, Guid groupId, Guid commentId, GroupComment comment);
 
     /// <summary>
     /// Delete a comment by its GUID.
