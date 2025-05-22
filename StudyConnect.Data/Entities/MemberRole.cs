@@ -26,5 +26,5 @@ public class MemberRole
     /// <summary>
     /// Collection of group members associated with this role.
     /// </summary>
-    public virtual ICollection<GroupMembers> GroupMembers { get; set; } = [];
+    public virtual ICollection<GroupMember> GroupMembers { get; set; } = [];
 }

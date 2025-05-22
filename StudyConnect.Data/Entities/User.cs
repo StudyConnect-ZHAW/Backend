@@ -41,7 +41,7 @@ public class User
     /// <summary>
     /// Collection of groups the user is a member of.
     /// </summary>
-    public virtual ICollection<GroupMembers> GroupMembers { get; set; } = [];
+    public virtual ICollection<GroupMember> GroupMembers { get; set; } = [];
 
     /// <summary>
     /// Collection of forum posts made by the user.

@@ -51,7 +51,7 @@ public class UserRepository : BaseRepository, IUserRepository
             await _context.Users.AddAsync(userToAdd);
             // Save changes to the database
             await _context.SaveChangesAsync();
-            
+
             return OperationResult<bool>.Success(true);
         }
         catch (InvalidOperationException ex)

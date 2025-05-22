@@ -27,4 +27,9 @@ public class Group
     /// The Description of the group.
     /// </summary>
     public string Description { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The CreatedAt of the group.
+    /// </summary>
+    public DateTime CreatedAt { get; set; }
 }

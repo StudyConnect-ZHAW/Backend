@@ -132,7 +132,7 @@ namespace StudyConnect.API.Controllers.Users
             if (!result.Data)
             {
                 return NotFound("User not found.");
-            }  
+            }
 
             return Ok("User updated successfully.");
         }
@@ -146,7 +146,7 @@ namespace StudyConnect.API.Controllers.Users
         [Route("v1/users")]
         [HttpPut]
         [Authorize]
-        [ProducesResponseType(StatusCodes.Status204NoContent)] 
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> UpdateUser([FromBody] UserUpdateDto userUpdateDto)
         {
             //Read the ObjectId claim from the token
@@ -156,7 +156,7 @@ namespace StudyConnect.API.Controllers.Users
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            
+
             // Create a updated User object with the new information
             var user = new User
             {
@@ -178,7 +178,7 @@ namespace StudyConnect.API.Controllers.Users
             if (!result.Data)
             {
                 return NotFound("User not found.");
-            }       
+            }
 
             return NoContent();
         }
@@ -196,8 +196,6 @@ namespace StudyConnect.API.Controllers.Users
             //Not implemented yet
             return BadRequest("Not implemented yet.");
         }
-
-
     }
 }
 

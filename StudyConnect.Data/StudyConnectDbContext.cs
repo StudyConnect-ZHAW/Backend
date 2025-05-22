@@ -54,10 +54,10 @@ public class StudyConnectDbContext : DbContext
             .WithMany(ur => ur.Users)
             .HasForeignKey("URoleId")
             .OnDelete(DeleteBehavior.Restrict);
-        
+
         // Create a Default UserRole Student
         modelBuilder.Entity<UserRole>().HasData(new UserRole
-        {   
+        {
             URoleId = new Guid("00000000-0000-0000-0000-000000000001"),
             Name = "Student",
             Description = "Student is the default role with no rights."
@@ -71,24 +71,24 @@ public class StudyConnectDbContext : DbContext
             .OnDelete(DeleteBehavior.Cascade);
 
         // Configure Group member composite key
-        modelBuilder.Entity<GroupMembers>()
+        modelBuilder.Entity<GroupMember>()
         .HasKey(gm => new { gm.MemberId, gm.GroupId });
 
-        // Configure Group-GroupMembers relationship
+        // Configure Group-GroupMember relationship
         modelBuilder.Entity<Group>()
             .HasMany(g => g.GroupMembers)
             .WithOne(gm => gm.Group)
             .HasForeignKey(gm => gm.GroupId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Configure User-GroupMembers relationship
+        // Configure User-GroupMember relationship
         modelBuilder.Entity<User>()
             .HasMany(u => u.GroupMembers)
             .WithOne(gm => gm.Member)
             .HasForeignKey(gm => gm.MemberId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<GroupMembers>()
+        modelBuilder.Entity<GroupMember>()
             .HasOne(gm => gm.MemberRole)
             .WithMany(mr => mr.GroupMembers)
             .HasForeignKey(gm => gm.MemberRoleId)
@@ -140,7 +140,7 @@ public class StudyConnectDbContext : DbContext
         modelBuilder.Entity<User>().ToTable("User");
         modelBuilder.Entity<UserRole>().ToTable("UserRole");
         modelBuilder.Entity<Group>().ToTable("Group");
-        modelBuilder.Entity<GroupMembers>().ToTable("GroupMembers");
+        modelBuilder.Entity<GroupMember>().ToTable("GroupMember");
         modelBuilder.Entity<MemberRole>().ToTable("MemberRole");
         modelBuilder.Entity<ForumCategory>().ToTable("ForumCategory");
         modelBuilder.Entity<ForumPost>().ToTable("ForumPost");
@@ -172,13 +172,21 @@ public class StudyConnectDbContext : DbContext
                 Description = "General Kontext"
             }
         );
+        
+        // Create a Default GroupRole Student
+        modelBuilder.Entity<MemberRole>().HasData(new MemberRole
+        {   
+            MemberRoleId = new Guid("00000000-0000-0000-0000-000000000010"),
+            Name = "GroupMember",
+            Description = "Is a member of a group"
+        });
 
     }
 
     public DbSet<User> Users { get; set; }
     public DbSet<UserRole> UserRoles { get; set; }
     public DbSet<Group> Groups { get; set; }
-    public DbSet<GroupMembers> GroupMembers { get; set; }
+    public DbSet<GroupMember> GroupMembers { get; set; }
     public DbSet<MemberRole> MemberRoles { get; set; }
     public DbSet<ForumCategory> ForumCategories { get; set; }
     public DbSet<ForumPost> ForumPosts { get; set; }

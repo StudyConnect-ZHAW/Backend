@@ -8,7 +8,7 @@ namespace StudyConnect.Core.Interfaces;
 /// Interface for managing user-related operations in the system.
 /// </summary>
 public interface IUserRepository
-{   
+{
     /// <summary>
     /// Get a user by their GUID.
     /// </summary>
