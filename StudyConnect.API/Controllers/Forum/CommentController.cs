@@ -4,6 +4,8 @@ using StudyConnect.Core.Interfaces;
 using StudyConnect.API.Dtos.Responses.Forum;
 using StudyConnect.API.Dtos.Requests.Forum;
 using StudyConnect.API.Dtos.Responses.User;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Identity.Web;
 using static StudyConnect.Core.Common.ErrorMessages;
 
 namespace StudyConnect.API.Controllers.Forum;
@@ -20,13 +22,21 @@ public class CommentController : BaseController
     /// </summary>
     protected readonly ICommentRepository _commentRepository;
 
+
+    /// <summary>
+    /// The like repository for data operations.
+    /// </summary>
+    protected readonly ILikeRepository _likeRepository;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="CommentController"/> class.
     /// </summary>
     /// <param name="commentRepository">The repository used to manage comment data.</param>
-    public CommentController(ICommentRepository commentRepository)
+    /// <param name="likeRepository">The repository used to manage likes data.</param>
+    public CommentController(ICommentRepository commentRepository, ILikeRepository likeRepository)
     {
         _commentRepository = commentRepository;
+        _likeRepository = likeRepository;
     }
 
     /// <summary>
@@ -36,6 +46,7 @@ public class CommentController : BaseController
     /// <param name="createDto">A Data Transfer Object containing information for comment creation.</param>
     /// <returns>Returns HTTP 200 OK on success, or 400 Bad Request on failure.</returns>
     [Route("v1/posts/{pid:guid}/comments")]
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> AddComment([FromRoute] Guid pid, [FromBody] CommentCreateDto createDto)
     {
@@ -47,16 +58,16 @@ public class CommentController : BaseController
             Content = createDto.Content
         };
 
-        Guid userId = createDto.UserId;
-        Guid? parentId = createDto.ParentCommentId;
+        var uid = GetIdFromToken();
+        Guid? ptid = createDto.ParentCommentId;
 
-        var result = await _commentRepository.AddAsync(comment, userId, pid, parentId);
-        if (!result.IsSuccess)
+        var result = await _commentRepository.AddAsync(comment, uid, pid, ptid);
+        if (!result.IsSuccess || result.Data == null)
             return result.ErrorMessage!.Contains(GeneralNotFound)
                 ? NotFound(result.ErrorMessage)
                 : BadRequest(result.ErrorMessage);
 
-        var createdComment = MapCommentToDto(result.Data!);
+        var createdComment = MapToCommentDto(result.Data);
 
         return Ok(createdComment);
     }
@@ -71,12 +82,12 @@ public class CommentController : BaseController
     public async Task<IActionResult> GetAllCommentsOfPost([FromRoute] Guid pid)
     {
         var comments = await _commentRepository.GetAllofPostAsync(pid);
-        if (!comments.IsSuccess)
+        if (!comments.IsSuccess || comments.Data == null)
             return comments.ErrorMessage!.Contains(GeneralNotFound)
                 ? NotFound(comments.ErrorMessage)
                 : BadRequest(comments.ErrorMessage);
 
-        var result = comments.Data!.Select(c => MapCommentToDto(c));
+        var result = comments.Data.Select(MapToCommentDto);
         return Ok(result);
     }
 
@@ -90,12 +101,12 @@ public class CommentController : BaseController
     public async Task<IActionResult> GetCommentById([FromRoute] Guid cmid)
     {
         var comment = await _commentRepository.GetByIdAsync(cmid);
-        if (!comment.IsSuccess)
+        if (!comment.IsSuccess || comment.Data == null)
             return comment.ErrorMessage!.Contains(GeneralNotFound)
                 ? NotFound(comment.ErrorMessage)
                 : BadRequest(comment.ErrorMessage);
 
-        var result = MapCommentToDto(comment.Data!);
+        var result = MapToCommentDto(comment.Data);
 
         return Ok(result);
     }
@@ -108,6 +119,7 @@ public class CommentController : BaseController
     /// <returns>Returns HTTP 204 No Content on success, or an appropriate error status code on failure.</returns>
     [Route("v1/comments/{cmid:guid}")]
     [HttpPut]
+    [Authorize]
     public async Task<IActionResult> UpdateComment([FromRoute] Guid cmid, [FromBody] CommentUpdateDto commentDto)
     {
         if (!ModelState.IsValid)
@@ -118,7 +130,57 @@ public class CommentController : BaseController
             Content = commentDto.Content
         };
 
-        var result = await _commentRepository.UpdateAsync(cmid, commentDto.UserId, comment);
+        var uid = GetIdFromToken();
+        var result = await _commentRepository.UpdateAsync(uid, cmid, comment);
+        if (!result.IsSuccess || result.Data == null)
+        {
+            if (result.ErrorMessage!.Contains(GeneralNotFound)) return NotFound(result.ErrorMessage);
+            else if (result.ErrorMessage!.Equals(NotAuthorized)) return Unauthorized(result.ErrorMessage);
+            else return BadRequest(result.ErrorMessage);
+        }
+
+        return Ok(MapToCommentDto(result.Data));
+    }
+
+    /// <summary>
+    /// Adds or Removes a like to/from comment.
+    /// </summary>
+    /// <param name="cmid">The unique identifier of the comment.</param>
+    /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
+    [Route("v1/comments/{cmid:guid}/likes")]
+    [HttpPut]
+    [Authorize]
+    public async Task<IActionResult> ToggleLike([FromRoute] Guid cmid)
+    {
+        var uid = GetIdFromToken();
+
+        var result = await _likeRepository.CommentLikeExistsAsync(uid, cmid)
+            ? await _likeRepository.UnlikeCommentAsync(uid, cmid)
+            : await _likeRepository.LikeCommentAsync(uid, cmid);
+
+        if (!result.IsSuccess && !string.IsNullOrEmpty(result.ErrorMessage))
+            return result.ErrorMessage.Contains(GeneralNotFound)
+                ? NotFound(result.ErrorMessage)
+                : BadRequest(result.ErrorMessage);
+
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Deletes an existing comment.
+    /// </summary>
+    /// <param name="cmid">The unique identifier of the comment.</param>
+    /// <returns>Returns HTTP 204 No Content on success, or an appropriate error status code on failure.</returns>
+    [Route("v1/comments/{cmid:guid}")]
+    [HttpDelete]
+    [Authorize]
+    public async Task<IActionResult> DeleteComment([FromRoute] Guid cmid)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var uid = GetIdFromToken();
+        var result = await _commentRepository.DeleteAsync(uid, cmid);
         if (!result.IsSuccess)
         {
             if (result.ErrorMessage!.Contains(GeneralNotFound)) return NotFound(result.ErrorMessage);
@@ -129,28 +191,12 @@ public class CommentController : BaseController
         return NoContent();
     }
 
-    /// <summary>
-    /// Deletes an existing comment.
-    /// </summary>
-    /// <param name="cmid">The unique identifier of the comment.</param>
-    /// <param name="userId">The ID of the user requesting the deletion.</param>
-    /// <returns>Returns HTTP 204 No Content on success, or an appropriate error status code on failure.</returns>
-    [Route("v1/comments/{cmid:guid}")]
-    [HttpDelete]
-    public async Task<IActionResult> DeleteComment([FromRoute] Guid cmid, [FromQuery] Guid userId)
+    private Guid GetIdFromToken()
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        var result = await _commentRepository.DeleteAsync(cmid, userId);
-        if (!result.IsSuccess)
-        {
-            if (result.ErrorMessage!.Contains(GeneralNotFound)) return NotFound(result.ErrorMessage);
-            else if (result.ErrorMessage!.Equals(NotAuthorized)) return Unauthorized(result.ErrorMessage);
-            else return BadRequest(result.ErrorMessage);
-        }
-
-        return NoContent();
+        var oidClaim = HttpContext.User.GetObjectId();
+        return oidClaim != null
+            ? Guid.Parse(oidClaim)
+            : Guid.Empty;
     }
 
     /// <summary>
@@ -173,7 +219,7 @@ public class CommentController : BaseController
     /// </summary>
     /// <param name="comment">The comment model.</param>
     /// <returns>A CommentReadDto containing comment details and nested replies, if any.</returns>
-    private CommentReadDto MapCommentToDto(ForumComment comment)
+    private CommentReadDto MapToCommentDto(ForumComment comment)
     {
         var result = new CommentReadDto
         {
@@ -184,6 +230,7 @@ public class CommentController : BaseController
             Edited = comment.IsEdited,
             Deleted = comment.IsDeleted,
             ReplyCount = comment.ReplyCount,
+            LikeCount = comment.LikeCount,
             User = comment.User != null
                 ? MapUserToDto(comment.User)
                 : null,
@@ -193,7 +240,7 @@ public class CommentController : BaseController
 
         if (comment.Replies != null && comment.Replies.Count > 0)
         {
-            result.Replies = comment.Replies.Select(c => MapCommentToDto(c)).ToList();
+            result.Replies = comment.Replies.Select(MapToCommentDto).ToList();
         }
 
         return result;

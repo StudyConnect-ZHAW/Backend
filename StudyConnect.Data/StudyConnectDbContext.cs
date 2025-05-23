@@ -130,11 +130,32 @@ public class StudyConnectDbContext : DbContext
             .WithMany(fc => fc.Replies)
             .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<ForumLike>()
+            .HasOne(l => l.User)
+            .WithMany(u => u.ForumLikes)
+            .HasForeignKey(l => l.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure Like-ForumPost relationship
+        modelBuilder.Entity<ForumLike>()
+            .HasOne(l => l.ForumPost)
+            .WithMany(p => p.ForumLikes)
+            .HasForeignKey(l => l.ForumPostId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure Like-ForumComment relationship
+        modelBuilder.Entity<ForumLike>()
+            .HasOne(l => l.ForumComment)
+            .WithMany(c => c.ForumLikes)
+            .HasForeignKey(l => l.ForumCommentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // Configure Unique non-key indexes
         modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
         modelBuilder.Entity<UserRole>().HasIndex(u => u.Name).IsUnique();
         modelBuilder.Entity<MemberRole>().HasIndex(m => m.Name).IsUnique();
         modelBuilder.Entity<ForumCategory>().HasIndex(f => f.Name).IsUnique();
+        modelBuilder.Entity<ForumLike>().HasIndex(l => new { l.UserId, l.ForumPostId, l.ForumCommentId }).IsUnique();
 
         // Configure table names to match SQL schema
         modelBuilder.Entity<User>().ToTable("User");
@@ -145,6 +166,7 @@ public class StudyConnectDbContext : DbContext
         modelBuilder.Entity<ForumCategory>().ToTable("ForumCategory");
         modelBuilder.Entity<ForumPost>().ToTable("ForumPost");
         modelBuilder.Entity<ForumComment>().ToTable("ForumComment");
+        modelBuilder.Entity<ForumLike>().ToTable("ForumLike");
 
         modelBuilder.Entity<ForumCategory>().HasData(
             new ForumCategory
@@ -191,4 +213,5 @@ public class StudyConnectDbContext : DbContext
     public DbSet<ForumCategory> ForumCategories { get; set; }
     public DbSet<ForumPost> ForumPosts { get; set; }
     public DbSet<ForumComment> ForumComments { get; set; }
+    public DbSet<ForumLike> ForumLikes { get; set; }
 }

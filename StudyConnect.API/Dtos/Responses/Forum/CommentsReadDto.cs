@@ -31,6 +31,11 @@ public class CommentReadDto
     /// The count of the replies to this comment.
     /// </summary>
     public int? ReplyCount { get; set; }
+    
+    /// <summary>
+    /// The number of likes this comment received.
+    /// </summary>
+    public int? LikeCount { get; set; }
 
     /// <summary>
     /// A state indicating that the comment was modified.

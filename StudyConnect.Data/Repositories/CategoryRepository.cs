@@ -66,7 +66,7 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
         if (category == null)
             return OperationResult<ForumCategory?>.Success(null);
 
-        var result = ModelMapper.MapCategoryToModel(category);
+        var result = category.ToCategoryModel();
 
         return OperationResult<ForumCategory?>.Success(result);
     }
@@ -102,7 +102,7 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
         if (categories.Count == 0)
             return OperationResult<IEnumerable<ForumCategory>?>.Success(null);
 
-        var result = categories.Select(c => ModelMapper.MapCategoryToModel(c));
+        var result = categories.Select(c => c.ToCategoryModel());
 
         return OperationResult<IEnumerable<ForumCategory>?>.Success(result);
     }

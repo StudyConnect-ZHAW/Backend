@@ -9,7 +9,7 @@ public static class ModelMapper
     /// </summary>
     /// <param name="user">A user entity to transform.</param>
     /// <returns>A User model object.</returns>
-    public static Core.Models.User MapUserToModel(User user)
+    public static Core.Models.User ToUserModel(this User user)
     {
         return new Core.Models.User
         {
@@ -25,7 +25,7 @@ public static class ModelMapper
     /// </summary>
     /// <param name="category">A category entity to transform.</param>
     /// <returns>A forumCategory model object.</returns>
-    public static Core.Models.ForumCategory MapCategoryToModel(ForumCategory category)
+    public static Core.Models.ForumCategory ToCategoryModel(this ForumCategory category)
     {
         return new Core.Models.ForumCategory
         {

@@ -18,11 +18,20 @@ public class ForumComment
     public Guid ForumCommentId { get; set; }
 
     [Required]
+    [MaxLength(500)]
     public required string Content { get; set; }
+
+    [Required]
+    public Guid UserId { get; set; }
+
+    [Required]
+    public Guid ForumPostId { get; set; }
+
+    public Guid? ParentCommentId { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    public DateTime UpdatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     public int ReplyCount { get; set; } = 0;
 
@@ -33,17 +42,20 @@ public class ForumComment
     /// <summary>
     /// User who created the comment.
     /// </summary>
-    public required User User { get; set; }
+    [ForeignKey("UserId")]
+    public User User { get; set; } = null!;
 
     /// <summary>
     /// Forum post this comment belongs to.
     /// </summary>
-    public required ForumPost ForumPost { get; set; }
+    [ForeignKey("ForumPostId")]
+    public ForumPost ForumPost { get; set; } = null!;
 
     /// <summary>
     /// Parent comment this comment is replying to.
     /// This property is nullable to allow for top-level comments th
     /// </summary>
+    [ForeignKey("ParentCommentId")]
     public ForumComment? ParentComment { get; set; } = null!;
 
     /// <summary>
@@ -51,4 +63,10 @@ public class ForumComment
     /// This property is initialized to an empty list to avoid null reference exceptions.
     /// </summary>
     public virtual ICollection<ForumComment> Replies { get; set; } = new List<ForumComment>();
+
+
+    /// <summary>
+    /// Collection of likes associated with this comment.
+    /// </summary>
+    public virtual ICollection<ForumLike> ForumLikes { get; set; } = [];
 }

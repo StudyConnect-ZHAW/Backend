@@ -24,27 +24,38 @@ public class ForumPost
     public string? Content { get; set; }
 
     [Required]
+    public Guid ForumCategoryId { get; set; }
+
+    [Required]
+    public Guid UserId { get; set; }
+
+    [Required]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     [Required]
-    public DateTime UpdatedAt { get; set; } 
-
-    public int ViewCount { get; set; } = 0;
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     public int CommentCount { get; set; } = 0;
 
     /// <summary>
     /// Forum category this post belongs to.
     /// </summary>
-    public required ForumCategory ForumCategory { get; set; }
+    [ForeignKey("ForumCategoryId")]
+    public ForumCategory ForumCategory { get; set; } = null!;
 
     /// <summary>
     /// User who created the post.
     /// </summary>
-    public required User User { get; set; }
+    [ForeignKey("UserId")]
+    public User User { get; set; } = null!;
 
     /// <summary>
     /// Collection of comments associated with this post.
     /// </summary>
-    public virtual ICollection<ForumComment> ForumComments { get; set; } = new List<ForumComment>();
+    public virtual ICollection<ForumComment> ForumComments { get; set; } = [];
+
+    /// <summary>
+    /// Collection of likes associated with this post.
+    /// </summary>
+    public virtual ICollection<ForumLike> ForumLikes { get; set; } = [];
 }

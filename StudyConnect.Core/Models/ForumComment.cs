@@ -18,6 +18,8 @@ public class ForumComment
 
     public Guid PostId { get; set; }
 
+    public int LikeCount { get; set; }
+
     public Guid? ParentCommentId { get; set; }
 
     public User? User { get; set; }

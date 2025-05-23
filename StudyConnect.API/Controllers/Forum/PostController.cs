@@ -4,6 +4,10 @@ using StudyConnect.API.Dtos.Requests.Forum;
 using StudyConnect.API.Dtos.Responses.Forum;
 using StudyConnect.API.Dtos.Responses.User;
 using StudyConnect.Core.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Identity.Web;
+using static StudyConnect.Core.Common.ErrorMessages;
+
 
 namespace StudyConnect.API.Controllers.Forum;
 
@@ -22,12 +26,19 @@ public class PostController : BaseController
     protected readonly IPostRepository _postRepository;
 
     /// <summary>
+    /// The like repository to interact with data.
+    /// </summary>
+    protected readonly ILikeRepository _likeRepository;
+
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="PostController"/> class.
     /// </summary>
     /// <param name="postRepository">The post repository to interact with data.</param>
-    public PostController(IPostRepository postRepository)
+    public PostController(IPostRepository postRepository, ILikeRepository likeRepository)
     {
         _postRepository = postRepository;
+        _likeRepository = likeRepository;
     }
 
     /// <summary>
@@ -36,6 +47,7 @@ public class PostController : BaseController
     /// <param name="createDto">A Date Transfer Object containing information for post creating.</param>
     /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> AddPost([FromBody] PostCreateDto createDto)
     {
         if (!ModelState.IsValid)
@@ -47,17 +59,14 @@ public class PostController : BaseController
             Content = createDto.Content,
         };
 
-        Guid userId = createDto.UserId;
-        Guid forumId = createDto.ForumCategoryId;
+        Guid uid = GetIdFromToken();
+        Guid pid = createDto.ForumCategoryId;
 
-        var result = await _postRepository.AddAsync(userId, forumId, post);
-        if (!result.IsSuccess)
+        var result = await _postRepository.AddAsync(uid, pid, post);
+        if (!result.IsSuccess || result.Data == null)
             return BadRequest(result.ErrorMessage);
 
-        var postId = result.Data;
-
-        var locationUri = Url.Action(nameof(GetPostById), new { pid = postId });
-        return Created(locationUri, new { pid = postId });
+        return Ok(GeneratePostDto(result.Data));
     }
 
     /// <summary>
@@ -66,11 +75,19 @@ public class PostController : BaseController
     /// <param name="uid">The unique identifier of the post creator.</param>
     /// <param name="categoryName">The unique name of the category the post belongs to.</param>
     /// <param name="title">the post title or substring of post title</param>
+    /// <param name="fromDate">The start date to filter posts created on or after this date (optional).</param>
+    /// <param name="toDate">The end date to filter posts created on or before this date (optional).</param>
     /// <returns>On success a list of Dtoa with information about the post, on failure HTTP 400/404 status code.</returns>
     [HttpGet("search")]
-    public async Task<IActionResult> SearchPosts([FromQuery] Guid? uid, [FromQuery] string? categoryName, [FromQuery] string? title)
+    public async Task<IActionResult> SearchPosts(
+        [FromQuery] Guid? uid,
+        [FromQuery] string? categoryName,
+        [FromQuery] string? title,
+        [FromQuery] DateTime? fromDate,
+        [FromQuery] DateTime? toDate
+    )
     {
-        var posts = await _postRepository.SearchAsync(uid, categoryName, title);
+        var posts = await _postRepository.SearchAsync(uid, categoryName, title, fromDate, toDate);
         if (!posts.IsSuccess)
             return BadRequest(posts.ErrorMessage);
 
@@ -102,10 +119,10 @@ public class PostController : BaseController
     }
 
     /// <summary>
-    /// Get a post by its ID
+    /// Get a post by its ID.
     /// </summary>
     /// <param name="pid">The unique identifier of the post.</param>
-    /// <returns>On success a Dto with information about the post, on failure HTTP 400/404 status code.</returns>
+    /// <returns>On success a DTO with information about the post, on failure HTTP 400/404 status code.</returns>
     [HttpGet("{pid:guid}")]
     public async Task<IActionResult> GetPostById([FromRoute] Guid pid)
     {
@@ -128,10 +145,13 @@ public class PostController : BaseController
     /// <param name="updateDto"> a dto containing the data for updating the post. </param>
     /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
     [HttpPut("{pid:guid}")]
+    [Authorize]
     public async Task<IActionResult> UpdatePost([FromRoute] Guid pid, [FromBody] PostUpdateDto updateDto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
+
+        var uid = GetIdFromToken();
 
         var post = new ForumPost
         {
@@ -139,35 +159,68 @@ public class PostController : BaseController
             Content = updateDto.Content
         };
 
-        var result = await _postRepository.UpdateAsync(pid, post);
+        var result = await _postRepository.UpdateAsync(uid, pid, post);
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+            return result.ErrorMessage!.Contains(GeneralNotFound)
+                ? NotFound(result.ErrorMessage)
+                : BadRequest(result.ErrorMessage);
 
-        if (!result.Data)
-            return NotFound("Post for update was not found.");
-
-        return Ok("post updated successfully.");
+        return Ok(result.Data);
     }
 
     /// <summary>
-    /// Deletes an existing post
+    /// Adds or Removes a like to/from post.
     /// </summary>
     /// <param name="pid">The unique identifier of the post.</param>
     /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
+    [HttpPut("{pid:guid}/likes")]
+    [Authorize]
+    public async Task<IActionResult> ToggleLike([FromRoute] Guid pid)
+    {
+        var uid = GetIdFromToken();
+
+        var result = await _likeRepository.PostLikeExistsAsync(uid, pid)
+            ? await _likeRepository.UnlikePostAsync(uid, pid)
+            : await _likeRepository.LikePostAsync(uid, pid);
+
+        if (!result.IsSuccess && !string.IsNullOrEmpty(result.ErrorMessage))
+            return result.ErrorMessage.Contains(GeneralNotFound)
+                ? NotFound(result.ErrorMessage)
+                : BadRequest(result.ErrorMessage);
+
+        return NoContent();
+    }
+
+
+
+
+    /// <summary>
+    /// Deletes an existing post.
+    /// </summary>
+    /// <param name="pid">The unique identifier of the post.</param>
+    /// <returns>On success HTTP 204 No Content, or an appropriate error status code on failure.</returns>
     [HttpDelete("{pid:guid}")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeletePost([FromRoute] Guid pid)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        var uid = GetIdFromToken();
 
-        var result = await _postRepository.DeleteAsync(pid);
-        if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+        var result = await _postRepository.DeleteAsync(uid, pid);
+        if (!result.IsSuccess || !result.Data)
+            return result.ErrorMessage!.Contains(GeneralNotFound)
+                ? NotFound(result.ErrorMessage)
+                : BadRequest(result.ErrorMessage);
 
-        if (!result.Data)
-            return NotFound("Post for deletion was not found.");
+        return NoContent();
+    }
 
-        return Ok("Post deleted successfully.");
+    private Guid GetIdFromToken()
+    {
+        var oidClaim = HttpContext.User.GetObjectId();
+        return oidClaim != null
+            ? Guid.Parse(oidClaim)
+            : Guid.Empty;
     }
 
     /// <summary>
@@ -214,12 +267,15 @@ public class PostController : BaseController
             Content = post.Content,
             Created = post.CreatedAt,
             Updated = post.UpdatedAt,
+            CommentCount = post.CommentCount,
+            LikeCount = post.LikeCount,
             Category = post.Category != null
                 ? GenerateCategoryReadDto(post.Category)
                 : null,
             Author = post.User != null
                 ? GenerateUserReadDto(post.User)
-                : null
+                : null,
+
         };
     }
 }
