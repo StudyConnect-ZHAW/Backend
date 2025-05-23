@@ -40,7 +40,7 @@ public class GroupComment
     /// <summary>
     /// User who created the comment.
     /// </summary>
-    public GroupMembers GroupMember { get; set; } = null!;
+    public GroupMember GroupMember { get; set; } = null!;
 
     public Group Group { get; set; } = null!;
 

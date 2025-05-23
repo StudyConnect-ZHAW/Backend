@@ -23,4 +23,3 @@ public class GroupMemberReadDto
     /// </summary>
     public UserReadDto? Member { get; set; }
 }
-
