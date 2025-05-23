@@ -81,7 +81,8 @@ public class StudyConnectDbContext : DbContext
             .OnDelete(DeleteBehavior.Cascade);
 
         // Configure Group member composite key
-        modelBuilder.Entity<GroupMember>().HasKey(gm => new { gm.MemberId, gm.GroupId });
+        // modelBuilder.Entity<GroupMember>()
+        // .HasKey(gm => new { gm.MemberId, gm.GroupId });
 
         // Configure Group-GroupMember relationship
         modelBuilder
@@ -126,7 +127,7 @@ public class StudyConnectDbContext : DbContext
             .Entity<GroupMembers>()
             .HasMany(gm => gm.GroupPosts)
             .WithOne(p => p.GroupMember)
-            .HasForeignKey(p => new { p.GroupId, p.UserId })
+            .HasForeignKey(p => p.GroupMemberId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // Configure Category-ForumPost relationship
@@ -178,7 +179,7 @@ public class StudyConnectDbContext : DbContext
             .Entity<GroupMembers>()
             .HasMany(gm => gm.GroupComments)
             .WithOne(gc => gc.GroupMember)
-            .HasForeignKey(p => new { p.GroupId, p.UserId })
+            .HasForeignKey(p => p.GroupMemberId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // Configure ForumComment-ForumComment relationship

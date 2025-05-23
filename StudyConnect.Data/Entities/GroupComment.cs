@@ -24,10 +24,7 @@ public class GroupComment
     public Guid GroupPostId { get; set; }
 
     [Required]
-    public Guid GroupId { get; set; }
-
-    [Required]
-    public Guid UserId { get; set; }
+    public Guid GroupMemberId { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
