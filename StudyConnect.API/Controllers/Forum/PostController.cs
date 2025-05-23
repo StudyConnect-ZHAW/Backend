@@ -35,6 +35,7 @@ public class PostController : BaseController
     /// Initializes a new instance of the <see cref="PostController"/> class.
     /// </summary>
     /// <param name="postRepository">The post repository to interact with data.</param>
+    /// <param name="likeRepository">The like repository to interact with data.</param>
     public PostController(IPostRepository postRepository, ILikeRepository likeRepository)
     {
         _postRepository = postRepository;

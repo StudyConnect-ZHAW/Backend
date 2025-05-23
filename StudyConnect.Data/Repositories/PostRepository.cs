@@ -200,7 +200,6 @@ public class PostRepository : BaseRepository, IPostRepository
     /// <returns>A post entity on succes or an errormessage on failure.</returns>
     private async Task<(Entities.ForumPost? Post, string? ErrorMessage)> GetAuthorizedPostAsync(Guid userId, Guid postId)
     {
-<<<<<<< HEAD
         var post = await _context.ForumPosts
             .Include(p => p.User)
             .Include(p => p.ForumCategory)
@@ -214,18 +213,6 @@ public class PostRepository : BaseRepository, IPostRepository
             return (null, NotAuthorized);
 
         return (post, null);
-=======
-        return new Core.Models.ForumPost
-        {
-            ForumPostId = post.ForumPostId,
-            Title = post.Title,
-            Content = post.Content,
-            CreatedAt = post.CreatedAt,
-            UpdatedAt = post.UpdatedAt,
-            Category = ModelMapper.MapCategoryToModel(post.ForumCategory),
-            User = post.User.ToUserModel()
-        };
->>>>>>> 10d772d (feat: implemented group comment controller [#99])
     }
 
     /// <summary>

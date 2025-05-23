@@ -42,7 +42,7 @@ public class GroupPost
     /// <summary>
     /// Member: who created the post.
     /// </summary>
-    public GroupMembers GroupMember { get; set; } = null!;
+    public GroupMember GroupMember { get; set; } = null!;
 
     /// <summary>
     /// Collection of comments associated with this post.

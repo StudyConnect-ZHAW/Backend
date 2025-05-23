@@ -108,7 +108,7 @@ public class StudyConnectDbContext : DbContext
             .OnDelete(DeleteBehavior.Cascade);
 
         // Configure GroupMembers-GroupPost relationship
-        modelBuilder.Entity<GroupMembers>()
+        modelBuilder.Entity<GroupMember>()
             .HasMany(gm => gm.GroupPosts)
             .WithOne(p => p.GroupMember)
             .HasForeignKey(p => new { p.GroupId, p.UserId })
@@ -153,7 +153,7 @@ public class StudyConnectDbContext : DbContext
             .OnDelete(DeleteBehavior.Cascade);
 
         // Configure GroupMembers-GroupComments relationship
-        modelBuilder.Entity<GroupMembers>()
+        modelBuilder.Entity<GroupMember>()
             .HasMany(gm => gm.GroupComments)
             .WithOne(gc => gc.GroupMember)
             .HasForeignKey(p => new { p.GroupId, p.UserId })
