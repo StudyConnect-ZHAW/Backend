@@ -37,8 +37,6 @@ public class GroupPost
 
     public int CommentCount { get; set; } = 0;
 
-    public Group Group { get; set; } = null!;
-
     /// <summary>
     /// Member: who created the post.
     /// </summary>

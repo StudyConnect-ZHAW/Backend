@@ -171,7 +171,7 @@ public class StudyConnectDbContext : DbContext
             .HasMany(g => g.GroupComments)
             .WithOne(p => p.Group)
             .HasForeignKey(p => p.GroupId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Configure GroupMembers-GroupComments relationship
         modelBuilder
