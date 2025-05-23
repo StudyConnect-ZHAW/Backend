@@ -42,8 +42,6 @@ public class GroupComment
     /// </summary>
     public GroupMember GroupMember { get; set; } = null!;
 
-    public Group Group { get; set; } = null!;
-
     /// <summary>
     /// Forum post this comment belongs to.
     /// </summary>
