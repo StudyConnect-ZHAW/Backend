@@ -22,12 +22,9 @@ public class GroupPost
     [MaxLength(500)]
     [DataType(DataType.MultilineText)]
     public string? Content { get; set; }
-
+    
     [Required]
-    public Guid GroupId { get; set; }
-
-    [Required]
-    public Guid UserId { get; set; }
+    public Guid GroupMemberId { get; set; }
 
     [Required]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
