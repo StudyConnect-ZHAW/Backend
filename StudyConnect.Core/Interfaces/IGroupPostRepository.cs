@@ -43,7 +43,7 @@ public interface IGroupPostRepository
     /// </summary>
     /// <param name="userId">The unique identifier of the user who created the post.</param>
     /// <param name="groupId">the unique identifier of the group the post belongs to.</param>
-    /// <param name="postId">The unique identifier of the post, that shoudl be deleted.</param>
+    /// <param name="postId">The unique identifier of the post, that should be deleted.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
     Task<OperationResult<bool>> DeleteAsync(Guid userId, Guid groupId, Guid postId);
 }
