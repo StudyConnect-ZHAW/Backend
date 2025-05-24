@@ -12,9 +12,7 @@ public class GroupPost
 
     public DateTime UpdatedAt { get; set; }
 
-    public DateTime JoinedAt { get; set; }
+    public int CommentCount { get; set; }
 
-    public Guid GroupId { get; set; }
-
-    public User? User { get; set; }
+    public GroupMember? GroupMember { get; set; }
 }

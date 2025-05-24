@@ -57,6 +57,7 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
         var postsQuery = _context.GroupPosts
                 .AsNoTracking()
                 .Where(p => p.GroupMember.GroupId == groupId)
+                .Include(p => p.GroupComments)
                 .Include(p => p.GroupMember)
                     .ThenInclude(gm => gm.Member);
 
@@ -72,6 +73,7 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
 
         var post = await _context.GroupPosts
             .AsNoTracking()
+            .Include(p => p.GroupComments)
             .Include(p => p.GroupMember)
               .ThenInclude(gm => gm.Member)
             .FirstOrDefaultAsync(p => p.GroupPostId == postId);
@@ -181,9 +183,8 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
         Content = post.Content,
         CreatedAt = post.CreatedAt,
         UpdatedAt = post.UpdatedAt,
-        JoinedAt = post.GroupMember.JoinedAt,
-        GroupId = post.GroupMember.GroupId,
-        User = post.GroupMember.Member.ToUserModel(),
+        CommentCount = post.GroupComments.Count,
+        GroupMember = post.GroupMember!.ToGroupMember()
     };
 }
 

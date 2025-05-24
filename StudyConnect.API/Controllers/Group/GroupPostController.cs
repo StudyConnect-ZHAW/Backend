@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using StudyConnect.Core.Interfaces;
 using StudyConnect.API.Dtos.Requests.Group;
 using StudyConnect.API.Dtos.Responses.Group;
-using StudyConnect.API.Dtos.Responses.User;
 using StudyConnect.Core.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
@@ -30,7 +29,7 @@ public class GroupPostController : BaseController
     /// <param name="groupPostRepository">The post repository to interact with data.</param>
     public GroupPostController(IGroupPostRepository groupPostRepository)
     {
-        _groupPostRepository= groupPostRepository;
+        _groupPostRepository = groupPostRepository;
     }
 
     /// <summary>
@@ -149,7 +148,7 @@ public class GroupPostController : BaseController
                 : BadRequest(result.ErrorMessage);
 
         return NoContent();
- 
+
     }
 
     private Guid GetOIdFromToken()
@@ -161,17 +160,20 @@ public class GroupPostController : BaseController
     }
 
     /// <summary>
-    /// A helper function to create user Dto from model.
+    /// A helper function to map a GroupMember model to a GroupMemberDto.
     /// </summary>
-    /// <param name="user">The user model.</param>
-    /// <returns>A UserReadDto.</returns>
-    private UserReadDto GenerateUserReadDto(User user)
+    /// <param name="member">The group member model.</param>
+    /// <returns>A GroupMemberReadDto containing group member details.</returns>
+    private GroupMemberReadDto ToMemberDto(GroupMember member)
     {
-        return new UserReadDto
+        return new GroupMemberReadDto
         {
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Email = user.Email
+            MemberId = member.MemberId,
+            GroupId = member.GroupId,
+            JoinedAt = member.JoinedAt,
+            FirstName = member.FirstName,
+            LastName = member.LastName,
+            Email = member.Email
         };
     }
 
@@ -187,10 +189,9 @@ public class GroupPostController : BaseController
         Content = post.Content,
         Created = post.CreatedAt,
         Updated = post.UpdatedAt,
-        GroupId = post.GroupId,
-        JoinedAt = post.JoinedAt,
-        User = post.User != null
-                ? GenerateUserReadDto(post.User)
+        CommentCount = post.CommentCount,
+        Member = post.GroupMember != null
+                ? ToMemberDto(post.GroupMember)
                 : null,
     };
 }

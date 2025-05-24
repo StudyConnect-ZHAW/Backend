@@ -12,12 +12,10 @@ public class GroupComment
 
     public bool IsEdited { get; set; }
 
-    public bool IsDeleted { get; set; }
-
     public Guid GroupPostId { get; set; }
 
-    public DateTime JoinedAt { get; set; }
+    public GroupMember? groupMember { get; set; }
 
-    public User? User { get; set; }
+
 
 }

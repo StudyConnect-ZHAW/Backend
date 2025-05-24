@@ -3,7 +3,6 @@ using StudyConnect.Core.Models;
 using StudyConnect.Core.Interfaces;
 using StudyConnect.API.Dtos.Responses.Group;
 using StudyConnect.API.Dtos.Requests.Group;
-using StudyConnect.API.Dtos.Responses.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
 using static StudyConnect.Core.Common.ErrorMessages;
@@ -141,10 +140,10 @@ public class GroupCommentController : BaseController
     /// <param name="gid">the uniq identifier of the group the member belongs to.</param>
     /// <param name="cmid">The unique identifier of the comment.</param>
     /// <returns>Returns HTTP 204 No Content on success, or an appropriate error status code on failure.</returns>
-    [Route("v1/groups/{gid}/comments/{cmid:guid}")]
+    [Route("v1/groups/{gid:guid}/comments/{cmid:guid}")]
     [HttpDelete]
     [Authorize]
-    public async Task<IActionResult> DeleteComment([FromRoute] Guid gid,[FromRoute] Guid cmid)
+    public async Task<IActionResult> DeleteComment([FromRoute] Guid gid, [FromRoute] Guid cmid)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -170,17 +169,20 @@ public class GroupCommentController : BaseController
     }
 
     /// <summary>
-    /// A helper function to map a User model to a UserReadDto.
+    /// A helper function to map a GroupMember model to a GroupMemberDto.
     /// </summary>
-    /// <param name="user">The user model.</param>
-    /// <returns>A UserReadDto containing user details.</returns>
-    private UserReadDto MapUserToDto(User user)
+    /// <param name="member">The group member model.</param>
+    /// <returns>A GroupMemberReadDto containing group member details.</returns>
+    private GroupMemberReadDto ToMemberDto(GroupMember member)
     {
-        return new UserReadDto
+        return new GroupMemberReadDto
         {
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Email = user.Email
+            MemberId = member.MemberId,
+            GroupId = member.GroupId,
+            JoinedAt = member.JoinedAt,
+            FirstName = member.FirstName,
+            LastName = member.LastName,
+            Email = member.Email
         };
     }
 
@@ -197,10 +199,8 @@ public class GroupCommentController : BaseController
         Updated = comment.UpdatedAt,
         Edited = comment.IsEdited,
         GroupPostId = comment.GroupPostId,
-        JoinedAt = comment.JoinedAt,
-        User = comment.User != null
-            ? MapUserToDto(comment.User)
-            : null
+        Member = ToMemberDto(comment.groupMember!)
     };
+
 
 }

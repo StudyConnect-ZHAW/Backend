@@ -11,7 +11,7 @@ public class GroupPostDto
     /// The title of the post.
     /// </summary>
     [Required(ErrorMessage = "GroupPost Title is required.")]
-    [StringLength(255)]
+    [StringLength(200)]
     public required string Title { get; set; }
 
     /// <summary>

@@ -31,6 +31,21 @@ public static class ModelMapper
         };
     }
 
+    public static Core.Models.GroupMember ToGroupMember(this GroupMember member)
+    {
+        return new()
+        {
+            MemberId = member.MemberId,
+            GroupId = member.GroupId,
+            JoinedAt = member.JoinedAt,
+            FirstName = member.Member.FirstName,
+            LastName = member.Member.LastName,
+            Email = member.Member.Email
+
+        };
+    }
+
+
     /// <summary>
     /// A helper function to map a category entity to its model representation.
     /// </summary>
