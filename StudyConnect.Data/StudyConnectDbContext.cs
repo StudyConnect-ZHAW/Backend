@@ -70,10 +70,6 @@ public class StudyConnectDbContext : DbContext
             .HasForeignKey(g => g.OwnerId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Configure Group member composite key
-        modelBuilder.Entity<GroupMember>()
-        .HasKey(gm => new { gm.MemberId, gm.GroupId });
-
         // Configure Group-GroupMember relationship
         modelBuilder.Entity<Group>()
             .HasMany(g => g.GroupMembers)
@@ -100,6 +96,13 @@ public class StudyConnectDbContext : DbContext
             .WithOne(fp => fp.User)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // Configure GroupMembers-GroupPost relationship
+        modelBuilder.Entity<GroupMember>()
+            .HasMany(gm => gm.GroupPosts)
+            .WithOne(p => p.GroupMember)
+            .HasForeignKey(p => p.GroupMemberId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         // Configure Category-ForumPost relationship
         modelBuilder.Entity<ForumPost>()
             .HasOne(fp => fp.ForumCategory)
@@ -118,10 +121,24 @@ public class StudyConnectDbContext : DbContext
             .WithOne(fc => fc.ForumPost)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // Configure GroupPost-GroupComments relationship
+        modelBuilder.Entity<GroupPost>()
+            .HasMany(gp => gp.GroupComments)
+            .WithOne(gc => gc.GroupPost)
+            .HasForeignKey(gc => gc.GroupPostId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         // Configure User-ForumComment relationship
         modelBuilder.Entity<User>()
             .HasMany(u => u.ForumComments)
             .WithOne(fc => fc.User)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure GroupMembers-GroupComments relationship
+        modelBuilder.Entity<GroupMember>()
+            .HasMany(gm => gm.GroupComments)
+            .WithOne(gc => gc.GroupMember)
+            .HasForeignKey(p => p.GroupMemberId)
             .OnDelete(DeleteBehavior.Restrict);
 
         // Configure ForumComment-ForumComment relationship
@@ -167,6 +184,8 @@ public class StudyConnectDbContext : DbContext
         modelBuilder.Entity<ForumPost>().ToTable("ForumPost");
         modelBuilder.Entity<ForumComment>().ToTable("ForumComment");
         modelBuilder.Entity<ForumLike>().ToTable("ForumLike");
+        modelBuilder.Entity<GroupPost>().ToTable("GroupPost");
+        modelBuilder.Entity<GroupComment>().ToTable("GroupComment");
 
         modelBuilder.Entity<ForumCategory>().HasData(
             new ForumCategory
@@ -214,4 +233,6 @@ public class StudyConnectDbContext : DbContext
     public DbSet<ForumPost> ForumPosts { get; set; }
     public DbSet<ForumComment> ForumComments { get; set; }
     public DbSet<ForumLike> ForumLikes { get; set; }
+    public DbSet<GroupPost> GroupPosts { get; set; }
+    public DbSet<GroupComment> GroupComments { get; set; }
 }

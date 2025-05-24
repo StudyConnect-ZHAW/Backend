@@ -35,6 +35,7 @@ public class PostController : BaseController
     /// Initializes a new instance of the <see cref="PostController"/> class.
     /// </summary>
     /// <param name="postRepository">The post repository to interact with data.</param>
+    /// <param name="likeRepository">The like repository to interact with data.</param>
     public PostController(IPostRepository postRepository, ILikeRepository likeRepository)
     {
         _postRepository = postRepository;
@@ -59,7 +60,7 @@ public class PostController : BaseController
             Content = createDto.Content,
         };
 
-        Guid uid = GetIdFromToken();
+        Guid uid = GetOIdFromToken();
         Guid pid = createDto.ForumCategoryId;
 
         var result = await _postRepository.AddAsync(uid, pid, post);
@@ -151,7 +152,7 @@ public class PostController : BaseController
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var uid = GetIdFromToken();
+        var uid = GetOIdFromToken();
 
         var post = new ForumPost
         {
@@ -177,7 +178,7 @@ public class PostController : BaseController
     [Authorize]
     public async Task<IActionResult> ToggleLike([FromRoute] Guid pid)
     {
-        var uid = GetIdFromToken();
+        var uid = GetOIdFromToken();
 
         var result = await _likeRepository.PostLikeExistsAsync(uid, pid)
             ? await _likeRepository.UnlikePostAsync(uid, pid)
@@ -204,7 +205,7 @@ public class PostController : BaseController
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeletePost([FromRoute] Guid pid)
     {
-        var uid = GetIdFromToken();
+        var uid = GetOIdFromToken();
 
         var result = await _postRepository.DeleteAsync(uid, pid);
         if (!result.IsSuccess || !result.Data)
@@ -215,7 +216,7 @@ public class PostController : BaseController
         return NoContent();
     }
 
-    private Guid GetIdFromToken()
+    private Guid GetOIdFromToken()
     {
         var oidClaim = HttpContext.User.GetObjectId();
         return oidClaim != null

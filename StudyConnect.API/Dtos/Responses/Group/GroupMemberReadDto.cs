@@ -25,15 +25,15 @@ public class GroupMemberReadDto
     /// <summary>
     /// FirstName of when the user joined the group.
     /// </summary>
-    public String FirstName { get; set; }
+    public String? FirstName { get; set; }
 
     /// <summary>
     /// LastName of when the user joined the group.
     /// </summary>
-    public String LastName { get; set; }
+    public String? LastName { get; set; }
     /// <summary>
     /// Email of when the user joined the group.
     /// </summary>
-    public String Email { get; set; }
+    public String? Email { get; set; }
     
 }

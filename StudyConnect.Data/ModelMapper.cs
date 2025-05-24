@@ -11,7 +11,7 @@ public static class ModelMapper
     /// <returns>A User model object.</returns>
     public static Core.Models.User ToUserModel(this User user)
     {
-        return new Core.Models.User
+        return new()
         {
             UserGuid = user.UserGuid,
             FirstName = user.FirstName,
@@ -19,6 +19,32 @@ public static class ModelMapper
             Email = user.Email
         };
     }
+
+    public static Core.Models.Group ToGroupModel(this Group group)
+    {
+        return new()
+        {
+            GroupId = group.GroupId,
+            OwnerId = group.OwnerId,
+            Name = group.Name,
+            Description = group.Description
+        };
+    }
+
+    public static Core.Models.GroupMember ToGroupMember(this GroupMember member)
+    {
+        return new()
+        {
+            MemberId = member.MemberId,
+            GroupId = member.GroupId,
+            JoinedAt = member.JoinedAt,
+            FirstName = member.Member.FirstName,
+            LastName = member.Member.LastName,
+            Email = member.Member.Email
+
+        };
+    }
+
 
     /// <summary>
     /// A helper function to map a category entity to its model representation.

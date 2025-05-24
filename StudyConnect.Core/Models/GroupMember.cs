@@ -22,15 +22,15 @@ public class GroupMember
     /// <summary>
     /// The FirstName of the GroupMember.
     /// </summary>
-    public String FirstName { get; set; }
+    public String? FirstName { get; set; }
 
     /// <summary>
     /// The LastName of the GroupMember.
     /// </summary>
-    public String LastName { get; set; }
+    public String? LastName { get; set; }
 
     /// <summary>
     /// The Email of the GroupMember.
     /// </summary>
-    public String Email { get; set; }
+    public String? Email { get; set; }
 }
