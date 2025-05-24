@@ -12,9 +12,9 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
 
     public async Task<OperationResult<GroupPost>> AddAsync(Guid userId, Guid groupId, GroupPost? post)
     {
-
-        if (!await IsValidMember(userId, groupId))
-            return OperationResult<GroupPost>.Failure(PostNotFound);
+        var member = await GetValidMember(userId, groupId);
+        if (member == null)
+            return OperationResult<GroupPost>.Failure("Member not found.");
 
         if (post == null)
             return OperationResult<GroupPost>.Failure(PostContentEmpty);
@@ -27,8 +27,7 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
         {
             Title = post.Title,
             Content = post.Content,
-            GroupId = groupId,
-            UserId = userId
+            GroupMemberId = member.GroupMemberId
         };
 
         try
@@ -55,13 +54,13 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
 
     public async Task<OperationResult<IEnumerable<GroupPost>>> GetAllAsync(Guid groupId)
     {
-        var posts = await _context.GroupPosts
-              .AsNoTracking()
-              .Include(p => p.GroupMember)
-                .ThenInclude(gm => gm.Member)
-              .Where(p => p.GroupId == groupId)
-              .ToListAsync();
+        var postsQuery = _context.GroupPosts
+                .AsNoTracking()
+                .Where(p => p.GroupMember.GroupId == groupId)
+                .Include(p => p.GroupMember)
+                    .ThenInclude(gm => gm.Member);
 
+        var posts = await postsQuery.ToListAsync();
         var result = posts.Select(MapToPostGroupModel);
         return OperationResult<IEnumerable<GroupPost>>.Success(result);
     }
@@ -145,8 +144,8 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
     /// <param name="userId">The unique identifier of the user.</param>
     /// <param name="groupId">The unique identifier of the group.</param>
     /// <returns><c>true</c> if the member exists; otherwise, <c>false</c>.</returns>
-    private async Task<bool> IsValidMember(Guid userId, Guid groupId) =>
-        userId != Guid.Empty && groupId == Guid.Empty && await _context.GroupMembers.AnyAsync(m => m.MemberId == userId && m.GroupId == groupId);
+    private async Task<Entities.GroupMember?> GetValidMember(Guid userId, Guid groupId) =>
+       await _context.GroupMembers.FirstOrDefaultAsync(m => m.MemberId == userId && m.GroupId == groupId);
 
     /// <summary>
     /// Tests a post for existence and authorization.
@@ -164,7 +163,7 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
         if (post == null)
             return (null, PostNotFound);
 
-        if (post.UserId != userId || post.GroupId != groupId)
+        if (post.GroupMember.MemberId != userId || post.GroupMember.GroupId != groupId)
             return (null, NotAuthorized);
 
         return (post, null);
@@ -183,7 +182,7 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
         CreatedAt = post.CreatedAt,
         UpdatedAt = post.UpdatedAt,
         JoinedAt = post.GroupMember.JoinedAt,
-        GroupId = post.GroupId,
+        GroupId = post.GroupMember.GroupId,
         User = post.GroupMember.Member.ToUserModel(),
     };
 }
