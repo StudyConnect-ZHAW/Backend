@@ -64,13 +64,13 @@ public class GroupCommentController : BaseController
     }
 
     /// <summary>
-    /// Retrieves all comments for a specific post.
+    /// Retrieves all comments of a group for a specific post.
     /// </summary>
     /// <param name="pid">The unique identifier of the post.</param>
     /// <returns>Returns a list of comments on success, or HTTP 400/404 on failure.</returns>
     [Route("v1/groups/posts/{pid:guid}/comments")]
     [HttpGet]
-    public async Task<IActionResult> GetAllCommentsOfPost([FromRoute] Guid pid)
+    public async Task<IActionResult> GetAllGroupCommentsOfPost([FromRoute] Guid pid)
     {
         var comments = await _commentRepository.GetAllofPostAsync(pid);
         if (!comments.IsSuccess || comments.Data == null)
@@ -83,13 +83,13 @@ public class GroupCommentController : BaseController
     }
 
     /// <summary>
-    /// Retrieves a comment by its ID.
+    /// Retrieves a group comment by its ID.
     /// </summary>
     /// <param name="cmid">The unique identifier of the comment.</param>
     /// <returns>Returns the comment details on success, or HTTP 400/404 on failure.</returns>
     [Route("v1/groups/comments/{cmid:guid}")]
     [HttpGet]
-    public async Task<IActionResult> GetCommentById([FromRoute] Guid cmid)
+    public async Task<IActionResult> GetGroupCommentById([FromRoute] Guid cmid)
     {
         var comment = await _commentRepository.GetByIdAsync(cmid);
         if (!comment.IsSuccess || comment.Data == null)
@@ -103,7 +103,7 @@ public class GroupCommentController : BaseController
     }
 
     /// <summary>
-    /// Updates an existing comment.
+    /// Updates an existing group comment.
     /// </summary>
     /// <param name="gid">The unique identifier of group the member belongs to.</param>
     /// <param name="cmid">The unique identifier of the comment.</param>
@@ -112,7 +112,7 @@ public class GroupCommentController : BaseController
     [Route("v1/groups/{gid:guid}/comments/{cmid:guid}")]
     [HttpPut]
     [Authorize]
-    public async Task<IActionResult> UpdateComment([FromRoute] Guid gid, [FromRoute] Guid cmid, [FromBody] GroupCommentDto commentDto)
+    public async Task<IActionResult> UpdateGroupComment([FromRoute] Guid gid, [FromRoute] Guid cmid, [FromBody] GroupCommentDto commentDto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -135,7 +135,7 @@ public class GroupCommentController : BaseController
     }
 
     /// <summary>
-    /// Deletes an existing comment.
+    /// Deletes an existing group comment.
     /// </summary>
     /// <param name="gid">the uniq identifier of the group the member belongs to.</param>
     /// <param name="cmid">The unique identifier of the comment.</param>
@@ -143,7 +143,7 @@ public class GroupCommentController : BaseController
     [Route("v1/groups/{gid:guid}/comments/{cmid:guid}")]
     [HttpDelete]
     [Authorize]
-    public async Task<IActionResult> DeleteComment([FromRoute] Guid gid, [FromRoute] Guid cmid)
+    public async Task<IActionResult> DeleteGroupComment([FromRoute] Guid gid, [FromRoute] Guid cmid)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
