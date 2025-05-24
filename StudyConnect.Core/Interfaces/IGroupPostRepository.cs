@@ -9,7 +9,7 @@ public interface IGroupPostRepository
     /// Adds a new forum post to the database.
     /// </summary>
     /// <param name="userId">The unique identifier of the user who created the post.</param>
-    /// <param name="groupId">The unique identifier of group the post belogns to.</param>
+    /// <param name="groupId">The unique identifier of group the post belongs to.</param>
     /// <param name="post">The model containing information about the forum post.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
     Task<OperationResult<GroupPost>> AddAsync(Guid userId, Guid groupId, GroupPost? post);

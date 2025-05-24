@@ -16,7 +16,7 @@ public class GroupComment
 
     public Guid GroupPostId { get; set; }
 
-    public DateTime JointedAt { get; set; }
+    public DateTime JoinedAt { get; set; }
 
     public User? User { get; set; }
 

@@ -144,7 +144,7 @@ public class GroupCommentController : BaseController
     [Route("v1/groups/{gid}/comments/{cmid:guid}")]
     [HttpDelete]
     [Authorize]
-    public async Task<IActionResult> DeleteComment([FromBody] Guid gid,[FromRoute] Guid cmid)
+    public async Task<IActionResult> DeleteComment([FromRoute] Guid gid,[FromRoute] Guid cmid)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
