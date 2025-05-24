@@ -15,7 +15,9 @@ public class GroupCommentRepository : BaseRepository, IGroupCommentRepository
 
     public async Task<OperationResult<GroupComment>> AddAsync(Guid userId, Guid groupId, Guid postId, GroupComment comment)
     {
-        if (!await IsValidMember(userId, groupId))
+
+        var member = await GetValidMember(userId, groupId);
+        if (member == null)
             return OperationResult<GroupComment>.Failure("Member not found.");
 
         if (!await IsValidPost(postId))
@@ -27,8 +29,8 @@ public class GroupCommentRepository : BaseRepository, IGroupCommentRepository
             var result = new Entities.GroupComment
             {
                 Content = comment.Content,
-                UserId = userId,
                 GroupPostId = postId,
+                GroupMemberId = member.GroupMemberId
             };
 
             await _context.AddAsync(result);
@@ -85,10 +87,9 @@ public class GroupCommentRepository : BaseRepository, IGroupCommentRepository
             .FirstOrDefaultAsync(c => c.GroupCommentId == commentId);
 
         // Test for data
-        if (result == null)
-            return OperationResult<GroupComment?>.Failure(CommentNotFound);
-
-        return OperationResult<GroupComment?>.Success(MapCommentToModel(result));
+        return result == null
+                ? OperationResult<GroupComment?>.Failure(CommentNotFound)
+                : OperationResult<GroupComment?>.Success(MapCommentToModel(result));
     }
 
     public async Task<OperationResult<GroupComment>> UpdateAsync(Guid userId, Guid groupId, Guid commentId, GroupComment comment)
@@ -158,8 +159,8 @@ public class GroupCommentRepository : BaseRepository, IGroupCommentRepository
     /// <param name="userId">The unique identifier of the user.</param>
     /// <param name="groupId">The unique identifier of the group.</param>
     /// <returns><c>true</c> if the member exists; otherwise, <c>false</c>.</returns>
-    private async Task<bool> IsValidMember(Guid userId, Guid groupId) =>
-        userId != Guid.Empty && groupId == Guid.Empty && await _context.GroupMembers.AnyAsync(m => m.MemberId == userId && m.GroupId == groupId);
+    private async Task<Entities.GroupMember?> GetValidMember(Guid userId, Guid groupId) =>
+        await _context.GroupMembers.FirstOrDefaultAsync(m => m.MemberId == userId && m.GroupId == groupId);
 
     /// <summary>
     /// Validates if a post exists in the database.
@@ -185,7 +186,7 @@ public class GroupCommentRepository : BaseRepository, IGroupCommentRepository
         if (comment == null || comment.IsDeleted)
             return (null, CommentNotFound);
 
-        if (comment.UserId != userId || comment.GroupId != groupId)
+        if (comment.GroupMember.MemberId != userId || comment.GroupMember.GroupId != groupId)
             return (null, NotAuthorized);
 
         return (comment, null);
