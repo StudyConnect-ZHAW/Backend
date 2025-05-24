@@ -197,7 +197,7 @@ public class GroupCommentController : BaseController
         Updated = comment.UpdatedAt,
         Edited = comment.IsEdited,
         GroupPostId = comment.GroupPostId,
-        JoinedAt = comment.JointedAt,
+        JoinedAt = comment.JoinedAt,
         User = comment.User != null
             ? MapUserToDto(comment.User)
             : null
