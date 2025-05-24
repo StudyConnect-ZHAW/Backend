@@ -1,5 +1,3 @@
-using StudyConnect.API.Dtos.Responses.User;
-
 namespace StudyConnect.API.Dtos.Responses.Group;
 
 /// <summary>
@@ -33,18 +31,15 @@ public class GroupPostReadDto
     public DateTime? Updated { get; set; }
 
     /// <summary>
-    /// Teh date and time of when the user joined the group.
+    /// the number of comments the post has.
     /// </summary>
-    public DateTime? JoinedAt { get; set; }
+    public int? CommentCount { get; set; }
 
     /// <summary>
-    /// The unique identifier of the group the post belongs to.
+    /// The creator of this forum comment.
     /// </summary>
-    public Guid GroupId { get; set; }
+    public GroupMemberReadDto? Member { get; set; }
 
-    /// <summary>
-    /// The creator of the post as a dto.
-    /// </summary>
-    public UserReadDto? User { get; set; }
+
 }
 

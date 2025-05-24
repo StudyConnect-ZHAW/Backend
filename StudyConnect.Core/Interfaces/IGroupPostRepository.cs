@@ -24,7 +24,7 @@ public interface IGroupPostRepository
     /// <summary>
     /// Get all Post of the forum.
     /// </summary>
-    /// <param name="groupId">the unique identifier of the group the post belogns to.</param>
+    /// <param name="groupId">the unique identifier of the group the post belongs to.</param>
     /// <returns>An <see cref="OperationResult{T}"/> containing a list of post if found, or an error message if not.</returns>
     Task<OperationResult<IEnumerable<GroupPost>>> GetAllAsync(Guid groupId);
 
@@ -33,7 +33,7 @@ public interface IGroupPostRepository
     /// </summary>
     /// <param name="userId">The unique identifier of the user who created the post.</param>
     /// <param name="groupId">the unique identifier of the group the post belogns to.</param>
-    /// <param name="postId">The unique identifier of the post, that shoudl be updated.</param>
+    /// <param name="postId">The unique identifier of the post, that should be updated.</param>
     /// <param name="post">The model containing the information about the forum post for the update.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
     Task<OperationResult<GroupPost>> UpdateAsync(Guid userId, Guid groupId, Guid postId, GroupPost post);
