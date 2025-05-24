@@ -70,10 +70,6 @@ public class StudyConnectDbContext : DbContext
             .HasForeignKey(g => g.OwnerId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Configure Group member composite key
-        // modelBuilder.Entity<GroupMember>()
-        // .HasKey(gm => new { gm.MemberId, gm.GroupId });
-
         // Configure Group-GroupMember relationship
         modelBuilder.Entity<Group>()
             .HasMany(g => g.GroupMembers)
