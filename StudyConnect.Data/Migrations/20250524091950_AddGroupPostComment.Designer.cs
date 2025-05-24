@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StudyConnect.Data;
 
@@ -11,9 +12,11 @@ using StudyConnect.Data;
 namespace StudyConnect.Data.Migrations
 {
     [DbContext(typeof(StudyConnectDbContext))]
-    partial class StudyConnectDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250524091950_AddGroupPostComment")]
+    partial class AddGroupPostComment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -358,73 +361,6 @@ namespace StudyConnect.Data.Migrations
                         });
                 });
 
-            modelBuilder.Entity("StudyConnect.Data.Entities.PostTag", b =>
-                {
-                    b.Property<Guid>("ForumPostId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("TagId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("AddedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ForumPostId", "TagId");
-
-                    b.HasIndex("TagId");
-
-                    b.ToTable("PostTag", (string)null);
-                });
-
-            modelBuilder.Entity("StudyConnect.Data.Entities.Tag", b =>
-                {
-                    b.Property<Guid>("TagId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("TagId");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Tag", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            TagId = new Guid("dba25ed0-ea90-4de8-9b73-bedd16d15a5f"),
-                            Description = "Ask your question here",
-                            Name = "Question"
-                        },
-                        new
-                        {
-                            TagId = new Guid("27a0d0a6-9df8-429e-b473-129533d460d5"),
-                            Description = "Looking for study group members",
-                            Name = "Looking for Group"
-                        },
-                        new
-                        {
-                            TagId = new Guid("46fd2f68-df2d-4a0a-9137-f8556b4f132f"),
-                            Description = "Discuss the topic here",
-                            Name = "Discussion"
-                        },
-                        new
-                        {
-                            TagId = new Guid("9d2f3e3f-0f58-4d55-8337-84fecd2b84d3"),
-                            Description = "Check existing problems or issues",
-                            Name = "Issue"
-                        });
-                });
-
             modelBuilder.Entity("StudyConnect.Data.Entities.User", b =>
                 {
                     b.Property<Guid>("UserGuid")
@@ -617,23 +553,19 @@ namespace StudyConnect.Data.Migrations
                     b.Navigation("MemberRole");
                 });
 
-            modelBuilder.Entity("StudyConnect.Data.Entities.PostTag", b =>
+            modelBuilder.Entity("StudyConnect.Data.Entities.GroupPost", b =>
                 {
-                    b.HasOne("StudyConnect.Data.Entities.ForumPost", "ForumPost")
-                        .WithMany("PostTags")
-                        .HasForeignKey("ForumPostId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                    b.HasOne("StudyConnect.Data.Entities.Group", null)
+                        .WithMany("GroupPosts")
+                        .HasForeignKey("GroupId");
+
+                    b.HasOne("StudyConnect.Data.Entities.GroupMember", "GroupMember")
+                        .WithMany("GroupPosts")
+                        .HasForeignKey("GroupMemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("StudyConnect.Data.Entities.Tag", "Tag")
-                        .WithMany("PostTags")
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ForumPost");
-
-                    b.Navigation("Tag");
+                    b.Navigation("GroupMember");
                 });
 
             modelBuilder.Entity("StudyConnect.Data.Entities.User", b =>
@@ -664,8 +596,6 @@ namespace StudyConnect.Data.Migrations
                     b.Navigation("ForumComments");
 
                     b.Navigation("ForumLikes");
-
-                    b.Navigation("PostTags");
                 });
 
             modelBuilder.Entity("StudyConnect.Data.Entities.Group", b =>
@@ -692,11 +622,6 @@ namespace StudyConnect.Data.Migrations
             modelBuilder.Entity("StudyConnect.Data.Entities.MemberRole", b =>
                 {
                     b.Navigation("GroupMembers");
-                });
-
-            modelBuilder.Entity("StudyConnect.Data.Entities.Tag", b =>
-                {
-                    b.Navigation("PostTags");
                 });
 
             modelBuilder.Entity("StudyConnect.Data.Entities.User", b =>
