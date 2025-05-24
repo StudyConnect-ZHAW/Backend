@@ -53,7 +53,7 @@ public class GroupPostController : BaseController
             Content = createDto.Content,
         };
 
-        Guid uid = GetIdFromToken();
+        Guid uid = GetOIdFromToken();
 
         var result = await _groupPostRepository.AddAsync(uid, gid, post);
         if (!result.IsSuccess || result.Data == null)
@@ -112,7 +112,7 @@ public class GroupPostController : BaseController
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var uid = GetIdFromToken();
+        var uid = GetOIdFromToken();
 
         var post = new GroupPost
         {
@@ -140,7 +140,7 @@ public class GroupPostController : BaseController
     [Authorize]
     public async Task<IActionResult> DeletePost([FromRoute] Guid gid, [FromRoute] Guid pid)
     {
-        var uid = GetIdFromToken();
+        var uid = GetOIdFromToken();
 
         var result = await _groupPostRepository.DeleteAsync(uid, gid, pid);
         if (!result.IsSuccess || !result.Data)
@@ -152,7 +152,7 @@ public class GroupPostController : BaseController
  
     }
 
-    private Guid GetIdFromToken()
+    private Guid GetOIdFromToken()
     {
         var oidClaim = HttpContext.User.GetObjectId();
         return oidClaim != null

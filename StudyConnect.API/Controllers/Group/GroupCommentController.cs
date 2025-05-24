@@ -51,7 +51,7 @@ public class GroupCommentController : BaseController
             Content = createDto.Content
         };
 
-        var uid = GetIdFromToken();
+        var uid = GetOIdFromToken();
 
         var result = await _commentRepository.AddAsync(uid, gid, pid, comment);
         if (!result.IsSuccess || result.Data == null)
@@ -123,7 +123,7 @@ public class GroupCommentController : BaseController
             Content = commentDto.Content
         };
 
-        var uid = GetIdFromToken();
+        var uid = GetOIdFromToken();
         var result = await _commentRepository.UpdateAsync(uid, gid, cmid, comment);
         if (!result.IsSuccess || result.Data == null)
         {
@@ -149,7 +149,7 @@ public class GroupCommentController : BaseController
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var uid = GetIdFromToken();
+        var uid = GetOIdFromToken();
         var result = await _commentRepository.DeleteAsync(uid, gid, cmid);
         if (!result.IsSuccess)
         {
@@ -161,7 +161,7 @@ public class GroupCommentController : BaseController
         return NoContent();
     }
 
-    private Guid GetIdFromToken()
+    private Guid GetOIdFromToken()
     {
         var oidClaim = HttpContext.User.GetObjectId();
         return oidClaim != null

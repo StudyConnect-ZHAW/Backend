@@ -58,7 +58,7 @@ public class CommentController : BaseController
             Content = createDto.Content
         };
 
-        var uid = GetIdFromToken();
+        var uid = GetOIdFromToken();
         Guid? ptid = createDto.ParentCommentId;
 
         var result = await _commentRepository.AddAsync(comment, uid, pid, ptid);
@@ -130,7 +130,7 @@ public class CommentController : BaseController
             Content = commentDto.Content
         };
 
-        var uid = GetIdFromToken();
+        var uid = GetOIdFromToken();
         var result = await _commentRepository.UpdateAsync(uid, cmid, comment);
         if (!result.IsSuccess || result.Data == null)
         {
@@ -152,7 +152,7 @@ public class CommentController : BaseController
     [Authorize]
     public async Task<IActionResult> ToggleLike([FromRoute] Guid cmid)
     {
-        var uid = GetIdFromToken();
+        var uid = GetOIdFromToken();
 
         var result = await _likeRepository.CommentLikeExistsAsync(uid, cmid)
             ? await _likeRepository.UnlikeCommentAsync(uid, cmid)
@@ -179,7 +179,7 @@ public class CommentController : BaseController
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var uid = GetIdFromToken();
+        var uid = GetOIdFromToken();
         var result = await _commentRepository.DeleteAsync(uid, cmid);
         if (!result.IsSuccess)
         {
@@ -191,7 +191,7 @@ public class CommentController : BaseController
         return NoContent();
     }
 
-    private Guid GetIdFromToken()
+    private Guid GetOIdFromToken()
     {
         var oidClaim = HttpContext.User.GetObjectId();
         return oidClaim != null
