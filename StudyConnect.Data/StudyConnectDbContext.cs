@@ -180,7 +180,7 @@ public class StudyConnectDbContext : DbContext
             .HasMany(gm => gm.GroupComments)
             .WithOne(gc => gc.GroupMember)
             .HasForeignKey(p => p.GroupMemberId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Configure ForumComment-ForumComment relationship
         modelBuilder
