@@ -12,25 +12,25 @@ using static StudyConnect.Core.Common.ErrorMessages;
 namespace StudyConnect.API.Controllers.Groups;
 
 /// <summary>
-/// Controller for managing the post
+/// Controller for managing the group post
 /// Provides endpoints to create, retrieve, update, and delete posts.
 /// </summary>
 [ApiController]
-public class PostController : BaseController
+public class GroupPostController : BaseController
 {
 
     /// <summary>
     /// The post repository to interact with data.
     /// </summary>
-    protected readonly IGroupPostRepository _postRepository;
+    protected readonly IGroupPostRepository _groupPostRepository;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="PostController"/> class.
+    /// Initializes a new instance of the <see cref="GroupPostController"/> class.
     /// </summary>
-    /// <param name="postRepository">The post repository to interact with data.</param>
-    public PostController(IGroupPostRepository postRepository)
+    /// <param name="groupPostRepository">The post repository to interact with data.</param>
+    public GroupPostController(IGroupPostRepository groupPostRepository)
     {
-        _postRepository = postRepository;
+        _groupPostRepository= groupPostRepository;
     }
 
     /// <summary>
@@ -55,7 +55,7 @@ public class PostController : BaseController
 
         Guid uid = GetIdFromToken();
 
-        var result = await _postRepository.AddAsync(uid, gid, post);
+        var result = await _groupPostRepository.AddAsync(uid, gid, post);
         if (!result.IsSuccess || result.Data == null)
             return BadRequest(result.ErrorMessage);
 
@@ -70,7 +70,7 @@ public class PostController : BaseController
     [HttpGet]
     public async Task<IActionResult> GetAllPosts([FromRoute] Guid gid)
     {
-        var posts = await _postRepository.GetAllAsync(gid);
+        var posts = await _groupPostRepository.GetAllAsync(gid);
         if (!posts.IsSuccess || posts.Data == null)
             return BadRequest(posts.ErrorMessage);
 
@@ -88,7 +88,7 @@ public class PostController : BaseController
     [HttpGet]
     public async Task<IActionResult> GetPostById([FromRoute] Guid pid)
     {
-        var result = await _postRepository.GetByIdAsync(pid);
+        var result = await _groupPostRepository.GetByIdAsync(pid);
         if (!result.IsSuccess || result.Data == null)
             return result.ErrorMessage!.Contains(GeneralNotFound)
                 ? NotFound(result.ErrorMessage)
@@ -120,7 +120,7 @@ public class PostController : BaseController
             Content = postDto.Content
         };
 
-        var result = await _postRepository.UpdateAsync(uid, gid, pid, post);
+        var result = await _groupPostRepository.UpdateAsync(uid, gid, pid, post);
         if (!result.IsSuccess)
             return result.ErrorMessage!.Contains(GeneralNotFound)
                 ? NotFound(result.ErrorMessage)
@@ -142,13 +142,14 @@ public class PostController : BaseController
     {
         var uid = GetIdFromToken();
 
-        var result = await _postRepository.DeleteAsync(uid, gid, pid);
+        var result = await _groupPostRepository.DeleteAsync(uid, gid, pid);
         if (!result.IsSuccess || !result.Data)
             return result.ErrorMessage!.Contains(GeneralNotFound)
                 ? NotFound(result.ErrorMessage)
                 : BadRequest(result.ErrorMessage);
 
         return NoContent();
+ 
     }
 
     private Guid GetIdFromToken()
