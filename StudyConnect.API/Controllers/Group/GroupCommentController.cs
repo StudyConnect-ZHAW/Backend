@@ -15,7 +15,7 @@ namespace StudyConnect.API.Controllers.Groups;
 /// Provides endpoints to create, retrieve, update, and delete comments.
 /// </summary>
 [ApiController]
-public class CommentController : BaseController
+public class GroupCommentController : BaseController
 {
     /// <summary>
     /// The comment repository for data operations.
@@ -23,10 +23,10 @@ public class CommentController : BaseController
     protected readonly IGroupCommentRepository _commentRepository;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CommentController"/> class.
+    /// Initializes a new instance of the <see cref="GroupCommentController"/> class.
     /// </summary>
     /// <param name="commentRepository">The repository used to manage comment data.</param>
-    public CommentController(IGroupCommentRepository commentRepository)
+    public GroupCommentController(IGroupCommentRepository commentRepository)
     {
         _commentRepository = commentRepository;
     }
@@ -41,7 +41,7 @@ public class CommentController : BaseController
     [Route("v1/groups/{gid:guid}/posts/{pid:guid}/comments")]
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> AddGroupComment([FromRoute] Guid gid, [FromBody] Guid pid, [FromBody] GroupCommentDto createDto)
+    public async Task<IActionResult> AddGroupComment([FromRoute] Guid gid, [FromRoute] Guid pid, [FromBody] GroupCommentDto createDto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
