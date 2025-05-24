@@ -6,12 +6,12 @@ namespace StudyConnect.Core.Interfaces;
 public interface IGroupCommentRepository
 {
     /// <summary>
-    /// Adds an comment to a post or parent comment.
+    /// Adds a comment to a post or parent comment.
     /// </summary>
     /// <param name="comment">The model containing information about the comment.</param>
     /// <param name="userId">The unique identifier of the user.</param>
     /// <param name="postId">The unique identifier of the post.</param>
-    /// <param name="groupId">The unique identifier of group the post belogns to.</param>
+    /// <param name="groupId">The unique identifier of group the post belongs to.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
     Task<OperationResult<GroupComment>> AddAsync(Guid userId, Guid groupId, Guid postId, GroupComment comment);
 
@@ -35,7 +35,7 @@ public interface IGroupCommentRepository
     /// <param name="commentId">The unique identifier of the comment.</param>
     /// <param name="userId">The unique identifier of the current user.</param>
     /// <param name="comment">A comment model containing the updated content.</param>
-    /// <param name="groupId">The unique identifier of group the post belogns to.</param>
+    /// <param name="groupId">The unique identifier of group the post belongs to.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns> 
     Task<OperationResult<GroupComment>> UpdateAsync(Guid userId, Guid groupId, Guid commentId, GroupComment comment);
 
@@ -44,7 +44,7 @@ public interface IGroupCommentRepository
     /// </summary> 
     /// <param name="commentId">The unique identifier of the comment.</param>
     /// <param name="userId">The unique identifier of the current user.</param>
-    /// <param name="groupId">The unique identifier of group the post belogns to.</param>
+    /// <param name="groupId">The unique identifier of group the post belongs to.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
     Task<OperationResult<bool>> DeleteAsync(Guid userId, Guid groupId, Guid commentId);
 }

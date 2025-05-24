@@ -32,17 +32,17 @@ public interface IGroupPostRepository
     /// Updates an existing post.
     /// </summary>
     /// <param name="userId">The unique identifier of the user who created the post.</param>
-    /// <param name="groupId">the unique identifier of the group the post belogns to.</param>
+    /// <param name="groupId">the unique identifier of the group the post belongs to.</param>
     /// <param name="postId">The unique identifier of the post, that should be updated.</param>
     /// <param name="post">The model containing the information about the forum post for the update.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
     Task<OperationResult<GroupPost>> UpdateAsync(Guid userId, Guid groupId, Guid postId, GroupPost post);
 
     /// <summary>
-    /// Deletes an exsiting post.
+    /// Deletes an existing post.
     /// </summary>
     /// <param name="userId">The unique identifier of the user who created the post.</param>
-    /// <param name="groupId">the unique identifier of the group the post belogns to.</param>
+    /// <param name="groupId">the unique identifier of the group the post belongs to.</param>
     /// <param name="postId">The unique identifier of the post, that shoudl be deleted.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
     Task<OperationResult<bool>> DeleteAsync(Guid userId, Guid groupId, Guid postId);

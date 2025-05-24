@@ -36,7 +36,7 @@ public class GroupPostReadDto
     public int? CommentCount { get; set; }
 
     /// <summary>
-    /// The creator of this forum comment.
+    /// The creator of this forum post.
     /// </summary>
     public GroupMemberReadDto? Member { get; set; }
 
