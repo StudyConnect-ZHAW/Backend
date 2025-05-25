@@ -1,10 +1,11 @@
 using System;
 using StudyConnect.Core.Common;
+using StudyConnect.Core.Models;
 
 namespace StudyConnect.Core.Interfaces;
-    /// <summary>
-    /// Contract for adding or removing users from a group.
-    /// </summary>
+/// <summary>
+/// Contract for adding or removing users from a group.
+/// </summary>
 public interface IGroupMemberRepository
 {
     /// <summary>
@@ -17,8 +18,8 @@ public interface IGroupMemberRepository
     /// <c>true</c> when the membership has been created and
     /// <c>false</c> when the membership already exists.
     /// </returns>
-    Task<OperationResult<bool>> AddMemberAsync(Guid UserId, Guid GroupId);
-    
+    Task<OperationResult<GroupMember>> AddMemberAsync(Guid UserId, Guid GroupId);
+
     /// <summary>
     /// Removes the specified user from the specified group.
     /// </summary>

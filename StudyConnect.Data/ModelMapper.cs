@@ -35,6 +35,11 @@ public static class ModelMapper
         };
     }
 
+    /// <summary>
+    /// A helper function to map a group entity to its model representation.
+    /// </summary>
+    /// <param name="category">A group entity to transform.</param>
+    /// <returns>A forumCategory model object.</returns>
     public static Core.Models.Group ToGroupModel(this Group group)
     {
         return new()

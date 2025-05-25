@@ -1,6 +1,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using StudyConnect.Core.Common;
+using StudyConnect.Core.Models;
 using StudyConnect.Core.Interfaces;
 using static StudyConnect.Core.Common.ErrorMessages;
 
@@ -11,13 +12,13 @@ public class GroupMemberRepository : BaseRepository, IGroupMemberRepository
     public GroupMemberRepository(StudyConnectDbContext context)
         : base(context) { }
 
-    public async Task<OperationResult<bool>> AddMemberAsync(Guid UserId, Guid GroupId)
+    public async Task<OperationResult<GroupMember>> AddMemberAsync(Guid UserId, Guid GroupId)
     {
         if (!await IsValidUser(UserId))
-            return OperationResult<bool>.Failure(UserNotFound);
+            return OperationResult<GroupMember>.Failure(UserNotFound);
 
         if (!await IsValidGroup(GroupId))
-            return OperationResult<bool>.Failure(GroupNotFound);
+            return OperationResult<GroupMember>.Failure(GroupNotFound);
 
         var member = new Entities.GroupMember
         {
@@ -33,9 +34,25 @@ public class GroupMemberRepository : BaseRepository, IGroupMemberRepository
         }
         catch (Exception ex)
         {
-            return OperationResult<bool>.Failure($"Failed to add member: {ex.Message}");
+            return OperationResult<GroupMember>.Failure($"Failed to add member: {ex.Message}");
         }
-        return OperationResult<bool>.Success(true);
+
+        await _context.GroupMembers.Entry(member)
+                        .Reference(m => m.Member)
+                        .LoadAsync();
+
+
+        var result = new GroupMember
+        {
+            MemberId = member.MemberId,
+            GroupId = member.GroupId,
+            JoinedAt = member.JoinedAt,
+            FirstName = member.Member.FirstName,
+            LastName = member.Member.LastName,
+            Email = member.Member.Email
+        };
+
+        return OperationResult<GroupMember>.Success(result);
     }
 
     public async Task<OperationResult<bool>> DeleteMemberAsync(Guid UserId, Guid GroupId)
