@@ -18,6 +18,7 @@ namespace StudyConnect.Core.Common
         public const string InvalidPostId = "Invalid post ID.";
         public const string InvalidCommentId = "Invalid comment ID.";
         public const string InvalidCategoryId = "Invalid category ID.";
+        public const string InvalidGroupId = "Invalid group ID.";
 
         public const string CommentContentEmpty = "Missing comment content.";
         public const string PostContentEmpty = "Missing post content.";
@@ -31,7 +32,7 @@ namespace StudyConnect.Core.Common
         public const string ParentCommentNotFound = "Parent comment with specified ID does not exist.";
         public const string LikeNotFound = "Like with specified ID does not exist.";
         public const string GroupNotFound = "Group with specified ID does not exist.";
-
+        public const string MemberNotFound = "GroupMember with specified ID does not exist.";
     }
 }
 

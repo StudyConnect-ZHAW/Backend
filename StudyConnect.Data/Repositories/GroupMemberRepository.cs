@@ -2,7 +2,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using StudyConnect.Core.Common;
 using StudyConnect.Core.Interfaces;
-using StudyConnect.Core.Models;
+using static StudyConnect.Core.Common.ErrorMessages;
 
 namespace StudyConnect.Data.Repositories;
 
@@ -14,10 +14,10 @@ public class GroupMemberRepository : BaseRepository, IGroupMemberRepository
     public async Task<OperationResult<bool>> AddMemberAsync(Guid UserId, Guid GroupId)
     {
         if (!await IsValidUser(UserId))
-            return OperationResult<bool>.Failure("User not found");
+            return OperationResult<bool>.Failure(UserNotFound);
 
         if (!await IsValidGroup(GroupId))
-            return OperationResult<bool>.Failure("Group not found");
+            return OperationResult<bool>.Failure(GroupNotFound);
 
         var member = new Entities.GroupMember
         {
@@ -41,16 +41,16 @@ public class GroupMemberRepository : BaseRepository, IGroupMemberRepository
     public async Task<OperationResult<bool>> DeleteMemberAsync(Guid UserId, Guid GroupId)
     {
         if (UserId == Guid.Empty)
-            return OperationResult<bool>.Failure("Invalid UserId");
+            return OperationResult<bool>.Failure(InvalidUserId);
         if (GroupId == Guid.Empty)
-            return OperationResult<bool>.Failure("Invalid GroupId");
+            return OperationResult<bool>.Failure(InvalidGroupId);
 
         var entity = await _context.GroupMembers.FirstOrDefaultAsync(g => g.GroupId == GroupId && g.MemberId == UserId);
         if (entity == null)
         {
-            return OperationResult<bool>.Failure("Member not found");
+            return OperationResult<bool>.Failure(MemberNotFound);
         }
-        
+
         try
         {
             _context.GroupMembers.Remove(entity);

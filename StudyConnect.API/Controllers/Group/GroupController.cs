@@ -81,13 +81,13 @@ namespace StudyConnect.API.Controllers.Groups
         /// <summary>
         /// Retrieves a group by its unique identifier.
         /// </summary>
-        /// <param name="id">The ID of the group to retrieve.</param>
+        /// <param name="groupId">The ID of the group to retrieve.</param>
         /// <returns>The group if found; otherwise, a not found or bad request result.</returns>
-        [Route("v1/groups/{id}")]
+        [Route("v1/groups/{groupId:guid}")]
         [HttpGet]
-        public async Task<IActionResult> GetGroupById([FromRoute] Guid id)
+        public async Task<IActionResult> GetGroupById([FromRoute] Guid groupId)
         {
-            var result = await _groupRepository.GetByIdAsync(id);
+            var result = await _groupRepository.GetByIdAsync(groupId);
 
             if (!result.IsSuccess)
             {
@@ -114,14 +114,14 @@ namespace StudyConnect.API.Controllers.Groups
         /// <summary>
         /// Updates the details of an existing group.
         /// </summary>
-        /// <param name="id">The ID of the group to update.</param>
+        /// <param name="groupId">The ID of the group to update.</param>
         /// <param name="dto">The updated group data.</param>
         /// <returns>A success message if updated; otherwise, a bad request with an error.</returns>
-        [Route("v1/groups/{id}")]
+        [Route("v1/groups/{groupId:guid}")]
         [HttpPut]
         [Authorize]
         public async Task<IActionResult> UpdateGroup(
-            [FromRoute] Guid id,
+            [FromRoute] Guid groupId,
             [FromBody] GroupUpdateDto dto
         )
         {
@@ -132,7 +132,7 @@ namespace StudyConnect.API.Controllers.Groups
 
             var group = new Group
             {
-                GroupId = id,
+                GroupId = groupId,
                 OwnerId = GetOIdFromToken(),
                 Name = dto.Name,
                 Description = dto.Description,
@@ -151,15 +151,15 @@ namespace StudyConnect.API.Controllers.Groups
         /// <summary>
         /// Deletes a group by its unique identifier.
         /// </summary>
-        /// <param name="gid">The ID of the group to delete.</param>
+        /// <param name="groupId">The ID of the group to delete.</param>
         /// <returns>A success message if deleted; otherwise, a bad request with an error.</returns>
-        [Route("v1/groups/{gid}")]
+        [Route("v1/groups/{groupId:guid}")]
         [HttpDelete]
         [Authorize]
-        public async Task<IActionResult> DeleteGroup([FromRoute] Guid gid)
+        public async Task<IActionResult> DeleteGroup([FromRoute] Guid groupId)
         {
-            var uid = GetOIdFromToken();
-            var result = await _groupRepository.DeleteAsync(uid, gid);
+            var userId = GetOIdFromToken();
+            var result = await _groupRepository.DeleteAsync(userId, groupId);
 
             if (!result.IsSuccess)
             {
@@ -208,14 +208,15 @@ namespace StudyConnect.API.Controllers.Groups
         /// Adds a user to the specified group.
         /// </summary>
         /// <param name="groupId">Identifier of the target group.</param>
-        /// <param name="userId">Identifier of the user who wants to join.</param>
         /// <returns>
         /// 200 OK when the user has been added; 400 Bad Request if the repository returns an error.
         /// </returns>
         [HttpPost]
-        [Route("v1/groups/{groupId}/members/{userId}")]
-        public async Task<IActionResult> JoinGroup([FromRoute] Guid groupId, [FromRoute] Guid userId)
+        [Route("v1/groups/{groupId}/members")]
+        [Authorize]
+        public async Task<IActionResult> JoinGroup([FromRoute] Guid groupId)
         {
+            var userId = GetOIdFromToken();
             var result = await _groupMemberRepository.AddMemberAsync(userId, groupId);
 
             if (!result.IsSuccess)
@@ -228,18 +229,17 @@ namespace StudyConnect.API.Controllers.Groups
         /// Removes a user from the specified group.
         /// </summary>
         /// <param name="groupId">Identifier of the group from which the user should be removed.</param>
-        /// <param name="userId">Identifier of the user who wants to leave.</param>
         /// <returns>
         /// 204 No Content when the membership was removed;
         /// 404 Not Found when the membership does not exist;
         /// 400 Bad Request when the repository returns an error.
         /// </returns>
         [HttpDelete]
-        [Route("v1/groups/{groupId}/members/{userId}")]
-        public async Task<IActionResult> LeaveGroup(
-            [FromRoute] Guid groupId,
-            [FromRoute] Guid userId)
+        [Route("v1/groups/{groupId}/members")]
+        [Authorize]
+        public async Task<IActionResult> LeaveGroup([FromRoute] Guid groupId)
         {
+            var userId = GetOIdFromToken();
             var result = await _groupMemberRepository.DeleteMemberAsync(userId, groupId);
 
             if (!result.IsSuccess)
@@ -259,7 +259,7 @@ namespace StudyConnect.API.Controllers.Groups
         /// 200 OK with a collection of <see cref="GroupMemberReadDto"/>; 400 Bad Request when the repository reports an error.
         /// </returns>
         [HttpGet]
-        [Route("v1/groups/{groupId}/members")]
+        [Route("v1/groups/{groupId:guid}/members")]
         public async Task<IActionResult> GetAllMembers([FromRoute] Guid groupId)
         {
             var result = await _groupRepository.GetMembersAsync(groupId);
@@ -289,7 +289,7 @@ namespace StudyConnect.API.Controllers.Groups
         /// <returns>
         /// 200 OK with a collection of <see cref="GroupReadDto"/>; 400 Bad Request when the repository reports an error.
         /// </returns>
-        [Route("v1/users/{userId}/groups")]
+        [Route("v1/users/{userId:guid}/groups")]
         [HttpGet]
         public async Task<IActionResult> GetGroupsForUserAsync([FromRoute] Guid userId)
         {
@@ -322,7 +322,7 @@ namespace StudyConnect.API.Controllers.Groups
         /// <returns>
         /// 200 OK with a collection of <see cref="GroupReadDto"/>; 400 Bad Request when the repository reports an error.
         /// </returns>
-        [Route("v1/users/{userId}/owned")]
+        [Route("v1/users/{userId:guid}/owned")]
         [HttpGet]
         public async Task<IActionResult> GetOwnedGroupsForUserAsync([FromRoute] Guid userId)
         {
