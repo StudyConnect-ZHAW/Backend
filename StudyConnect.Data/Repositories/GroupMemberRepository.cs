@@ -31,16 +31,14 @@ public class GroupMemberRepository : BaseRepository, IGroupMemberRepository
         {
             await _context.GroupMembers.AddAsync(member);
             await _context.SaveChangesAsync();
+            await _context.GroupMembers.Entry(member)
+                            .Reference(m => m.Member)
+                            .LoadAsync();
         }
         catch (Exception ex)
         {
             return OperationResult<GroupMember>.Failure($"Failed to add member: {ex.Message}");
         }
-
-        await _context.GroupMembers.Entry(member)
-                        .Reference(m => m.Member)
-                        .LoadAsync();
-
 
         var result = new GroupMember
         {

@@ -145,7 +145,16 @@ namespace StudyConnect.API.Controllers.Groups
                     ? NotFound(result.ErrorMessage)
                     : BadRequest(result.ErrorMessage);
 
-            return Ok(group);
+            var resultDto = new GroupReadDto
+            {
+                GroupId = result.Data.GroupId,
+                OwnerId = result.Data.OwnerId,
+                CreatedAt = result.Data.CreatedAt,
+                Name = result.Data.Name,
+                Description = result.Data.Description
+            };
+
+            return Ok(resultDto);
         }
 
         /// <summary>
