@@ -35,4 +35,16 @@ public static class ModelMapper
         };
     }
 
+    public static Core.Models.Group ToGroupModel(this Group group)
+    {
+        return new()
+        {
+            GroupId = group.GroupId,
+            OwnerId = group.OwnerId,
+            Name = group.Name,
+            Description = group.Description,
+            CreatedAt = group.CreatedAt
+        };
+    }
+
 }

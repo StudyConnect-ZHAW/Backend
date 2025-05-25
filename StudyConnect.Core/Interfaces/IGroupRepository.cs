@@ -62,12 +62,13 @@ public interface IGroupRepository
     /// </summary>
     /// <param name="group">The group with updated data.</param>
     /// <returns>An operation result indicating success or failure.</returns>
-    Task<OperationResult<bool>> UpdateAsync(Group group);
+    Task<OperationResult<Group>> UpdateAsync(Group group);
 
     /// <summary>
     /// Deletes a group by its unique identifier.
     /// </summary>
+    /// <param name="userId">The ID of the owner of the group.</param>
     /// <param name="groupId">The ID of the group to delete.</param>
     /// <returns>An operation result indicating success or failure.</returns>
-    Task<OperationResult<bool>> DeleteAsync(Guid groupId);
+    Task<OperationResult<bool>> DeleteAsync(Guid userId, Guid groupId);
 }

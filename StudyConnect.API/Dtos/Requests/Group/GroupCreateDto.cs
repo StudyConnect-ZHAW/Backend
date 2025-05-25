@@ -9,12 +9,6 @@ namespace StudyConnect.API.Dtos.Requests.Group;
 public class GroupCreateDto
 {
     /// <summary>
-    /// The ID of the user who owns the group.
-    /// </summary>
-    [Required(ErrorMessage = "Owner ID is required.")]
-    public required Guid OwnerId { get; set; }
-
-    /// <summary>
     /// The name of the group.
     /// </summary>
     [Required(ErrorMessage = "Group name is required.")]

@@ -3,6 +3,9 @@ using StudyConnect.Core.Interfaces;
 using StudyConnect.Core.Models;
 using StudyConnect.API.Dtos.Requests.Group;
 using StudyConnect.API.Dtos.Responses.Group;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Identity.Web;
+using static StudyConnect.Core.Common.ErrorMessages;
 
 
 namespace StudyConnect.API.Controllers.Groups
@@ -42,6 +45,7 @@ namespace StudyConnect.API.Controllers.Groups
         /// </returns>
         [Route("v1/groups")]
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> AddGroup([FromBody] GroupCreateDto dto)
         {
             if (!ModelState.IsValid)
@@ -51,7 +55,7 @@ namespace StudyConnect.API.Controllers.Groups
 
             var newGroup = new Group
             {
-                OwnerId = dto.OwnerId,
+                OwnerId = GetOIdFromToken(),
                 Name = dto.Name,
                 Description = dto.Description,
             };
@@ -115,6 +119,7 @@ namespace StudyConnect.API.Controllers.Groups
         /// <returns>A success message if updated; otherwise, a bad request with an error.</returns>
         [Route("v1/groups/{id}")]
         [HttpPut]
+        [Authorize]
         public async Task<IActionResult> UpdateGroup(
             [FromRoute] Guid id,
             [FromBody] GroupUpdateDto dto
@@ -128,35 +133,33 @@ namespace StudyConnect.API.Controllers.Groups
             var group = new Group
             {
                 GroupId = id,
+                OwnerId = GetOIdFromToken(),
                 Name = dto.Name,
                 Description = dto.Description,
             };
 
             var result = await _groupRepository.UpdateAsync(group);
 
-            if (!result.IsSuccess)
-            {
-                return BadRequest(result.ErrorMessage);
-            }
+            if (!result.IsSuccess || result.Data == null)
+                return result.ErrorMessage!.Contains(GeneralNotFound)
+                    ? NotFound(result.ErrorMessage)
+                    : BadRequest(result.ErrorMessage);
 
-            if (!result.Data)
-            {
-                return NotFound("Group not found.");
-            }
-
-            return Ok("Group updated successfully.");
+            return Ok(group);
         }
 
         /// <summary>
         /// Deletes a group by its unique identifier.
         /// </summary>
-        /// <param name="id">The ID of the group to delete.</param>
+        /// <param name="gid">The ID of the group to delete.</param>
         /// <returns>A success message if deleted; otherwise, a bad request with an error.</returns>
-        [Route("v1/groups/{id}")]
+        [Route("v1/groups/{gid}")]
         [HttpDelete]
-        public async Task<IActionResult> DeleteGroup([FromRoute] Guid id)
+        [Authorize]
+        public async Task<IActionResult> DeleteGroup([FromRoute] Guid gid)
         {
-            var result = await _groupRepository.DeleteAsync(id);
+            var uid = GetOIdFromToken();
+            var result = await _groupRepository.DeleteAsync(uid, gid);
 
             if (!result.IsSuccess)
             {
@@ -344,5 +347,14 @@ namespace StudyConnect.API.Controllers.Groups
 
             return Ok(result);
         }
+
+        private Guid GetOIdFromToken()
+        {
+            var oidClaim = HttpContext.User.GetObjectId();
+            return oidClaim != null
+                ? Guid.Parse(oidClaim)
+                : Guid.Empty;
+        }
+
     }
 }
