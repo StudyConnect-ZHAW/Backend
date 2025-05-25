@@ -219,10 +219,20 @@ namespace StudyConnect.API.Controllers.Groups
             var userId = GetOIdFromToken();
             var result = await _groupMemberRepository.AddMemberAsync(userId, groupId);
 
-            if (!result.IsSuccess)
+            if (!result.IsSuccess || result.Data == null)
                 return BadRequest(result.ErrorMessage);
 
-            return Ok();
+            var resultDto = new GroupMemberReadDto
+            {
+                GroupId = result.Data.GroupId,
+                MemberId = result.Data.MemberId,
+                JoinedAt = result.Data.JoinedAt,
+                FirstName = result.Data.FirstName,
+                LastName = result.Data.LastName,
+                Email = result.Data.Email
+            };
+
+            return Ok(resultDto);
         }
 
         /// <summary>
