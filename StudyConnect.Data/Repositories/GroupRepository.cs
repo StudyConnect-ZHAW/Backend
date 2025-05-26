@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using StudyConnect.Core.Common;
 using StudyConnect.Core.Interfaces;
 using StudyConnect.Core.Models;
+using static StudyConnect.Core.Common.ErrorMessages;
 
 namespace StudyConnect.Data.Repositories;
 
@@ -36,18 +37,22 @@ public class GroupRepository : BaseRepository, IGroupRepository
         return OperationResult<Group?>.Success(groupToReturn);
     }
 
-    public async Task<OperationResult<bool>> UpdateAsync(Group group)
+    public async Task<OperationResult<Group>> UpdateAsync(Group group)
     {
-        if (group.GroupId == Guid.Empty)
+        if (group.GroupId == Guid.Empty || group.OwnerId == Guid.Empty)
         {
-            return OperationResult<bool>.Failure("Invalid GUID.");
+            return OperationResult<Group>.Failure("Invalid GUID.");
         }
 
         var existingGroup = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == group.GroupId);
         if (existingGroup == null)
         {
-            return OperationResult<bool>.Success(false);
+            return OperationResult<Group>.Failure(GroupNotFound);
         }
+
+        if (existingGroup.OwnerId != group.OwnerId)
+            return OperationResult<Group>.Failure(NotAuthorized);
+
         try
         {
             //Update the group properties
@@ -56,17 +61,17 @@ public class GroupRepository : BaseRepository, IGroupRepository
 
             await _context.SaveChangesAsync();
 
-            return await Task.FromResult(OperationResult<bool>.Success(true));
+            return OperationResult<Group>.Success(existingGroup.ToGroupModel());
         }
         catch (Exception ex)
         {
-            return OperationResult<bool>.Failure($"An error occurred while updating the group: {ex.Message}");
+            return OperationResult<Group>.Failure($"An error occurred while updating the group: {ex.Message}");
         }
     }
 
-    public async Task<OperationResult<bool>> DeleteAsync(Guid groupId)
+    public async Task<OperationResult<bool>> DeleteAsync(Guid userId, Guid groupId)
     {
-        if (groupId == Guid.Empty)
+        if (groupId == Guid.Empty || userId == Guid.Empty)
         {
             return OperationResult<bool>.Failure("Invalid GUID.");
         }
@@ -76,6 +81,9 @@ public class GroupRepository : BaseRepository, IGroupRepository
         {
             return OperationResult<bool>.Success(false);
         }
+
+        if (entity.OwnerId != userId)
+            return OperationResult<bool>.Failure(NotAuthorized);
 
         try
         {
@@ -91,16 +99,16 @@ public class GroupRepository : BaseRepository, IGroupRepository
 
     public async Task<OperationResult<Group>> AddAsync(Group group)
     {
-        var existingGroup = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == group.GroupId);
+        var existingGroup = await _context.Groups.FirstOrDefaultAsync(g => g.Name == group.Name);
         if (existingGroup != null)
         {
-            return OperationResult<Group>.Failure("A group with the same ID already exists.");
+            return OperationResult<Group>.Failure("A group with the same name already exists.");
         }
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == group.OwnerId);
         if (user == null)
         {
-            return OperationResult<Group>.Failure("Owner user not found.");
+            return OperationResult<Group>.Failure(UserNotFound);
         }
 
         var entity = new Data.Entities.Group
