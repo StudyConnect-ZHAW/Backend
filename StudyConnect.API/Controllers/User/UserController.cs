@@ -9,28 +9,26 @@ using System.ComponentModel.DataAnnotations;
 using StudyConnect.API.Dtos.Responses.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
+using StudyConnect.Core.Common;
+using System.Security.Claims;
+using System.Linq;
 
 namespace StudyConnect.API.Controllers.Users
 {
     /// <summary>
     /// The user endpoint is used to make modifications to a user.
     /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="UserController"/> class.
+    /// </remarks>
+    /// <param name="userRepository">The user repository to interact with user data.</param>
     [ApiController]
-    public class UserController : BaseController
+    public class UserController(IUserRepository userRepository) : BaseController
     {
         /// <summary>
         /// The user repository to interact with user data.
         /// </summary>
-        protected readonly IUserRepository _userRepository;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UserController"/> class.
-        /// </summary>
-        /// <param name="userRepository">The user repository to interact with user data.</param>
-        public UserController(IUserRepository userRepository)
-        {
-            _userRepository = userRepository;
-        }
+        protected readonly IUserRepository _userRepository = userRepository;
 
         /// <summary>
         /// Create a new user
@@ -65,6 +63,83 @@ namespace StudyConnect.API.Controllers.Users
 
             return NoContent();
         }
+        
+        /// <summary>
+        /// Add a new user based on the claims in the token.
+        /// </summary>
+        /// <returns></returns>
+        [Route("v2/users")]
+        [HttpPost]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> AddUser()
+        {
+            UserCreateDto userCreateDto = new()
+            {
+                UserGuid = Guid.TryParse(HttpContext.User.GetObjectId(), out var userGuid) ? userGuid : Guid.Empty,
+                FirstName = HttpContext.User.FindFirst(ClaimTypes.GivenName)?.Value ?? string.Empty,
+                LastName = HttpContext.User.FindFirst(ClaimTypes.Surname)?.Value ?? string.Empty,
+                Email = HttpContext.User.FindFirst(ClaimTypes.Upn)?.Value ?? string.Empty
+            };
+
+            // Validate the incoming request
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            User user = new()
+            {
+                UserGuid = userCreateDto.UserGuid,
+                FirstName = userCreateDto.FirstName,
+                LastName = userCreateDto.LastName,
+                Email = userCreateDto.Email
+            };
+
+            var result = await _userRepository.AddAsync(user);
+            if (!result.IsSuccess)
+                return BadRequest(result.ErrorMessage);
+            
+
+            return Ok(userCreateDto);
+        }
+
+        /// <summary>
+        /// Get the current user based on oid claim in the token
+        /// This endpoint retrieves the user information of the currently authenticated user.
+        /// </summary>
+        /// <returns></returns>
+        [Route("v1/users/me")]
+        [HttpGet]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetMe()
+        {
+            //Read the ObjectId claim from the token
+            var oidClaim = HttpContext.User.GetObjectId();
+            if (string.IsNullOrEmpty(oidClaim))
+                return Unauthorized();
+
+            var result = await _userRepository.GetByIdAsync(Guid.Parse(oidClaim));
+
+            // Check if the user was found
+            if (result.Data == null)
+                return NotFound(ErrorMessages.UserNotFound);
+
+
+            // Map the User entity to a DTO if necessary
+            var userDto = new UserReadDto
+            {
+                Oid = result.Data.UserGuid,
+                FirstName = result.Data.FirstName,
+                LastName = result.Data.LastName,
+                Email = result.Data.Email
+            };
+
+            return Ok(userDto);
+        }
 
         /// <summary>
         /// Get a user by id
@@ -87,6 +162,7 @@ namespace StudyConnect.API.Controllers.Users
             // Map the User entity to a DTO if necessary
             var userDto = new UserReadDto
             {
+                Oid = result.Data.UserGuid,
                 FirstName = result.Data.FirstName,
                 LastName = result.Data.LastName,
                 Email = result.Data.Email

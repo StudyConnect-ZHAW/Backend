@@ -8,6 +8,11 @@ namespace StudyConnect.API.Dtos.Responses.User;
 public class UserReadDto
 {
     /// <summary>
+    /// The unique identifier for the user, represented as a GUID.
+    /// </summary>
+    public Guid? Oid { get; set; }  
+
+    /// <summary>
     /// The first name of the user.
     /// </summary>
     public string? FirstName { get; set; }
