@@ -32,4 +32,9 @@ public class Group
     /// The CreatedAt of the group.
     /// </summary>
     public DateTime CreatedAt { get; set; }
+
+    /// <summary>
+    /// The Owner of the group.
+    /// </summary>
+    public User? Owner { get; set; }
 }

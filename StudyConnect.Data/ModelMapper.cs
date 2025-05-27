@@ -16,7 +16,7 @@ public static class ModelMapper
             UserGuid = user.UserGuid,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            Email = user.Email
+            Email = user.Email,
         };
     }
 
@@ -31,7 +31,7 @@ public static class ModelMapper
         {
             ForumCategoryId = category.ForumCategoryId,
             Name = category.Name,
-            Description = category.Description
+            Description = category.Description,
         };
     }
 
@@ -48,8 +48,8 @@ public static class ModelMapper
             OwnerId = group.OwnerId,
             Name = group.Name,
             Description = group.Description,
-            CreatedAt = group.CreatedAt
+            CreatedAt = group.CreatedAt,
+            Owner = group.Owner.ToUserModel(),
         };
     }
-
 }
