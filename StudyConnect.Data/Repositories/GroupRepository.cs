@@ -33,10 +33,11 @@ public class GroupRepository : BaseRepository, IGroupRepository
 
     public async Task<OperationResult<Group>> UpdateAsync(Group group)
     {
-        if (group.GroupId == Guid.Empty || group.OwnerId == Guid.Empty)
-        {
-            return OperationResult<Group>.Failure("Invalid GUID.");
-        }
+        if (group.GroupId == Guid.Empty)
+            return OperationResult<Group>.Failure(InvalidGroupId);
+
+        if (group.OwnerId == Guid.Empty)
+            return OperationResult<Group>.Failure(InvalidUserId);
 
         var existingGroup = await _context
             .Groups.Include(g => g.Owner)
@@ -70,15 +71,16 @@ public class GroupRepository : BaseRepository, IGroupRepository
 
     public async Task<OperationResult<bool>> DeleteAsync(Guid userId, Guid groupId)
     {
-        if (groupId == Guid.Empty || userId == Guid.Empty)
-        {
-            return OperationResult<bool>.Failure("Invalid GUID.");
-        }
+        if (groupId == Guid.Empty)
+            return OperationResult<bool>.Failure(InvalidGroupId);
+
+        if (userId == Guid.Empty)
+            return OperationResult<bool>.Failure(InvalidUserId);
 
         var entity = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == groupId);
         if (entity == null)
         {
-            return OperationResult<bool>.Success(false);
+            return OperationResult<bool>.Failure(GroupNotFound);
         }
 
         if (entity.OwnerId != userId)
@@ -103,7 +105,7 @@ public class GroupRepository : BaseRepository, IGroupRepository
         var existingGroup = await _context.Groups.FirstOrDefaultAsync(g => g.Name == group.Name);
         if (existingGroup != null)
         {
-            return OperationResult<Group>.Failure("A group with the same name already exists.");
+            return OperationResult<Group>.Failure(NameTaken);
         }
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == group.OwnerId);
@@ -196,7 +198,7 @@ public class GroupRepository : BaseRepository, IGroupRepository
     {
         if (userId == Guid.Empty)
         {
-            return OperationResult<IEnumerable<Group>>.Failure("Invalid GUID.");
+            return OperationResult<IEnumerable<Group>>.Failure(InvalidUserId);
         }
 
         var userGroups = await _context
@@ -206,7 +208,7 @@ public class GroupRepository : BaseRepository, IGroupRepository
 
         if (userGroups == null)
         {
-            return OperationResult<IEnumerable<Group>>.Success([]);
+            return OperationResult<IEnumerable<Group>>.Success(new List<Group>());
         }
 
         var groups = userGroups.Select(g => g.ToGroupModel()).ToList();
@@ -218,7 +220,7 @@ public class GroupRepository : BaseRepository, IGroupRepository
     {
         if (userId == Guid.Empty)
         {
-            return OperationResult<IEnumerable<Group>>.Failure("Invalid GUID.");
+            return OperationResult<IEnumerable<Group>>.Failure(InvalidUserId);
         }
 
         var existingGroups = await _context
@@ -228,7 +230,7 @@ public class GroupRepository : BaseRepository, IGroupRepository
 
         if (existingGroups == null)
         {
-            return OperationResult<IEnumerable<Group>>.Success([]);
+            return OperationResult<IEnumerable<Group>>.Success(new List<Group>());
         }
 
         var groups = existingGroups.Select(g => g.ToGroupModel()).ToList();

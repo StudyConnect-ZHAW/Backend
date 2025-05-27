@@ -7,7 +7,10 @@ namespace StudyConnect.Core.Common
         public const string NotFound = "The requested resource was not found.";
         public const string NotAuthorized = "Not authorized to perform this action.";
         public const string NameRequired = "Name cannot be null, empty or whitespace.";
+
+        public const string GeneralTaken = "in use.";
         public const string TitleTaken = "Title already in use.";
+        public const string NameTaken = "Name already in use.";
         public const string LikeExists = "Like already exists.";
 
         public const string QueryFailure = "Malformed or invalid query.";

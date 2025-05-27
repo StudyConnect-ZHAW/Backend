@@ -13,19 +13,35 @@ public class GroupReadDto
     public Guid GroupId { get; set; }
 
     /// <summary>
+    /// The name of the group.
+    /// </summary>
+    public string? Name { get; set; } 
+
+    /// <summary>
+    /// The description of the group.
+    /// </summary>
+    public string? Description { get; set; } 
+
+    /// <summary>
     /// The ID of the user who owns the group.
     /// </summary>
     public Guid OwnerId { get; set; }
 
     /// <summary>
-    /// The name of the group.
+    /// The first name of the group owner.
     /// </summary>
-    public string Name { get; set; } = string.Empty;
+    public string? OwnerFirstName { get; set; } 
 
     /// <summary>
-    /// The description of the group.
+    /// The last name of the group owner.
     /// </summary>
-    public string Description { get; set; } = string.Empty;
+    public string? OwnerLastName { get; set; }
+
+    /// <summary>
+    /// The Email of the group owner.
+    /// </summary>
+    public string? OwnerEmail { get; set; }
+
 
     /// <summary>
     /// Timestamp when the group was created.

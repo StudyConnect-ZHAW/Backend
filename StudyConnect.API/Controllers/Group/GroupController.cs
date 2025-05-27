@@ -1,12 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using StudyConnect.Core.Interfaces;
-using StudyConnect.Core.Models;
+using Microsoft.Identity.Web;
 using StudyConnect.API.Dtos.Requests.Group;
 using StudyConnect.API.Dtos.Responses.Group;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Identity.Web;
+using StudyConnect.Core.Interfaces;
+using StudyConnect.Core.Models;
 using static StudyConnect.Core.Common.ErrorMessages;
-
 
 namespace StudyConnect.API.Controllers.Groups
 {
@@ -26,11 +25,13 @@ namespace StudyConnect.API.Controllers.Groups
         /// </summary>
         protected readonly IGroupMemberRepository _groupMemberRepository;
 
-
         /// <summary>
         /// Initializes a new instance of the <see cref="GroupController"/> class.
         /// </summary>
-        public GroupController(IGroupRepository groupRepository, IGroupMemberRepository groupMemberRepository)
+        public GroupController(
+            IGroupRepository groupRepository,
+            IGroupMemberRepository groupMemberRepository
+        )
         {
             _groupRepository = groupRepository;
             _groupMemberRepository = groupMemberRepository;
@@ -61,20 +62,17 @@ namespace StudyConnect.API.Controllers.Groups
             };
 
             var result = await _groupRepository.AddAsync(newGroup);
-            if (!result.IsSuccess)
+            if (!result.IsSuccess || result.Data == null)
             {
-                return BadRequest(result.ErrorMessage);
+                if (result.ErrorMessage!.Contains(GeneralNotFound))
+                    return NotFound(result.ErrorMessage);
+                else if (result.ErrorMessage!.Equals(GeneralTaken))
+                    return Conflict(result.ErrorMessage);
+                else
+                    return BadRequest(result.ErrorMessage);
             }
 
-            var created = result.Data!;
-
-            var response = new GroupReadDto
-            {
-                GroupId = created.GroupId,
-                OwnerId = created.OwnerId,
-                Name = created.Name,
-                Description = created.Description,
-            };
+            var response = ToGroupReadDto(result.Data);
             return Ok(response);
         }
 
@@ -89,26 +87,12 @@ namespace StudyConnect.API.Controllers.Groups
         {
             var result = await _groupRepository.GetByIdAsync(groupId);
 
-            if (!result.IsSuccess)
-            {
-                return BadRequest(result.ErrorMessage);
-            }
+            if (!result.IsSuccess || result.Data == null)
+                return result.ErrorMessage!.Contains(GeneralNotFound)
+                    ? NotFound(result.ErrorMessage)
+                    : BadRequest(result.ErrorMessage);
 
-            if (result.Data == null)
-            {
-                return NotFound("Group not found.");
-            }
-
-            var dto = new GroupReadDto
-            {
-                GroupId = result.Data.GroupId,
-                OwnerId = result.Data.OwnerId,
-                Name = result.Data.Name,
-                Description = result.Data.Description,
-                CreatedAt = result.Data.CreatedAt
-            };
-
-            return Ok(dto);
+            return Ok(ToGroupReadDto(result.Data));
         }
 
         /// <summary>
@@ -141,20 +125,16 @@ namespace StudyConnect.API.Controllers.Groups
             var result = await _groupRepository.UpdateAsync(group);
 
             if (!result.IsSuccess || result.Data == null)
-                return result.ErrorMessage!.Contains(GeneralNotFound)
-                    ? NotFound(result.ErrorMessage)
-                    : BadRequest(result.ErrorMessage);
-
-            var resultDto = new GroupReadDto
             {
-                GroupId = result.Data.GroupId,
-                OwnerId = result.Data.OwnerId,
-                CreatedAt = result.Data.CreatedAt,
-                Name = result.Data.Name,
-                Description = result.Data.Description
-            };
+                if (result.ErrorMessage!.Contains(GeneralNotFound))
+                    return NotFound(result.ErrorMessage);
+                else if (result.ErrorMessage!.Equals(NotAuthorized))
+                    return Unauthorized(result.ErrorMessage);
+                else
+                    return BadRequest(result.ErrorMessage);
+            }
 
-            return Ok(resultDto);
+            return Ok(ToGroupReadDto(result.Data));
         }
 
         /// <summary>
@@ -170,14 +150,14 @@ namespace StudyConnect.API.Controllers.Groups
             var userId = GetOIdFromToken();
             var result = await _groupRepository.DeleteAsync(userId, groupId);
 
-            if (!result.IsSuccess)
+            if (!result.IsSuccess || !result.Data)
             {
-                return BadRequest(result.ErrorMessage);
-            }
-
-            if (!result.Data)
-            {
-                return NotFound("Group not found.");
+                if (result.ErrorMessage!.Contains(GeneralNotFound))
+                    return NotFound(result.ErrorMessage);
+                else if (result.ErrorMessage!.Equals(NotAuthorized))
+                    return Unauthorized(result.ErrorMessage);
+                else
+                    return BadRequest(result.ErrorMessage);
             }
 
             return NoContent();
@@ -200,18 +180,10 @@ namespace StudyConnect.API.Controllers.Groups
 
             var groups = result.Data ?? [];
 
-            var dtoList = groups.Select(g => new GroupReadDto
-            {
-                GroupId = g.GroupId,
-                OwnerId = g.OwnerId,
-                Name = g.Name,
-                Description = g.Description,
-                CreatedAt = g.CreatedAt
-            });
+            var dtoList = groups.Select(ToGroupReadDto).ToList();
 
             return Ok(dtoList);
         }
-
 
         /// <summary>
         /// Adds a user to the specified group.
@@ -238,7 +210,7 @@ namespace StudyConnect.API.Controllers.Groups
                 JoinedAt = result.Data.JoinedAt,
                 FirstName = result.Data.FirstName,
                 LastName = result.Data.LastName,
-                Email = result.Data.Email
+                Email = result.Data.Email,
             };
 
             return Ok(resultDto);
@@ -295,7 +267,7 @@ namespace StudyConnect.API.Controllers.Groups
                 JoinedAt = m.JoinedAt,
                 FirstName = m.FirstName,
                 LastName = m.LastName,
-                Email = m.Email
+                Email = m.Email,
             });
 
             return Ok(dto);
@@ -319,17 +291,9 @@ namespace StudyConnect.API.Controllers.Groups
                 return BadRequest(groupsList.ErrorMessage);
             }
 
-
             var groups = groupsList.Data ?? [];
 
-            var result = groups.Select(g => new GroupReadDto
-            {
-                GroupId = g.GroupId,
-                OwnerId = g.OwnerId,
-                Name = g.Name,
-                Description = g.Description,
-                CreatedAt = g.CreatedAt
-            }).ToList();
+            var result = groups.Select(ToGroupReadDto).ToList();
 
             return Ok(result);
         }
@@ -352,17 +316,9 @@ namespace StudyConnect.API.Controllers.Groups
                 return BadRequest(groupsList.ErrorMessage);
             }
 
-
             var groups = groupsList.Data ?? [];
 
-            var result = groups.Select(g => new GroupReadDto
-            {
-                GroupId = g.GroupId,
-                OwnerId = g.OwnerId,
-                Name = g.Name,
-                Description = g.Description,
-                CreatedAt = g.CreatedAt
-            }).ToList();
+            var result = groups.Select(ToGroupReadDto).ToList();
 
             return Ok(result);
         }
@@ -370,10 +326,20 @@ namespace StudyConnect.API.Controllers.Groups
         private Guid GetOIdFromToken()
         {
             var oidClaim = HttpContext.User.GetObjectId();
-            return oidClaim != null
-                ? Guid.Parse(oidClaim)
-                : Guid.Empty;
+            return oidClaim != null ? Guid.Parse(oidClaim) : Guid.Empty;
         }
 
+        private GroupReadDto ToGroupReadDto(Group group) =>
+            new()
+            {
+                GroupId = group.GroupId,
+                Name = group.Name,
+                Description = group.Description,
+                OwnerId = group.OwnerId,
+                OwnerFirstName = group.Owner != null ? group.Owner.FirstName : string.Empty,
+                OwnerLastName = group.Owner != null ? group.Owner.LastName : string.Empty,
+                OwnerEmail = group.Owner != null ? group.Owner.Email : string.Empty,
+                CreatedAt = group.CreatedAt,
+            };
     }
 }
