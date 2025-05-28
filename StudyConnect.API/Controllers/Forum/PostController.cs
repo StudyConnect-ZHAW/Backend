@@ -61,7 +61,7 @@ public class PostController : BaseController
         {
             if (result.ErrorMessage!.Contains(GeneralNotFound))
                 return NotFound(result.ErrorMessage);
-            else if (result.ErrorMessage!.Equals(GeneralTaken))
+            else if (result.ErrorMessage!.Contains(GeneralTaken))
                 return Conflict(result.ErrorMessage);
             else
                 return BadRequest(result.ErrorMessage);
