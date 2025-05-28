@@ -256,20 +256,6 @@ namespace StudyConnect.API.Controllers.Users
             return NoContent();
         }
 
-
-        /// <summary>
-        /// Delete a user
-        /// </summary>
-        /// <param name="id">User id</param>
-        /// <returns></returns>
-        [Route("v1/users/{id}")]
-        [Authorize]
-        [HttpDelete]
-        public IActionResult DeleteUser([FromRoute] Guid id)
-        {
-            //Not implemented yet
-            return BadRequest("Not implemented yet.");
-        }
     }
 }
 
