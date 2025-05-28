@@ -58,14 +58,9 @@ public class CommentReadDto
     public Guid? ParentCommentId { get; set; }
 
     /// <summary>
-    /// The unique identifier of the creator of the comment.
-    /// </summary>
-    public Guid UserId { get; set; }
-
-    /// <summary>
     /// The creator of this forum comment.
     /// </summary>
-    public UserReadDto? User { get; set; }
+    public ForumUserReadDto? User { get; set; }
 
     /// <summary>
     /// A list of replies to this comment as dtos.

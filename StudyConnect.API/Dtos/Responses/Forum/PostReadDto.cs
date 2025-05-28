@@ -48,13 +48,8 @@ public class PostReadDto
     public CategoryReadDto? Category { get; set; }
 
     /// <summary>
-    /// The unique identifier of the creator of the post.
-    /// </summary>
-    public Guid UserId { get; set; }
-
-    /// <summary>
     /// The creator of the post as a dto.
     /// </summary>
-    public UserReadDto? User { get; set; }
+    public ForumUserReadDto? User { get; set; }
 }
 

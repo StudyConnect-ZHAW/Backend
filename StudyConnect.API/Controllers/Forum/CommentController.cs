@@ -207,15 +207,14 @@ public class CommentController : BaseController
     /// </summary>
     /// <param name="user">The user model.</param>
     /// <returns>A UserReadDto containing user details.</returns>
-    private UserReadDto MapUserToDto(User user)
-    {
-        return new UserReadDto
+    private ForumUserReadDto MapUserToDto(User user) =>
+        new()
         {
+            UserId = user.UserGuid,
             FirstName = user.FirstName,
             LastName = user.LastName,
             Email = user.Email,
         };
-    }
 
     /// <summary>
     /// A helper function to map a forumComment model to a CommentReadDto.
@@ -234,7 +233,6 @@ public class CommentController : BaseController
             Deleted = comment.IsDeleted,
             ReplyCount = comment.ReplyCount,
             LikeCount = comment.LikeCount,
-            UserId = comment.User != null ? comment.User.UserGuid : Guid.Empty,
             User = comment.User != null ? MapUserToDto(comment.User) : null,
             PostId = comment.PostId,
             ParentCommentId = comment.ParentCommentId,

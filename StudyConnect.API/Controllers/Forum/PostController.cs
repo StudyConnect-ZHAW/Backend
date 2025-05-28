@@ -57,7 +57,7 @@ public class PostController : BaseController
         Guid pid = createDto.ForumCategoryId;
 
         var result = await _postRepository.AddAsync(uid, pid, post);
-        if (!result.IsSuccess || result.Data== null)
+        if (!result.IsSuccess || result.Data == null)
         {
             if (result.ErrorMessage!.Contains(GeneralNotFound))
                 return NotFound(result.ErrorMessage);
@@ -229,30 +229,27 @@ public class PostController : BaseController
     /// </summary>
     /// <param name="user">The user model.</param>
     /// <returns>A UserReadDto.</returns>
-    private UserReadDto GenerateUserReadDto(User user)
-    {
-        return new UserReadDto
+    private ForumUserReadDto GenerateUserReadDto(User user) =>
+        new()
         {
+            UserId = user.UserGuid,
             FirstName = user.FirstName,
             LastName = user.LastName,
             Email = user.Email,
         };
-    }
 
     /// <summary>
     /// A helper function to create category Dto from model.
     /// </summary>
     /// <param name="category">The forum category model.</param>
     /// <returns>A CategoryReadDto.</returns>
-    private CategoryReadDto GenerateCategoryReadDto(ForumCategory category)
-    {
-        return new CategoryReadDto
+    private CategoryReadDto GenerateCategoryReadDto(ForumCategory category) =>
+        new()
         {
             ForumCategoryId = category.ForumCategoryId,
             Name = category.Name,
             Description = category.Description,
         };
-    }
 
     /// <summary>
     /// A helper function to create post Dto from model.
@@ -271,7 +268,6 @@ public class PostController : BaseController
             CommentCount = post.CommentCount,
             LikeCount = post.LikeCount,
             Category = post.Category != null ? GenerateCategoryReadDto(post.Category) : null,
-            UserId = post.User != null ? post.User.UserGuid : Guid.Empty,
             User = post.User != null ? GenerateUserReadDto(post.User) : null,
         };
     }
