@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using StudyConnect.API.Dtos.Requests.Group;
 using StudyConnect.API.Dtos.Responses.Group;
+using StudyConnect.API.Dtos.Responses.User;
 using StudyConnect.Core.Interfaces;
 using StudyConnect.Core.Models;
 using static StudyConnect.Core.Common.ErrorMessages;
@@ -200,7 +201,7 @@ namespace StudyConnect.API.Controllers.Groups
             var userId = GetOIdFromToken();
             var result = await _groupMemberRepository.AddMemberAsync(userId, groupId);
 
-             if (!result.IsSuccess || result.Data == null)
+            if (!result.IsSuccess || result.Data == null)
             {
                 if (result.ErrorMessage!.Contains(GeneralNotFound))
                     return NotFound(result.ErrorMessage);
@@ -239,7 +240,7 @@ namespace StudyConnect.API.Controllers.Groups
             var userId = GetOIdFromToken();
             var result = await _groupMemberRepository.DeleteMemberAsync(userId, groupId);
 
-             if (!result.IsSuccess || !result.Data)
+            if (!result.IsSuccess || !result.Data)
                 return result.ErrorMessage!.Contains(GeneralNotFound)
                     ? NotFound(result.ErrorMessage)
                     : BadRequest(result.ErrorMessage);
@@ -334,17 +335,28 @@ namespace StudyConnect.API.Controllers.Groups
             return oidClaim != null ? Guid.Parse(oidClaim) : Guid.Empty;
         }
 
+        /// <summary>
+        /// A helper function to create user Dto from model.
+        /// </summary>
+        /// <param name="user">The user model.</param>
+        /// <returns>A UserReadDto.</returns>
+        private UserReadDto GenerateUserReadDto(User user) =>
+            new()
+            {
+                Oid = user.UserGuid,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+            };
+
         private GroupReadDto ToGroupReadDto(Group group) =>
             new()
             {
                 GroupId = group.GroupId,
                 Name = group.Name,
                 Description = group.Description,
-                OwnerId = group.OwnerId,
-                OwnerFirstName = group.Owner != null ? group.Owner.FirstName : string.Empty,
-                OwnerLastName = group.Owner != null ? group.Owner.LastName : string.Empty,
-                OwnerEmail = group.Owner != null ? group.Owner.Email : string.Empty,
                 CreatedAt = group.CreatedAt,
+                Owner = group.Owner != null ? GenerateUserReadDto(group.Owner) : null,
             };
     }
 }
