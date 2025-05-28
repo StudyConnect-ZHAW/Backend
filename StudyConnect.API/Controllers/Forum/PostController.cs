@@ -229,10 +229,10 @@ public class PostController : BaseController
     /// </summary>
     /// <param name="user">The user model.</param>
     /// <returns>A UserReadDto.</returns>
-    private ForumUserReadDto GenerateUserReadDto(User user) =>
+    private UserReadDto GenerateUserReadDto(User user) =>
         new()
         {
-            UserId = user.UserGuid,
+            Oid = user.UserGuid,
             FirstName = user.FirstName,
             LastName = user.LastName,
             Email = user.Email,

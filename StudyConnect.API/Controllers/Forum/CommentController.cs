@@ -207,10 +207,10 @@ public class CommentController : BaseController
     /// </summary>
     /// <param name="user">The user model.</param>
     /// <returns>A UserReadDto containing user details.</returns>
-    private ForumUserReadDto MapUserToDto(User user) =>
+    private UserReadDto MapUserToDto(User user) =>
         new()
         {
-            UserId = user.UserGuid,
+            Oid = user.UserGuid,
             FirstName = user.FirstName,
             LastName = user.LastName,
             Email = user.Email,

@@ -60,7 +60,7 @@ public class CommentReadDto
     /// <summary>
     /// The creator of this forum comment.
     /// </summary>
-    public ForumUserReadDto? User { get; set; }
+    public UserReadDto? User { get; set; }
 
     /// <summary>
     /// A list of replies to this comment as dtos.
