@@ -1,17 +1,12 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using StudyConnect.Core.Interfaces;
-using StudyConnect.Data.Repositories;
 using StudyConnect.Core.Models;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using StudyConnect.API.Dtos.Requests.User;
-using System.ComponentModel.DataAnnotations;
 using StudyConnect.API.Dtos.Responses.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
 using StudyConnect.Core.Common;
 using System.Security.Claims;
-using System.Linq;
 
 namespace StudyConnect.API.Controllers.Users
 {
