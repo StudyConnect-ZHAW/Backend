@@ -57,9 +57,15 @@ public class PostController : BaseController
         Guid pid = createDto.ForumCategoryId;
 
         var result = await _postRepository.AddAsync(uid, pid, post);
-        if (!result.IsSuccess || result.Data == null)
-            return BadRequest(result.ErrorMessage);
-
+        if (!result.IsSuccess || result.Data== null)
+        {
+            if (result.ErrorMessage!.Contains(GeneralNotFound))
+                return NotFound(result.ErrorMessage);
+            else if (result.ErrorMessage!.Equals(GeneralTaken))
+                return Conflict(result.ErrorMessage);
+            else
+                return BadRequest(result.ErrorMessage);
+        }
         return Ok(GeneratePostDto(result.Data));
     }
 
@@ -104,10 +110,9 @@ public class PostController : BaseController
         if (!posts.IsSuccess)
             return BadRequest(posts.ErrorMessage);
 
-        if (posts.Data == null)
-            return NotFound("Posts not found.");
+        var postsList = posts.Data ?? [];
 
-        var result = posts.Data.Select(p => GeneratePostDto(p));
+        var result = postsList.Select(p => GeneratePostDto(p));
 
         return Ok(result);
     }
@@ -121,11 +126,10 @@ public class PostController : BaseController
     public async Task<IActionResult> GetPostById([FromRoute] Guid pid)
     {
         var result = await _postRepository.GetByIdAsync(pid);
-        if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
-
-        if (result.Data == null)
-            return NotFound("Post not found.");
+        if (!result.IsSuccess || result.Data == null)
+            return result.ErrorMessage!.Contains(GeneralNotFound)
+                ? NotFound(result.ErrorMessage)
+                : BadRequest(result.ErrorMessage);
 
         var postDto = GeneratePostDto(result.Data);
 
@@ -153,10 +157,15 @@ public class PostController : BaseController
         var post = new ForumPost { Title = updateDto.Title, Content = updateDto.Content };
 
         var result = await _postRepository.UpdateAsync(uid, pid, post);
-        if (!result.IsSuccess)
-            return result.ErrorMessage!.Contains(GeneralNotFound)
-                ? NotFound(result.ErrorMessage)
-                : BadRequest(result.ErrorMessage);
+        if (!result.IsSuccess || result.Data == null)
+        {
+            if (result.ErrorMessage!.Contains(GeneralNotFound))
+                return NotFound(result.ErrorMessage);
+            else if (result.ErrorMessage!.Equals(NotAuthorized))
+                return Unauthorized(result.ErrorMessage);
+            else
+                return BadRequest(result.ErrorMessage);
+        }
 
         return Ok(result.Data);
     }
@@ -198,10 +207,14 @@ public class PostController : BaseController
 
         var result = await _postRepository.DeleteAsync(uid, pid);
         if (!result.IsSuccess || !result.Data)
-            return result.ErrorMessage!.Contains(GeneralNotFound)
-                ? NotFound(result.ErrorMessage)
-                : BadRequest(result.ErrorMessage);
-
+        {
+            if (result.ErrorMessage!.Contains(GeneralNotFound))
+                return NotFound(result.ErrorMessage);
+            else if (result.ErrorMessage!.Equals(NotAuthorized))
+                return Unauthorized(result.ErrorMessage);
+            else
+                return BadRequest(result.ErrorMessage);
+        }
         return NoContent();
     }
 
