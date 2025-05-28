@@ -1,11 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
-using StudyConnect.Core.Models;
-using StudyConnect.Core.Interfaces;
-using StudyConnect.API.Dtos.Responses.Forum;
-using StudyConnect.API.Dtos.Requests.Forum;
-using StudyConnect.API.Dtos.Responses.User;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using StudyConnect.API.Dtos.Requests.Forum;
+using StudyConnect.API.Dtos.Responses.Forum;
+using StudyConnect.API.Dtos.Responses.User;
+using StudyConnect.Core.Interfaces;
+using StudyConnect.Core.Models;
 using static StudyConnect.Core.Common.ErrorMessages;
 
 namespace StudyConnect.API.Controllers.Forum;
@@ -21,7 +21,6 @@ public class CommentController : BaseController
     /// The comment repository for data operations.
     /// </summary>
     protected readonly ICommentRepository _commentRepository;
-
 
     /// <summary>
     /// The like repository for data operations.
@@ -48,15 +47,15 @@ public class CommentController : BaseController
     [Route("v1/posts/{pid:guid}/comments")]
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> AddComment([FromRoute] Guid pid, [FromBody] CommentCreateDto createDto)
+    public async Task<IActionResult> AddComment(
+        [FromRoute] Guid pid,
+        [FromBody] CommentCreateDto createDto
+    )
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var comment = new ForumComment
-        {
-            Content = createDto.Content
-        };
+        var comment = new ForumComment { Content = createDto.Content };
 
         var uid = GetIdFromToken();
         Guid? ptid = createDto.ParentCommentId;
@@ -120,23 +119,26 @@ public class CommentController : BaseController
     [Route("v1/comments/{cmid:guid}")]
     [HttpPut]
     [Authorize]
-    public async Task<IActionResult> UpdateComment([FromRoute] Guid cmid, [FromBody] CommentUpdateDto commentDto)
+    public async Task<IActionResult> UpdateComment(
+        [FromRoute] Guid cmid,
+        [FromBody] CommentUpdateDto commentDto
+    )
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var comment = new ForumComment
-        {
-            Content = commentDto.Content
-        };
+        var comment = new ForumComment { Content = commentDto.Content };
 
         var uid = GetIdFromToken();
         var result = await _commentRepository.UpdateAsync(uid, cmid, comment);
         if (!result.IsSuccess || result.Data == null)
         {
-            if (result.ErrorMessage!.Contains(GeneralNotFound)) return NotFound(result.ErrorMessage);
-            else if (result.ErrorMessage!.Equals(NotAuthorized)) return Unauthorized(result.ErrorMessage);
-            else return BadRequest(result.ErrorMessage);
+            if (result.ErrorMessage!.Contains(GeneralNotFound))
+                return NotFound(result.ErrorMessage);
+            else if (result.ErrorMessage!.Equals(NotAuthorized))
+                return Unauthorized(result.ErrorMessage);
+            else
+                return BadRequest(result.ErrorMessage);
         }
 
         return Ok(MapToCommentDto(result.Data));
@@ -183,9 +185,12 @@ public class CommentController : BaseController
         var result = await _commentRepository.DeleteAsync(uid, cmid);
         if (!result.IsSuccess)
         {
-            if (result.ErrorMessage!.Contains(GeneralNotFound)) return NotFound(result.ErrorMessage);
-            else if (result.ErrorMessage!.Equals(NotAuthorized)) return Unauthorized(result.ErrorMessage);
-            else return BadRequest(result.ErrorMessage);
+            if (result.ErrorMessage!.Contains(GeneralNotFound))
+                return NotFound(result.ErrorMessage);
+            else if (result.ErrorMessage!.Equals(NotAuthorized))
+                return Unauthorized(result.ErrorMessage);
+            else
+                return BadRequest(result.ErrorMessage);
         }
 
         return NoContent();
@@ -194,9 +199,7 @@ public class CommentController : BaseController
     private Guid GetIdFromToken()
     {
         var oidClaim = HttpContext.User.GetObjectId();
-        return oidClaim != null
-            ? Guid.Parse(oidClaim)
-            : Guid.Empty;
+        return oidClaim != null ? Guid.Parse(oidClaim) : Guid.Empty;
     }
 
     /// <summary>
@@ -210,7 +213,7 @@ public class CommentController : BaseController
         {
             FirstName = user.FirstName,
             LastName = user.LastName,
-            Email = user.Email
+            Email = user.Email,
         };
     }
 
@@ -231,11 +234,10 @@ public class CommentController : BaseController
             Deleted = comment.IsDeleted,
             ReplyCount = comment.ReplyCount,
             LikeCount = comment.LikeCount,
-            User = comment.User != null
-                ? MapUserToDto(comment.User)
-                : null,
+            UserId = comment.User != null ? comment.User.UserGuid : Guid.Empty,
+            User = comment.User != null ? MapUserToDto(comment.User) : null,
             PostId = comment.PostId,
-            ParentCommentId = comment.ParentCommentId
+            ParentCommentId = comment.ParentCommentId,
         };
 
         if (comment.Replies != null && comment.Replies.Count > 0)

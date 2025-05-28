@@ -31,7 +31,7 @@ public class CommentReadDto
     /// The count of the replies to this comment.
     /// </summary>
     public int? ReplyCount { get; set; }
-    
+
     /// <summary>
     /// The number of likes this comment received.
     /// </summary>
@@ -56,6 +56,11 @@ public class CommentReadDto
     /// The parent comment of this comment, in case this comment is a reply.
     /// </summary>
     public Guid? ParentCommentId { get; set; }
+
+    /// <summary>
+    /// The unique identifier of the creator of the comment.
+    /// </summary>
+    public Guid UserId { get; set; }
 
     /// <summary>
     /// The creator of this forum comment.

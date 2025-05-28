@@ -1,13 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using StudyConnect.Core.Interfaces;
+using Microsoft.Identity.Web;
 using StudyConnect.API.Dtos.Requests.Forum;
 using StudyConnect.API.Dtos.Responses.Forum;
 using StudyConnect.API.Dtos.Responses.User;
+using StudyConnect.Core.Interfaces;
 using StudyConnect.Core.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Identity.Web;
 using static StudyConnect.Core.Common.ErrorMessages;
-
 
 namespace StudyConnect.API.Controllers.Forum;
 
@@ -19,7 +18,6 @@ namespace StudyConnect.API.Controllers.Forum;
 [Route("api/v1/posts")]
 public class PostController : BaseController
 {
-
     /// <summary>
     /// The post repository to interact with data.
     /// </summary>
@@ -30,11 +28,11 @@ public class PostController : BaseController
     /// </summary>
     protected readonly ILikeRepository _likeRepository;
 
-
     /// <summary>
     /// Initializes a new instance of the <see cref="PostController"/> class.
     /// </summary>
     /// <param name="postRepository">The post repository to interact with data.</param>
+    /// <param name="likeRepository">The like repository to interact with data.</param>
     public PostController(IPostRepository postRepository, ILikeRepository likeRepository)
     {
         _postRepository = postRepository;
@@ -53,11 +51,7 @@ public class PostController : BaseController
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var post = new ForumPost
-        {
-            Title = createDto.Title,
-            Content = createDto.Content,
-        };
+        var post = new ForumPost { Title = createDto.Title, Content = createDto.Content };
 
         Guid uid = GetIdFromToken();
         Guid pid = createDto.ForumCategoryId;
@@ -146,18 +140,17 @@ public class PostController : BaseController
     /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
     [HttpPut("{pid:guid}")]
     [Authorize]
-    public async Task<IActionResult> UpdatePost([FromRoute] Guid pid, [FromBody] PostUpdateDto updateDto)
+    public async Task<IActionResult> UpdatePost(
+        [FromRoute] Guid pid,
+        [FromBody] PostUpdateDto updateDto
+    )
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
         var uid = GetIdFromToken();
 
-        var post = new ForumPost
-        {
-            Title = updateDto.Title,
-            Content = updateDto.Content
-        };
+        var post = new ForumPost { Title = updateDto.Title, Content = updateDto.Content };
 
         var result = await _postRepository.UpdateAsync(uid, pid, post);
         if (!result.IsSuccess)
@@ -191,9 +184,6 @@ public class PostController : BaseController
         return NoContent();
     }
 
-
-
-
     /// <summary>
     /// Deletes an existing post.
     /// </summary>
@@ -218,9 +208,7 @@ public class PostController : BaseController
     private Guid GetIdFromToken()
     {
         var oidClaim = HttpContext.User.GetObjectId();
-        return oidClaim != null
-            ? Guid.Parse(oidClaim)
-            : Guid.Empty;
+        return oidClaim != null ? Guid.Parse(oidClaim) : Guid.Empty;
     }
 
     /// <summary>
@@ -234,7 +222,7 @@ public class PostController : BaseController
         {
             FirstName = user.FirstName,
             LastName = user.LastName,
-            Email = user.Email
+            Email = user.Email,
         };
     }
 
@@ -249,7 +237,7 @@ public class PostController : BaseController
         {
             ForumCategoryId = category.ForumCategoryId,
             Name = category.Name,
-            Description = category.Description
+            Description = category.Description,
         };
     }
 
@@ -269,13 +257,9 @@ public class PostController : BaseController
             Updated = post.UpdatedAt,
             CommentCount = post.CommentCount,
             LikeCount = post.LikeCount,
-            Category = post.Category != null
-                ? GenerateCategoryReadDto(post.Category)
-                : null,
-            Author = post.User != null
-                ? GenerateUserReadDto(post.User)
-                : null,
-
+            Category = post.Category != null ? GenerateCategoryReadDto(post.Category) : null,
+            UserId = post.User != null ? post.User.UserGuid : Guid.Empty,
+            User = post.User != null ? GenerateUserReadDto(post.User) : null,
         };
     }
 }
