@@ -16,5 +16,6 @@ public class CommentCreateDto
     /// The Content of the forum comment.
     /// </summary>
     [Required(ErrorMessage = "Content is required.")]
+    [StringLength(500)]
     public required string Content { get; set; }
 }

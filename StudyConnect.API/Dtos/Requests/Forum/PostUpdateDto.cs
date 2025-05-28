@@ -10,11 +10,12 @@ public class PostUpdateDto
     /// <summary>
     /// The new title to replace the old.
     /// </summary>
-    [StringLength(255)]
+    [StringLength(200)]
     public required string Title { get; set; }
     /// <summary>
     /// the new content to replace the old.
     /// </summary>
     [Required(ErrorMessage = "Content change is required.")]
+    [StringLength(500)]
     public required string Content { get; set; }
 }

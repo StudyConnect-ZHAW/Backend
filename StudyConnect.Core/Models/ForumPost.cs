@@ -1,9 +1,14 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace StudyConnect.Core.Models;
 
 public class ForumPost
 {
+
+    [MaxLength(200)]
     public required string Title { get; set; }
 
+    [MaxLength(500)]
     public required string? Content { get; set; }
 
     public Guid ForumPostId { get; set; }
