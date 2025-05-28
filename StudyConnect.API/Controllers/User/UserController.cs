@@ -63,7 +63,7 @@ namespace StudyConnect.API.Controllers.Users
 
             return NoContent();
         }
-        
+
         /// <summary>
         /// Add a new user based on the claims in the token.
         /// </summary>
@@ -72,8 +72,6 @@ namespace StudyConnect.API.Controllers.Users
         [HttpPost]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> AddUser()
         {
             UserCreateDto userCreateDto = new()
@@ -99,22 +97,20 @@ namespace StudyConnect.API.Controllers.Users
             var result = await _userRepository.AddAsync(user);
             if (!result.IsSuccess)
                 return BadRequest(result.ErrorMessage);
-            
+
 
             return Ok(userCreateDto);
         }
+
 
         /// <summary>
         /// Get the current user based on oid claim in the token
         /// This endpoint retrieves the user information of the currently authenticated user.
         /// </summary>
-        /// <returns></returns>
         [Route("v1/users/me")]
         [HttpGet]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetMe()
         {
             //Read the ObjectId claim from the token
@@ -178,6 +174,7 @@ namespace StudyConnect.API.Controllers.Users
         /// <param name="userUpdateDto">User with updated properties</param>
         /// <returns></returns>
         [Route("v1/users/{id}")]
+        [Authorize]
         [HttpPut]
         public async Task<IActionResult> UpdateUser([FromRoute] Guid id, [FromBody] UserUpdateDto userUpdateDto)
         {
@@ -266,6 +263,7 @@ namespace StudyConnect.API.Controllers.Users
         /// <param name="id">User id</param>
         /// <returns></returns>
         [Route("v1/users/{id}")]
+        [Authorize]
         [HttpDelete]
         public IActionResult DeleteUser([FromRoute] Guid id)
         {
