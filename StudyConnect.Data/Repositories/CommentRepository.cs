@@ -244,8 +244,8 @@ public class CommentRepository : BaseRepository, ICommentRepository
         {
             ForumCommentId = comment.ForumCommentId,
             Content = comment.IsDeleted ? string.Empty : comment.Content,
-            CreatedAt = comment.CreatedAt,
-            UpdatedAt = comment.UpdatedAt,
+            CreatedAt = comment.CreatedAt.ToUniversalTime(),
+            UpdatedAt = comment.UpdatedAt.ToUniversalTime(),
             ReplyCount = comment.Replies.Count,
             IsEdited = comment.IsEdited,
             IsDeleted = comment.IsDeleted,
