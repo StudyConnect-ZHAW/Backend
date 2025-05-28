@@ -8,9 +8,10 @@ namespace StudyConnect.Core.Common
         public const string NotAuthorized = "Not authorized to perform this action.";
         public const string NameRequired = "Name cannot be null, empty or whitespace.";
 
-        public const string GeneralTaken = "in use.";
+        public const string GeneralTaken = "already";
         public const string TitleTaken = "Title already in use.";
         public const string NameTaken = "Name already in use.";
+        public const string MemberTaken = "Member already in the group.";
         public const string LikeExists = "Like already exists.";
 
         public const string QueryFailure = "Malformed or invalid query.";

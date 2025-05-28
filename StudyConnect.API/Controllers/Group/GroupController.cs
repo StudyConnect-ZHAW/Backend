@@ -200,9 +200,15 @@ namespace StudyConnect.API.Controllers.Groups
             var userId = GetOIdFromToken();
             var result = await _groupMemberRepository.AddMemberAsync(userId, groupId);
 
-            if (!result.IsSuccess || result.Data == null)
-                return BadRequest(result.ErrorMessage);
-
+             if (!result.IsSuccess || result.Data == null)
+            {
+                if (result.ErrorMessage!.Contains(GeneralNotFound))
+                    return NotFound(result.ErrorMessage);
+                else if (result.ErrorMessage!.Equals(GeneralTaken))
+                    return Conflict(result.ErrorMessage);
+                else
+                    return BadRequest(result.ErrorMessage);
+            }
             var resultDto = new GroupMemberReadDto
             {
                 GroupId = result.Data.GroupId,
@@ -233,11 +239,10 @@ namespace StudyConnect.API.Controllers.Groups
             var userId = GetOIdFromToken();
             var result = await _groupMemberRepository.DeleteMemberAsync(userId, groupId);
 
-            if (!result.IsSuccess)
-                return BadRequest(result.ErrorMessage);
-
-            if (!result.Data)
-                return NotFound("Membership not foound.");
+             if (!result.IsSuccess || !result.Data)
+                return result.ErrorMessage!.Contains(GeneralNotFound)
+                    ? NotFound(result.ErrorMessage)
+                    : BadRequest(result.ErrorMessage);
 
             return NoContent();
         }
