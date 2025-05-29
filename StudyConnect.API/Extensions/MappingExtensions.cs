@@ -27,7 +27,7 @@ public static class MappingExtensions
     /// Converts a <see cref="GroupMember"/> domain model to a <see cref="GroupMemberReadDto"/>.
     /// </summary>
     /// <param name="member">The group member model to convert.</param>
-    /// <returns>A <see cref="UserReadDto"/> containing the mapped group member data.</returns>
+    /// <returns>A <see cref="GroupMemberReadDto"/> containing the mapped group member data.</returns>
     public static GroupMemberReadDto ToGroupMemberReadDto(this GroupMember member) =>
         new()
         {
