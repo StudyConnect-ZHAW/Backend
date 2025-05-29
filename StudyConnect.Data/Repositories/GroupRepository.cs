@@ -194,8 +194,9 @@ public class GroupRepository : BaseRepository, IGroupRepository
         }
 
         var userGroups = await _context
-            .GroupMembers.Where(gm => gm.MemberId == userId)
-            .Select(gm => gm.Group)
+            .Groups.Include(g => g.GroupMembers)
+            .Include(g => g.Owner)
+            .Where(g => g.GroupMembers.Any(gm => gm.MemberId == userId))
             .ToListAsync();
 
         if (userGroups == null)
