@@ -20,7 +20,7 @@ public class GroupCommentRepository : BaseRepository, IGroupCommentRepository
     {
         var member = await GetValidMember(userId, groupId);
         if (member == null)
-            return OperationResult<GroupComment>.Failure("Member not found.");
+            return OperationResult<GroupComment>.Failure(MemberNotFound);
 
         if (!await IsValidPost(postId))
             return OperationResult<GroupComment>.Failure(PostNotFound);
@@ -44,9 +44,7 @@ public class GroupCommentRepository : BaseRepository, IGroupCommentRepository
                 .FirstOrDefaultAsync(p => p.GroupPostId == result.GroupPostId);
 
             if (created is null)
-                return OperationResult<GroupComment>.Failure(
-                    $"{UnknownError}: Failed to retrieve the newly created post."
-                );
+                return OperationResult<GroupComment>.Failure(FailedRetieve);
 
             return OperationResult<GroupComment>.Success(MapCommentToModel(created));
         }
@@ -107,7 +105,7 @@ public class GroupCommentRepository : BaseRepository, IGroupCommentRepository
             return OperationResult<GroupComment>.Failure(InvalidUserId);
 
         if (groupId == Guid.Empty)
-            return OperationResult<GroupComment>.Failure("Invali Group id.");
+            return OperationResult<GroupComment>.Failure(InvalidGroupId);
 
         if (commentId == Guid.Empty)
             return OperationResult<GroupComment>.Failure(InvalidCommentId);
@@ -140,7 +138,7 @@ public class GroupCommentRepository : BaseRepository, IGroupCommentRepository
             return OperationResult<bool>.Failure(InvalidUserId);
 
         if (groupId == Guid.Empty)
-            return OperationResult<bool>.Failure("Invalid Group id.");
+            return OperationResult<bool>.Failure(InvalidGroupId);
 
         if (commentId == Guid.Empty)
             return OperationResult<bool>.Failure(InvalidCommentId);

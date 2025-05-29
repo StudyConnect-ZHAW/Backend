@@ -19,7 +19,7 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
     {
         var member = await GetValidMember(userId, groupId);
         if (member == null)
-            return OperationResult<GroupPost>.Failure("Member not found.");
+            return OperationResult<GroupPost>.Failure(MemberNotFound);
 
         if (post == null)
             return OperationResult<GroupPost>.Failure(PostContentEmpty);
@@ -46,9 +46,7 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
                 .FirstOrDefaultAsync(p => p.GroupPostId == newPost.GroupPostId);
 
             if (created is null)
-                return OperationResult<GroupPost>.Failure(
-                    $"{UnknownError}: Failed to retrieve the newly created post."
-                );
+                return OperationResult<GroupPost>.Failure(FailedRetieve);
 
             return OperationResult<GroupPost>.Success(MapToPostGroupModel(created));
         }
