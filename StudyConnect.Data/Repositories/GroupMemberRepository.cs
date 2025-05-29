@@ -40,17 +40,7 @@ public class GroupMemberRepository : BaseRepository, IGroupMemberRepository
             return OperationResult<GroupMember>.Failure($"Failed to add member: {ex.Message}");
         }
 
-        var result = new GroupMember
-        {
-            MemberId = member.MemberId,
-            GroupId = member.GroupId,
-            JoinedAt = member.JoinedAt,
-            FirstName = member.Member.FirstName,
-            LastName = member.Member.LastName,
-            Email = member.Member.Email,
-        };
-
-        return OperationResult<GroupMember>.Success(result);
+        return OperationResult<GroupMember>.Success(member.ToMemberModel());
     }
 
     public async Task<OperationResult<bool>> DeleteMemberAsync(Guid UserId, Guid GroupId)

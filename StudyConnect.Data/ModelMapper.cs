@@ -38,8 +38,8 @@ public static class ModelMapper
     /// <summary>
     /// A helper function to map a group entity to its model representation.
     /// </summary>
-    /// <param name="category">A group entity to transform.</param>
-    /// <returns>A forumCategory model object.</returns>
+    /// <param name="group">A group entity to transform.</param>
+    /// <returns>A Group model object.</returns>
     public static Core.Models.Group ToGroupModel(this Group group)
     {
         return new()
@@ -48,8 +48,23 @@ public static class ModelMapper
             OwnerId = group.OwnerId,
             Name = group.Name,
             Description = group.Description,
-            CreatedAt = group.CreatedAt,
+            CreatedAt = group.CreatedAt.ToUniversalTime(),
             Owner = group.Owner.ToUserModel(),
+        };
+    }
+
+    /// <summary>
+    /// A helper function to map a member entity to its model representation.
+    /// </summary>
+    /// <returns>A GroupMember model object.</returns>
+    public static Core.Models.GroupMember ToMemberModel(this GroupMember member)
+    {
+        return new()
+        {
+            MemberId = member.MemberId,
+            GroupId = member.GroupId,
+            JoinedAt = member.JoinedAt.ToUniversalTime(),
+            Member = member.Member.ToUserModel(),
         };
     }
 }

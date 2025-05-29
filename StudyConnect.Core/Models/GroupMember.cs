@@ -20,17 +20,7 @@ public class GroupMember
     public DateTime JoinedAt { get; set; }
 
     /// <summary>
-    /// The FirstName of the GroupMember.
+    /// The User information of the Member.
     /// </summary>
-    public String FirstName { get; set; }
-
-    /// <summary>
-    /// The LastName of the GroupMember.
-    /// </summary>
-    public String LastName { get; set; }
-
-    /// <summary>
-    /// The Email of the GroupMember.
-    /// </summary>
-    public String Email { get; set; }
+    public required User Member { get; set; }
 }

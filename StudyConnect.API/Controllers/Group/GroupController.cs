@@ -213,11 +213,8 @@ namespace StudyConnect.API.Controllers.Groups
             var resultDto = new GroupMemberReadDto
             {
                 GroupId = result.Data.GroupId,
-                MemberId = result.Data.MemberId,
                 JoinedAt = result.Data.JoinedAt,
-                FirstName = result.Data.FirstName,
-                LastName = result.Data.LastName,
-                Email = result.Data.Email,
+                Member = GenerateUserReadDto(result.Data.Member)
             };
 
             return Ok(resultDto);
@@ -268,12 +265,9 @@ namespace StudyConnect.API.Controllers.Groups
 
             var dto = members.Select(m => new GroupMemberReadDto
             {
-                MemberId = m.MemberId,
                 GroupId = m.GroupId,
                 JoinedAt = m.JoinedAt,
-                FirstName = m.FirstName,
-                LastName = m.LastName,
-                Email = m.Email,
+                Member = GenerateUserReadDto(m.Member) 
             });
 
             return Ok(dto);

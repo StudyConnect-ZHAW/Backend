@@ -174,15 +174,7 @@ public class GroupRepository : BaseRepository, IGroupRepository
                 return OperationResult<IEnumerable<GroupMember>>.Failure("Group not found");
             }
 
-            var members = groupmembers.Select(g => new GroupMember
-            {
-                GroupId = g.GroupId,
-                MemberId = g.MemberId,
-                JoinedAt = g.JoinedAt,
-                FirstName = g.Member.FirstName,
-                LastName = g.Member.LastName,
-                Email = g.Member.Email,
-            });
+            var members = groupmembers.Select(g => g.ToMemberModel());
 
             return OperationResult<IEnumerable<GroupMember>>.Success(members);
         }
