@@ -20,17 +20,6 @@ public static class ModelMapper
         };
     }
 
-    public static Core.Models.GroupMember ToGroupMember(this GroupMember member)
-    {
-        return new()
-        {
-            MemberId = member.MemberId,
-            GroupId = member.GroupId,
-            JoinedAt = member.JoinedAt,
-            Member = member.Member.ToUserModel(),
-        };
-    }
-
     /// <summary>
     /// A helper function to map a category entity to its model representation.
     /// </summary>
@@ -38,7 +27,7 @@ public static class ModelMapper
     /// <returns>A forumCategory model object.</returns>
     public static Core.Models.ForumCategory ToCategoryModel(this ForumCategory category)
     {
-        return new Core.Models.ForumCategory
+        return new()
         {
             ForumCategoryId = category.ForumCategoryId,
             Name = category.Name,
@@ -67,6 +56,7 @@ public static class ModelMapper
     /// <summary>
     /// A helper function to map a member entity to its model representation.
     /// </summary>
+    /// <param name="member">A group member entity to transform.</param>
     /// <returns>A GroupMember model object.</returns>
     public static Core.Models.GroupMember ToMemberModel(this GroupMember member)
     {

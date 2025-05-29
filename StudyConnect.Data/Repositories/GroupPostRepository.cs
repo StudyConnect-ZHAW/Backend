@@ -202,6 +202,6 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
             CreatedAt = post.CreatedAt,
             UpdatedAt = post.UpdatedAt,
             CommentCount = post.GroupComments.Count,
-            GroupMember = post.GroupMember!.ToGroupMember(),
+            GroupMember = post.GroupMember!.ToMemberModel(),
         };
 }
