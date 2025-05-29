@@ -44,7 +44,7 @@ public class GroupCommentRepository : BaseRepository, IGroupCommentRepository
                 .FirstOrDefaultAsync(p => p.GroupPostId == result.GroupPostId);
 
             if (created is null)
-                return OperationResult<GroupComment>.Failure(FailedRetieve);
+                return OperationResult<GroupComment>.Failure(FailedRetrieve);
 
             return OperationResult<GroupComment>.Success(MapCommentToModel(created));
         }

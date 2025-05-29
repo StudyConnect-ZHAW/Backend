@@ -46,7 +46,7 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
                 .FirstOrDefaultAsync(p => p.GroupPostId == newPost.GroupPostId);
 
             if (created is null)
-                return OperationResult<GroupPost>.Failure(FailedRetieve);
+                return OperationResult<GroupPost>.Failure(FailedRetrieve);
 
             return OperationResult<GroupPost>.Success(MapToPostGroupModel(created));
         }
