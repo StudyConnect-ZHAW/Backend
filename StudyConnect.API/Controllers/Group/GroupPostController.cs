@@ -54,7 +54,14 @@ public class GroupPostController : BaseController
 
         var result = await _groupPostRepository.AddAsync(uid, gid, post);
         if (!result.IsSuccess || result.Data == null)
-            return BadRequest(result.ErrorMessage);
+        {
+            if (result.ErrorMessage!.Contains(GeneralNotFound))
+                return NotFound(result.ErrorMessage);
+            else if (result.ErrorMessage!.Contains(GeneralTaken))
+                return Conflict(result.ErrorMessage);
+            else
+                return BadRequest(result.ErrorMessage);
+        }
 
         return Ok(GenerateGroupPostDto(result.Data));
     }
@@ -68,10 +75,12 @@ public class GroupPostController : BaseController
     public async Task<IActionResult> GetAllPosts([FromRoute] Guid gid)
     {
         var posts = await _groupPostRepository.GetAllAsync(gid);
-        if (!posts.IsSuccess || posts.Data == null)
+        if (!posts.IsSuccess)
             return BadRequest(posts.ErrorMessage);
 
-        var result = posts.Data.Select(GenerateGroupPostDto);
+        var postsList = posts.Data ?? [];
+
+        var result = postsList.Select(GenerateGroupPostDto);
 
         return Ok(result);
     }
@@ -118,10 +127,15 @@ public class GroupPostController : BaseController
         var post = new GroupPost { Title = postDto.Title, Content = postDto.Content };
 
         var result = await _groupPostRepository.UpdateAsync(uid, gid, pid, post);
-        if (!result.IsSuccess)
-            return result.ErrorMessage!.Contains(GeneralNotFound)
-                ? NotFound(result.ErrorMessage)
-                : BadRequest(result.ErrorMessage);
+        if (!result.IsSuccess || result.Data == null)
+        {
+            if (result.ErrorMessage!.Contains(GeneralNotFound))
+                return NotFound(result.ErrorMessage);
+            else if (result.ErrorMessage!.Equals(NotAuthorized))
+                return Unauthorized(result.ErrorMessage);
+            else
+                return BadRequest(result.ErrorMessage);
+        }
 
         return Ok(result.Data);
     }
@@ -141,10 +155,14 @@ public class GroupPostController : BaseController
 
         var result = await _groupPostRepository.DeleteAsync(uid, gid, pid);
         if (!result.IsSuccess || !result.Data)
-            return result.ErrorMessage!.Contains(GeneralNotFound)
-                ? NotFound(result.ErrorMessage)
-                : BadRequest(result.ErrorMessage);
-
+        {
+            if (result.ErrorMessage!.Contains(GeneralNotFound))
+                return NotFound(result.ErrorMessage);
+            else if (result.ErrorMessage!.Equals(NotAuthorized))
+                return Unauthorized(result.ErrorMessage);
+            else
+                return BadRequest(result.ErrorMessage);
+        }
         return NoContent();
     }
 
