@@ -72,7 +72,7 @@ public class GroupPostController : BaseController
     /// <returns>On success a list of Dtos with information about the post, on failure HTTP 400/404 status code.</returns>
     [Route("v1/groups/{gid:guid}/posts")]
     [HttpGet]
-    public async Task<IActionResult> GetAllPosts([FromRoute] Guid gid)
+    public async Task<IActionResult> GetAllGroupPosts([FromRoute] Guid gid)
     {
         var posts = await _groupPostRepository.GetAllAsync(gid);
         if (!posts.IsSuccess)
@@ -92,7 +92,7 @@ public class GroupPostController : BaseController
     /// <returns>On success a DTO with information about the post, on failure HTTP 400/404 status code.</returns>
     [Route("v1/groups/posts/{pid:guid}")]
     [HttpGet]
-    public async Task<IActionResult> GetPostById([FromRoute] Guid pid)
+    public async Task<IActionResult> GetGroupPostById([FromRoute] Guid pid)
     {
         var result = await _groupPostRepository.GetByIdAsync(pid);
         if (!result.IsSuccess || result.Data == null)
@@ -113,7 +113,7 @@ public class GroupPostController : BaseController
     [Route("v1/groups/{gid:guid}/posts/{pid:guid}")]
     [HttpPut]
     [Authorize]
-    public async Task<IActionResult> UpdatePost(
+    public async Task<IActionResult> UpdateGroupPost(
         [FromRoute] Guid gid,
         Guid pid,
         [FromBody] GroupPostDto postDto
@@ -149,7 +149,7 @@ public class GroupPostController : BaseController
     [Route("v1/groups/{gid:guid}/posts/{pid:guid}")]
     [HttpDelete]
     [Authorize]
-    public async Task<IActionResult> DeletePost([FromRoute] Guid gid, [FromRoute] Guid pid)
+    public async Task<IActionResult> DeleteGroupPost([FromRoute] Guid gid, [FromRoute] Guid pid)
     {
         var uid = GetOIdFromToken();
 
