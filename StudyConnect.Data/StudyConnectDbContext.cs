@@ -268,12 +268,11 @@ public class StudyConnectDbContext : DbContext
     /// Gets or sets the Groups table.
     /// </summary>
     public DbSet<Group> Groups { get; set; }
-    public DbSet<GroupMember> GroupMembers { get; set; }
 
     /// <summary>
     /// Gets or sets the GroupMembers table.
     /// </summary>
-    public DbSet<GroupMembers> GroupMembers { get; set; }
+    public DbSet<GroupMember> GroupMembers { get; set; }
 
     /// <summary>
     /// Gets or sets the MemberRoles table.
@@ -295,7 +294,6 @@ public class StudyConnectDbContext : DbContext
     /// </summary>
     public DbSet<ForumComment> ForumComments { get; set; }
     public DbSet<ForumLike> ForumLikes { get; set; }
-    public DbSet<Core.Models.Tag> Tags { get; set; }
     public DbSet<Tag> Tags { get; set; }
 
 
