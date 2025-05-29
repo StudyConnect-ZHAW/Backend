@@ -214,7 +214,7 @@ namespace StudyConnect.API.Controllers.Groups
             {
                 GroupId = result.Data.GroupId,
                 JoinedAt = result.Data.JoinedAt,
-                Member = GenerateUserReadDto(result.Data.Member)
+                Member = GenerateUserReadDto(result.Data.Member),
             };
 
             return Ok(resultDto);
@@ -267,7 +267,7 @@ namespace StudyConnect.API.Controllers.Groups
             {
                 GroupId = m.GroupId,
                 JoinedAt = m.JoinedAt,
-                Member = GenerateUserReadDto(m.Member) 
+                Member = GenerateUserReadDto(m.Member),
             });
 
             return Ok(dto);

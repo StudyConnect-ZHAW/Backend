@@ -137,7 +137,7 @@ public class GroupPostController : BaseController
                 return BadRequest(result.ErrorMessage);
         }
 
-        return Ok(result.Data);
+        return Ok(GenerateGroupPostDto(result.Data));
     }
 
     /// <summary>
