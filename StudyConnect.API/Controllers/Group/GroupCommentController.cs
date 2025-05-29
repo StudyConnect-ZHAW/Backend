@@ -1,10 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
-using StudyConnect.Core.Models;
-using StudyConnect.Core.Interfaces;
-using StudyConnect.API.Dtos.Responses.Group;
-using StudyConnect.API.Dtos.Requests.Group;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using StudyConnect.API.Dtos.Requests.Group;
+using StudyConnect.API.Dtos.Responses.Group;
+using StudyConnect.Core.Interfaces;
+using StudyConnect.Core.Models;
+using static StudyConnect.API.Extensions.MappingExtensions;
 using static StudyConnect.Core.Common.ErrorMessages;
 
 namespace StudyConnect.API.Controllers.Groups;
@@ -40,15 +41,16 @@ public class GroupCommentController : BaseController
     [Route("v1/groups/{gid:guid}/posts/{pid:guid}/comments")]
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> AddGroupComment([FromRoute] Guid gid, [FromRoute] Guid pid, [FromBody] GroupCommentDto createDto)
+    public async Task<IActionResult> AddGroupComment(
+        [FromRoute] Guid gid,
+        [FromRoute] Guid pid,
+        [FromBody] GroupCommentDto createDto
+    )
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var comment = new GroupComment
-        {
-            Content = createDto.Content
-        };
+        var comment = new GroupComment { Content = createDto.Content };
 
         var uid = GetOIdFromToken();
 
@@ -112,23 +114,27 @@ public class GroupCommentController : BaseController
     [Route("v1/groups/{gid:guid}/comments/{cmid:guid}")]
     [HttpPut]
     [Authorize]
-    public async Task<IActionResult> UpdateGroupComment([FromRoute] Guid gid, [FromRoute] Guid cmid, [FromBody] GroupCommentDto commentDto)
+    public async Task<IActionResult> UpdateGroupComment(
+        [FromRoute] Guid gid,
+        [FromRoute] Guid cmid,
+        [FromBody] GroupCommentDto commentDto
+    )
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var comment = new GroupComment
-        {
-            Content = commentDto.Content
-        };
+        var comment = new GroupComment { Content = commentDto.Content };
 
         var uid = GetOIdFromToken();
         var result = await _commentRepository.UpdateAsync(uid, gid, cmid, comment);
         if (!result.IsSuccess || result.Data == null)
         {
-            if (result.ErrorMessage!.Contains(GeneralNotFound)) return NotFound(result.ErrorMessage);
-            else if (result.ErrorMessage!.Equals(NotAuthorized)) return Unauthorized(result.ErrorMessage);
-            else return BadRequest(result.ErrorMessage);
+            if (result.ErrorMessage!.Contains(GeneralNotFound))
+                return NotFound(result.ErrorMessage);
+            else if (result.ErrorMessage!.Equals(NotAuthorized))
+                return Unauthorized(result.ErrorMessage);
+            else
+                return BadRequest(result.ErrorMessage);
         }
 
         return Ok(MapToCommentDto(result.Data));
@@ -152,9 +158,12 @@ public class GroupCommentController : BaseController
         var result = await _commentRepository.DeleteAsync(uid, gid, cmid);
         if (!result.IsSuccess)
         {
-            if (result.ErrorMessage!.Contains(GeneralNotFound)) return NotFound(result.ErrorMessage);
-            else if (result.ErrorMessage!.Equals(NotAuthorized)) return Unauthorized(result.ErrorMessage);
-            else return BadRequest(result.ErrorMessage);
+            if (result.ErrorMessage!.Contains(GeneralNotFound))
+                return NotFound(result.ErrorMessage);
+            else if (result.ErrorMessage!.Equals(NotAuthorized))
+                return Unauthorized(result.ErrorMessage);
+            else
+                return BadRequest(result.ErrorMessage);
         }
 
         return NoContent();
@@ -163,27 +172,7 @@ public class GroupCommentController : BaseController
     private Guid GetOIdFromToken()
     {
         var oidClaim = HttpContext.User.GetObjectId();
-        return oidClaim != null
-            ? Guid.Parse(oidClaim)
-            : Guid.Empty;
-    }
-
-    /// <summary>
-    /// A helper function to map a GroupMember model to a GroupMemberDto.
-    /// </summary>
-    /// <param name="member">The group member model.</param>
-    /// <returns>A GroupMemberReadDto containing group member details.</returns>
-    private GroupMemberReadDto ToMemberDto(GroupMember member)
-    {
-        return new GroupMemberReadDto
-        {
-            MemberId = member.MemberId,
-            GroupId = member.GroupId,
-            JoinedAt = member.JoinedAt,
-            FirstName = member.FirstName,
-            LastName = member.LastName,
-            Email = member.Email
-        };
+        return oidClaim != null ? Guid.Parse(oidClaim) : Guid.Empty;
     }
 
     /// <summary>
@@ -191,16 +180,16 @@ public class GroupCommentController : BaseController
     /// </summary>
     /// <param name="comment">The comment model.</param>
     /// <returns>A CommentReadDto containing comment details and nested replies, if any.</returns>
-    private GroupCommentReadDto MapToCommentDto(GroupComment comment) => new()
-    {
-        GroupCommentId = comment.GroupCommentId,
-        Content = comment.Content,
-        Created = comment.CreatedAt,
-        Updated = comment.UpdatedAt,
-        Edited = comment.IsEdited,
-        GroupPostId = comment.GroupPostId,
-        Member = ToMemberDto(comment.groupMember!)
-    };
-
-
+    private GroupCommentReadDto MapToCommentDto(GroupComment comment) =>
+        new()
+        {
+            GroupCommentId = comment.GroupCommentId,
+            Content = comment.Content,
+            Created = comment.CreatedAt,
+            Updated = comment.UpdatedAt,
+            Edited = comment.IsEdited,
+            GroupPostId = comment.GroupPostId,
+            Member =
+                comment.groupMember != null ? comment.groupMember.ToGroupMemberReadDto() : null,
+        };
 }

@@ -1,12 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using StudyConnect.Core.Interfaces;
+using Microsoft.Identity.Web;
 using StudyConnect.API.Dtos.Requests.Group;
 using StudyConnect.API.Dtos.Responses.Group;
+using StudyConnect.Core.Interfaces;
 using StudyConnect.Core.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Identity.Web;
+using static StudyConnect.API.Extensions.MappingExtensions;
 using static StudyConnect.Core.Common.ErrorMessages;
-
 
 namespace StudyConnect.API.Controllers.Groups;
 
@@ -17,7 +17,6 @@ namespace StudyConnect.API.Controllers.Groups;
 [ApiController]
 public class GroupPostController : BaseController
 {
-
     /// <summary>
     /// The post repository to interact with data.
     /// </summary>
@@ -41,16 +40,15 @@ public class GroupPostController : BaseController
     [Route("v1/groups/{gid:guid}/posts")]
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> AddGroupPost([FromRoute] Guid gid, [FromBody] GroupPostDto createDto)
+    public async Task<IActionResult> AddGroupPost(
+        [FromRoute] Guid gid,
+        [FromBody] GroupPostDto createDto
+    )
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var post = new GroupPost
-        {
-            Title = createDto.Title,
-            Content = createDto.Content,
-        };
+        var post = new GroupPost { Title = createDto.Title, Content = createDto.Content };
 
         Guid uid = GetOIdFromToken();
 
@@ -106,18 +104,18 @@ public class GroupPostController : BaseController
     [Route("v1/groups/{gid:guid}/posts/{pid:guid}")]
     [HttpPut]
     [Authorize]
-    public async Task<IActionResult> UpdatePost([FromRoute] Guid gid, Guid pid, [FromBody] GroupPostDto postDto)
+    public async Task<IActionResult> UpdatePost(
+        [FromRoute] Guid gid,
+        Guid pid,
+        [FromBody] GroupPostDto postDto
+    )
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
         var uid = GetOIdFromToken();
 
-        var post = new GroupPost
-        {
-            Title = postDto.Title,
-            Content = postDto.Content
-        };
+        var post = new GroupPost { Title = postDto.Title, Content = postDto.Content };
 
         var result = await _groupPostRepository.UpdateAsync(uid, gid, pid, post);
         if (!result.IsSuccess)
@@ -148,33 +146,12 @@ public class GroupPostController : BaseController
                 : BadRequest(result.ErrorMessage);
 
         return NoContent();
-
     }
 
     private Guid GetOIdFromToken()
     {
         var oidClaim = HttpContext.User.GetObjectId();
-        return oidClaim != null
-            ? Guid.Parse(oidClaim)
-            : Guid.Empty;
-    }
-
-    /// <summary>
-    /// A helper function to map a GroupMember model to a GroupMemberDto.
-    /// </summary>
-    /// <param name="member">The group member model.</param>
-    /// <returns>A GroupMemberReadDto containing group member details.</returns>
-    private GroupMemberReadDto ToMemberDto(GroupMember member)
-    {
-        return new GroupMemberReadDto
-        {
-            MemberId = member.MemberId,
-            GroupId = member.GroupId,
-            JoinedAt = member.JoinedAt,
-            FirstName = member.FirstName,
-            LastName = member.LastName,
-            Email = member.Email
-        };
+        return oidClaim != null ? Guid.Parse(oidClaim) : Guid.Empty;
     }
 
     /// <summary>
@@ -182,16 +159,15 @@ public class GroupPostController : BaseController
     /// </summary>
     /// <param name="post">The forum post model.</param>
     /// <returns>A PostReadDto.</returns>
-    private GroupPostReadDto GenerateGroupPostDto(GroupPost post) => new()
-    {
-        GroupPostId = post.GroupPostId,
-        Title = post.Title,
-        Content = post.Content,
-        Created = post.CreatedAt,
-        Updated = post.UpdatedAt,
-        CommentCount = post.CommentCount,
-        Member = post.GroupMember != null
-                ? ToMemberDto(post.GroupMember)
-                : null,
-    };
+    private GroupPostReadDto GenerateGroupPostDto(GroupPost post) =>
+        new()
+        {
+            GroupPostId = post.GroupPostId,
+            Title = post.Title,
+            Content = post.Content,
+            Created = post.CreatedAt,
+            Updated = post.UpdatedAt,
+            CommentCount = post.CommentCount,
+            Member = post.GroupMember != null ? post.GroupMember.ToGroupMemberReadDto() : null,
+        };
 }
