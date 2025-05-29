@@ -150,26 +150,25 @@ public class StudyConnectDbContext : DbContext
             .HasForeignKey(l => l.ForumCommentId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Core.Models.Tag>(entity =>
-        {   
-            entity.ToTable("Tag"); // Tabellenname in SQL
-            entity.HasKey(t => t.TagId);
-            entity.Property(t => t.Name).IsRequired().HasMaxLength(100);
-            entity.Property(t => t.Description).HasMaxLength(500);
-        });
+        modelBuilder.Entity<PostTag>()
+            .HasOne(t => t.Tag)
+            .WithMany(pt => pt.PostTags)
+            .HasForeignKey(pt => pt.TagId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<PostTag>()
+            .HasOne(t => t.ForumPost)
+            .WithMany(pt => pt.PostTags)
+            .HasForeignKey(pt => pt.ForumPostId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         modelBuilder.Entity<Tag>().HasKey(t => t.TagId);
         modelBuilder.Entity<Tag>().Property(t => t.Name).IsRequired().HasMaxLength(100);
         modelBuilder.Entity<Tag>().Property(t => t.Description).HasMaxLength(500);
+
         // Configure PostTag-ForumPost relationship
         modelBuilder.Entity<PostTag>()
             .HasKey(pt => new { pt.ForumPostId, pt.TagId });
-        
-        // Configure Tag-PostTag relationship
-        modelBuilder.Entity<Tag>()
-            .HasMany(t => t.PostTags)
-            .WithOne(pt => pt.Tag)
-            .HasForeignKey(pt => pt.TagId)
-            .OnDelete(DeleteBehavior.Restrict);
 
         // Configure Unique non-key indexes
         modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
@@ -178,6 +177,7 @@ public class StudyConnectDbContext : DbContext
         modelBuilder.Entity<ForumCategory>().HasIndex(f => f.Name).IsUnique();
         modelBuilder.Entity<ForumLike>().HasIndex(l => new { l.UserId, l.ForumPostId, l.ForumCommentId }).IsUnique();
         modelBuilder.Entity<Tag>().HasIndex(t => t.Name).IsUnique();
+
 
         // Configure table names to match SQL schema
         modelBuilder.Entity<User>().ToTable("User");
@@ -218,10 +218,10 @@ public class StudyConnectDbContext : DbContext
                 Description = "General Kontext"
             }
         );
-        
+
         // Create a Default GroupRole Student
         modelBuilder.Entity<MemberRole>().HasData(new MemberRole
-        {   
+        {
             MemberRoleId = new Guid("00000000-0000-0000-0000-000000000010"),
             Name = "GroupMember",
             Description = "Is a member of a group"
@@ -295,7 +295,6 @@ public class StudyConnectDbContext : DbContext
     public DbSet<ForumComment> ForumComments { get; set; }
     public DbSet<ForumLike> ForumLikes { get; set; }
     public DbSet<Tag> Tags { get; set; }
-
 
     public DbSet<PostTag> PostTags { get; set; }
 }
