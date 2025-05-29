@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using StudyConnect.API.Dtos.Responses;
+using StudyConnect.Core.Common;
 using StudyConnect.Data.Repositories;
 
 namespace StudyConnect.API.Controllers
@@ -8,8 +11,8 @@ namespace StudyConnect.API.Controllers
     /// Provides endpoints for retrieving and managing tags in the system.
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
-    public class TagController : ControllerBase
+    [Route("v1/tags")]
+    public class TagController : BaseController
     {
         private readonly TagRepository _tagRepository;
 
@@ -27,26 +30,23 @@ namespace StudyConnect.API.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the list of tags or a not found result if no tags are available.</returns>
         [HttpGet]
+        //[Authorize]
         public async Task<IActionResult> GetAllTags()
         {
-            var tags = await _tagRepository.GetAllTagsAsync();
+            var result = await _tagRepository.GetAllTagsAsync();
 
-            if (tags == null || !tags.Any())
+            if (!result.IsSuccess)
+                return BadRequest(result.ErrorMessage);
+
+            var tags = result.Data ?? [];
+
+            var tagsDtoList = tags.Select(t => new TagDto
             {
-                return NotFound("No tags found.");
-            }
-
-            return Ok(tags);
-        }
-
-        /// <summary>
-        /// Placeholder for creating a new tag.
-        /// </summary>
-        /// <returns>A 501 Not Implemented status code.</returns>
-        [HttpPost]
-        public IActionResult PostNotImplemented()
-        {
-            return StatusCode(StatusCodes.Status501NotImplemented);
+                Id = t.TagId,
+                Name = t.Name,
+                Description = t.Description
+            });
+            return Ok(tagsDtoList);
         }
     }
 }
