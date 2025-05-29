@@ -7,6 +7,7 @@ namespace StudyConnect.Core.Common
         public const string NotFound = "The requested resource was not found.";
         public const string NotAuthorized = "Not authorized to perform this action.";
         public const string NameRequired = "Name cannot be null, empty or whitespace.";
+        public const string FailedRetieve = "Failed to retrieve the newly created object";
 
         public const string GeneralTaken = "already";
         public const string TitleTaken = "Title already in use.";
