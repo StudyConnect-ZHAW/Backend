@@ -33,7 +33,7 @@ public class PostReadDto
     public int? LikeCount { get; set; }
 
     /// <summary>
-    /// The date and time when post was created. 
+    /// The date and time when post was created.
     /// </summary>
     public DateTime? Created { get; set; }
 
@@ -50,6 +50,5 @@ public class PostReadDto
     /// <summary>
     /// The creator of the post as a dto.
     /// </summary>
-    public UserReadDto? User { get; set; }
+    public UserReadDto? Author { get; set; }
 }
-
