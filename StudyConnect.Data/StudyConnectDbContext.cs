@@ -162,10 +162,6 @@ public class StudyConnectDbContext : DbContext
             .HasForeignKey(pt => pt.ForumPostId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Tag>().HasKey(t => t.TagId);
-        modelBuilder.Entity<Tag>().Property(t => t.Name).IsRequired().HasMaxLength(100);
-        modelBuilder.Entity<Tag>().Property(t => t.Description).HasMaxLength(500);
-
         // Configure PostTag-ForumPost relationship
         modelBuilder.Entity<PostTag>()
             .HasKey(pt => new { pt.ForumPostId, pt.TagId });
