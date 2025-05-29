@@ -215,8 +215,8 @@ public class GroupCommentRepository : BaseRepository, IGroupCommentRepository
         {
             GroupCommentId = comment.GroupCommentId,
             Content = comment.IsDeleted ? string.Empty : comment.Content,
-            CreatedAt = comment.CreatedAt,
-            UpdatedAt = comment.UpdatedAt,
+            CreatedAt = comment.CreatedAt.ToUniversalTime(),
+            UpdatedAt = comment.UpdatedAt.ToUniversalTime(),
             IsEdited = comment.IsEdited,
             GroupPostId = comment.GroupPostId,
             groupMember = comment.GroupMember.ToMemberModel(),

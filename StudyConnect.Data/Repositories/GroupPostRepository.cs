@@ -197,8 +197,8 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
             GroupPostId = post.GroupPostId,
             Title = post.Title,
             Content = post.Content,
-            CreatedAt = post.CreatedAt,
-            UpdatedAt = post.UpdatedAt,
+            CreatedAt = post.CreatedAt.ToUniversalTime(),
+            UpdatedAt = post.UpdatedAt.ToUniversalTime(),
             CommentCount = post.GroupComments.Count,
             GroupMember = post.GroupMember!.ToMemberModel(),
         };
