@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using StudyConnect.API.Dtos.Responses;
 using StudyConnect.Core.Common;
 using StudyConnect.Data.Repositories;
+using StudyConnect.Core.Interfaces;
 
 namespace StudyConnect.API.Controllers
 {
@@ -14,13 +15,13 @@ namespace StudyConnect.API.Controllers
     [Route("v1/tags")]
     public class TagController : BaseController
     {
-        private readonly TagRepository _tagRepository;
+        protected readonly ITagRepository _tagRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TagController"/> class.
         /// </summary>
         /// <param name="tagRepository">The repository for managing tags.</param>
-        public TagController(TagRepository tagRepository)
+        public TagController(ITagRepository tagRepository)
         {
             _tagRepository = tagRepository;
         }
@@ -30,7 +31,7 @@ namespace StudyConnect.API.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the list of tags or a not found result if no tags are available.</returns>
         [HttpGet]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetAllTags()
         {
             var result = await _tagRepository.GetAllTagsAsync();
