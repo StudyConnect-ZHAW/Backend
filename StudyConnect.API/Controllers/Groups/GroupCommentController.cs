@@ -190,6 +190,6 @@ public class GroupCommentController : BaseController
             Edited = comment.IsEdited,
             GroupPostId = comment.GroupPostId,
             Member =
-                comment.groupMember != null ? comment.groupMember.ToGroupMemberReadDto() : null,
+                comment.GroupMember != null ? comment.GroupMember.ToGroupMemberReadDto() : null,
         };
 }

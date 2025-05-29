@@ -219,6 +219,6 @@ public class GroupCommentRepository : BaseRepository, IGroupCommentRepository
             UpdatedAt = comment.UpdatedAt.ToUniversalTime(),
             IsEdited = comment.IsEdited,
             GroupPostId = comment.GroupPostId,
-            groupMember = comment.GroupMember.ToMemberModel(),
+            GroupMember = comment.GroupMember.ToMemberModel(),
         };
 }
