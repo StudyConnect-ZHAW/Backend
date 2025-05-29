@@ -17,7 +17,7 @@ public interface IGroupPostRepository
     /// <summary>
     /// Retrieves a post by its unique identifier.
     /// </summary>
-    /// <param name="postId">The unique identifier of the post.</param> 
+    /// <param name="postId">The unique identifier of the post.</param>
     /// <returns>An <see cref="OperationResult{T}"/> containing the post if found, or an error message if not.</returns>
     Task<OperationResult<GroupPost?>> GetByIdAsync(Guid postId);
 
@@ -36,7 +36,12 @@ public interface IGroupPostRepository
     /// <param name="postId">The unique identifier of the post, that should be updated.</param>
     /// <param name="post">The model containing the information about the forum post for the update.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<GroupPost>> UpdateAsync(Guid userId, Guid groupId, Guid postId, GroupPost post);
+    Task<OperationResult<GroupPost>> UpdateAsync(
+        Guid userId,
+        Guid groupId,
+        Guid postId,
+        GroupPost post
+    );
 
     /// <summary>
     /// Deletes an existing post.

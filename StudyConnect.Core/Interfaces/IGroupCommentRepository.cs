@@ -13,7 +13,12 @@ public interface IGroupCommentRepository
     /// <param name="postId">The unique identifier of the post.</param>
     /// <param name="groupId">The unique identifier of group the post belongs to.</param>
     /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
-    Task<OperationResult<GroupComment>> AddAsync(Guid userId, Guid groupId, Guid postId, GroupComment comment);
+    Task<OperationResult<GroupComment>> AddAsync(
+        Guid userId,
+        Guid groupId,
+        Guid postId,
+        GroupComment comment
+    );
 
     /// <summary>
     /// Get a comment by its GUID.
@@ -36,12 +41,17 @@ public interface IGroupCommentRepository
     /// <param name="userId">The unique identifier of the current user.</param>
     /// <param name="comment">A comment model containing the updated content.</param>
     /// <param name="groupId">The unique identifier of group the post belongs to.</param>
-    /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns> 
-    Task<OperationResult<GroupComment>> UpdateAsync(Guid userId, Guid groupId, Guid commentId, GroupComment comment);
+    /// <returns>An <see cref="OperationResult{T}"/> indicating success or failure.</returns>
+    Task<OperationResult<GroupComment>> UpdateAsync(
+        Guid userId,
+        Guid groupId,
+        Guid commentId,
+        GroupComment comment
+    );
 
     /// <summary>
     /// Delete a comment by its GUID.
-    /// </summary> 
+    /// </summary>
     /// <param name="commentId">The unique identifier of the comment.</param>
     /// <param name="userId">The unique identifier of the current user.</param>
     /// <param name="groupId">The unique identifier of group the post belongs to.</param>

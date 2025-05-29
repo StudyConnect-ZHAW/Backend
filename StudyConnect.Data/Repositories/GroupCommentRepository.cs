@@ -1,21 +1,23 @@
 using Microsoft.EntityFrameworkCore;
+using StudyConnect.Core.Common;
 using StudyConnect.Core.Interfaces;
 using StudyConnect.Core.Models;
-using StudyConnect.Core.Common;
 using static StudyConnect.Core.Common.ErrorMessages;
 
 namespace StudyConnect.Data.Repositories;
 
 public class GroupCommentRepository : BaseRepository, IGroupCommentRepository
 {
-    public GroupCommentRepository(StudyConnectDbContext context) : base(context)
+    public GroupCommentRepository(StudyConnectDbContext context)
+        : base(context) { }
+
+    public async Task<OperationResult<GroupComment>> AddAsync(
+        Guid userId,
+        Guid groupId,
+        Guid postId,
+        GroupComment comment
+    )
     {
-
-    }
-
-    public async Task<OperationResult<GroupComment>> AddAsync(Guid userId, Guid groupId, Guid postId, GroupComment comment)
-    {
-
         var member = await GetValidMember(userId, groupId);
         if (member == null)
             return OperationResult<GroupComment>.Failure("Member not found.");
@@ -30,19 +32,21 @@ public class GroupCommentRepository : BaseRepository, IGroupCommentRepository
             {
                 Content = comment.Content,
                 GroupPostId = postId,
-                GroupMemberId = member.GroupMemberId
+                GroupMemberId = member.GroupMemberId,
             };
 
             await _context.AddAsync(result);
             await _context.SaveChangesAsync();
 
-            var created = await _context.GroupComments
-               .Include(p => p.GroupMember)
-                   .ThenInclude(gm => gm.Member)
-               .FirstOrDefaultAsync(p => p.GroupPostId == result.GroupPostId);
+            var created = await _context
+                .GroupComments.Include(p => p.GroupMember)
+                .ThenInclude(gm => gm.Member)
+                .FirstOrDefaultAsync(p => p.GroupPostId == result.GroupPostId);
 
             if (created is null)
-                return OperationResult<GroupComment>.Failure($"{UnknownError}: Failed to retrieve the newly created post.");
+                return OperationResult<GroupComment>.Failure(
+                    $"{UnknownError}: Failed to retrieve the newly created post."
+                );
 
             return OperationResult<GroupComment>.Success(MapCommentToModel(created));
         }
@@ -58,10 +62,10 @@ public class GroupCommentRepository : BaseRepository, IGroupCommentRepository
             return OperationResult<IEnumerable<GroupComment>>.Failure(PostNotFound);
 
         // Retrieve all comments for the specified post, including related entities
-        var comments = await _context.GroupComments
-            .AsNoTracking()
+        var comments = await _context
+            .GroupComments.AsNoTracking()
             .Include(gc => gc.GroupMember)
-                .ThenInclude(gm => gm.Member)
+            .ThenInclude(gm => gm.Member)
             .Where(cm => cm.GroupPostId == postId)
             .ToListAsync();
 
@@ -80,19 +84,24 @@ public class GroupCommentRepository : BaseRepository, IGroupCommentRepository
             return OperationResult<GroupComment?>.Failure(InvalidCommentId);
 
         // Retrieve a comment including related entities
-        var result = await _context.GroupComments
-            .AsNoTracking()
+        var result = await _context
+            .GroupComments.AsNoTracking()
             .Include(gm => gm.GroupMember)
-                .ThenInclude(gm => gm.Member)
+            .ThenInclude(gm => gm.Member)
             .FirstOrDefaultAsync(c => c.GroupCommentId == commentId);
 
         // Test for data
         return result == null
-                ? OperationResult<GroupComment?>.Failure(CommentNotFound)
-                : OperationResult<GroupComment?>.Success(MapCommentToModel(result));
+            ? OperationResult<GroupComment?>.Failure(CommentNotFound)
+            : OperationResult<GroupComment?>.Success(MapCommentToModel(result));
     }
 
-    public async Task<OperationResult<GroupComment>> UpdateAsync(Guid userId, Guid groupId, Guid commentId, GroupComment comment)
+    public async Task<OperationResult<GroupComment>> UpdateAsync(
+        Guid userId,
+        Guid groupId,
+        Guid commentId,
+        GroupComment comment
+    )
     {
         if (userId == Guid.Empty)
             return OperationResult<GroupComment>.Failure(InvalidUserId);
@@ -160,7 +169,9 @@ public class GroupCommentRepository : BaseRepository, IGroupCommentRepository
     /// <param name="groupId">The unique identifier of the group.</param>
     /// <returns><c>true</c> if the member exists; otherwise, <c>false</c>.</returns>
     private async Task<Entities.GroupMember?> GetValidMember(Guid userId, Guid groupId) =>
-        await _context.GroupMembers.FirstOrDefaultAsync(m => m.MemberId == userId && m.GroupId == groupId);
+        await _context.GroupMembers.FirstOrDefaultAsync(m =>
+            m.MemberId == userId && m.GroupId == groupId
+        );
 
     /// <summary>
     /// Validates if a post exists in the database.
@@ -176,11 +187,14 @@ public class GroupCommentRepository : BaseRepository, IGroupCommentRepository
     /// <param name="userId">The unique identifier of the user.</param>
     /// <param name="postId">The unique identifier of the comment.</param>
     /// <returns>A post entity on succes or an errormessage on failure.</returns>
-    private async Task<(Entities.GroupComment? Comment, string? ErrorMessage)> GetAuthorizedCommentAsync(Guid userId, Guid groupId, Guid commentId)
+    private async Task<(
+        Entities.GroupComment? Comment,
+        string? ErrorMessage
+    )> GetAuthorizedCommentAsync(Guid userId, Guid groupId, Guid commentId)
     {
-        var comment = await _context.GroupComments
-            .Include(cm => cm.GroupMember)
-                .ThenInclude(gm => gm.Member)
+        var comment = await _context
+            .GroupComments.Include(cm => cm.GroupMember)
+            .ThenInclude(gm => gm.Member)
             .FirstOrDefaultAsync(c => c.GroupCommentId == commentId);
 
         if (comment == null || comment.IsDeleted)
@@ -198,15 +212,15 @@ public class GroupCommentRepository : BaseRepository, IGroupCommentRepository
     /// <param name="comment">A comment entity to transform.</param>
     /// <returns>A forum comment model object.</returns>
     ///
-    private GroupComment MapCommentToModel(Entities.GroupComment comment) => new()
-    {
-        GroupCommentId = comment.GroupCommentId,
-        Content = comment.IsDeleted ? string.Empty : comment.Content,
-        CreatedAt = comment.CreatedAt,
-        UpdatedAt = comment.UpdatedAt,
-        IsEdited = comment.IsEdited,
-        GroupPostId = comment.GroupPostId,
-        groupMember = comment.GroupMember.ToGroupMember()
-    };
-
+    private GroupComment MapCommentToModel(Entities.GroupComment comment) =>
+        new()
+        {
+            GroupCommentId = comment.GroupCommentId,
+            Content = comment.IsDeleted ? string.Empty : comment.Content,
+            CreatedAt = comment.CreatedAt,
+            UpdatedAt = comment.UpdatedAt,
+            IsEdited = comment.IsEdited,
+            GroupPostId = comment.GroupPostId,
+            groupMember = comment.GroupMember.ToGroupMember(),
+        };
 }

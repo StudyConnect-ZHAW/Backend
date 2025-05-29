@@ -1,16 +1,21 @@
 using Microsoft.EntityFrameworkCore;
 using StudyConnect.Core.Common;
-using StudyConnect.Core.Models;
 using StudyConnect.Core.Interfaces;
+using StudyConnect.Core.Models;
 using static StudyConnect.Core.Common.ErrorMessages;
 
 namespace StudyConnect.Data.Repositories;
 
 public class GroupPostRepository : BaseRepository, IGroupPostRepository
 {
-    public GroupPostRepository(StudyConnectDbContext context) : base(context) { }
+    public GroupPostRepository(StudyConnectDbContext context)
+        : base(context) { }
 
-    public async Task<OperationResult<GroupPost>> AddAsync(Guid userId, Guid groupId, GroupPost? post)
+    public async Task<OperationResult<GroupPost>> AddAsync(
+        Guid userId,
+        Guid groupId,
+        GroupPost? post
+    )
     {
         var member = await GetValidMember(userId, groupId);
         if (member == null)
@@ -27,7 +32,7 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
         {
             Title = post.Title,
             Content = post.Content,
-            GroupMemberId = member.GroupMemberId
+            GroupMemberId = member.GroupMemberId,
         };
 
         try
@@ -35,16 +40,17 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
             await _context.GroupPosts.AddAsync(newPost);
             await _context.SaveChangesAsync();
 
-            var created = await _context.GroupPosts
-                .Include(p => p.GroupMember)
-                    .ThenInclude(gm => gm.Member)
+            var created = await _context
+                .GroupPosts.Include(p => p.GroupMember)
+                .ThenInclude(gm => gm.Member)
                 .FirstOrDefaultAsync(p => p.GroupPostId == newPost.GroupPostId);
 
             if (created is null)
-                return OperationResult<GroupPost>.Failure($"{UnknownError}: Failed to retrieve the newly created post.");
+                return OperationResult<GroupPost>.Failure(
+                    $"{UnknownError}: Failed to retrieve the newly created post."
+                );
 
             return OperationResult<GroupPost>.Success(MapToPostGroupModel(created));
-
         }
         catch (Exception ex)
         {
@@ -54,12 +60,12 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
 
     public async Task<OperationResult<IEnumerable<GroupPost>>> GetAllAsync(Guid groupId)
     {
-        var postsQuery = _context.GroupPosts
-                .AsNoTracking()
-                .Where(p => p.GroupMember.GroupId == groupId)
-                .Include(p => p.GroupComments)
-                .Include(p => p.GroupMember)
-                    .ThenInclude(gm => gm.Member);
+        var postsQuery = _context
+            .GroupPosts.AsNoTracking()
+            .Where(p => p.GroupMember.GroupId == groupId)
+            .Include(p => p.GroupComments)
+            .Include(p => p.GroupMember)
+            .ThenInclude(gm => gm.Member);
 
         var posts = await postsQuery.ToListAsync();
         var result = posts.Select(MapToPostGroupModel);
@@ -71,11 +77,11 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
         if (postId == Guid.Empty)
             return OperationResult<GroupPost?>.Failure(InvalidPostId);
 
-        var post = await _context.GroupPosts
-            .AsNoTracking()
+        var post = await _context
+            .GroupPosts.AsNoTracking()
             .Include(p => p.GroupComments)
             .Include(p => p.GroupMember)
-              .ThenInclude(gm => gm.Member)
+            .ThenInclude(gm => gm.Member)
             .FirstOrDefaultAsync(p => p.GroupPostId == postId);
 
         return post == null
@@ -83,7 +89,12 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
             : OperationResult<GroupPost?>.Success(MapToPostGroupModel(post));
     }
 
-    public async Task<OperationResult<GroupPost>> UpdateAsync(Guid userId, Guid groupId, Guid postId, GroupPost post)
+    public async Task<OperationResult<GroupPost>> UpdateAsync(
+        Guid userId,
+        Guid groupId,
+        Guid postId,
+        GroupPost post
+    )
     {
         if (userId == Guid.Empty)
             return OperationResult<GroupPost>.Failure(InvalidUserId);
@@ -147,7 +158,9 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
     /// <param name="groupId">The unique identifier of the group.</param>
     /// <returns><c>true</c> if the member exists; otherwise, <c>false</c>.</returns>
     private async Task<Entities.GroupMember?> GetValidMember(Guid userId, Guid groupId) =>
-       await _context.GroupMembers.FirstOrDefaultAsync(m => m.MemberId == userId && m.GroupId == groupId);
+        await _context.GroupMembers.FirstOrDefaultAsync(m =>
+            m.MemberId == userId && m.GroupId == groupId
+        );
 
     /// <summary>
     /// Tests a post for existence and authorization.
@@ -155,11 +168,15 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
     /// <param name="userId">The unique identifier of the user.</param>
     /// <param name="postId">The unique identifier of the post.</param>
     /// <returns>A post entity on succes or an errormessage on failure.</returns>
-    private async Task<(Entities.GroupPost? Post, string? ErrorMessage)> GetAuthorizedPostAsync(Guid userId, Guid groupId, Guid postId)
+    private async Task<(Entities.GroupPost? Post, string? ErrorMessage)> GetAuthorizedPostAsync(
+        Guid userId,
+        Guid groupId,
+        Guid postId
+    )
     {
-        var post = await _context.GroupPosts
-            .Include(p => p.GroupMember)
-              .ThenInclude(gm => gm.Member)
+        var post = await _context
+            .GroupPosts.Include(p => p.GroupMember)
+            .ThenInclude(gm => gm.Member)
             .FirstOrDefaultAsync(c => c.GroupPostId == postId);
 
         if (post == null)
@@ -176,15 +193,15 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
     /// </summary>
     /// <param name="post">The post entity to map.</param>
     /// <returns>A <see cref="ForumPost"/> </returns>
-    private GroupPost MapToPostGroupModel(Entities.GroupPost post) => new()
-    {
-        GroupPostId = post.GroupPostId,
-        Title = post.Title,
-        Content = post.Content,
-        CreatedAt = post.CreatedAt,
-        UpdatedAt = post.UpdatedAt,
-        CommentCount = post.GroupComments.Count,
-        GroupMember = post.GroupMember!.ToGroupMember()
-    };
+    private GroupPost MapToPostGroupModel(Entities.GroupPost post) =>
+        new()
+        {
+            GroupPostId = post.GroupPostId,
+            Title = post.Title,
+            Content = post.Content,
+            CreatedAt = post.CreatedAt,
+            UpdatedAt = post.UpdatedAt,
+            CommentCount = post.GroupComments.Count,
+            GroupMember = post.GroupMember!.ToGroupMember(),
+        };
 }
-
