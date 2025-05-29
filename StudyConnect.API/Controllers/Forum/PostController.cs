@@ -1,13 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using StudyConnect.Core.Interfaces;
+using Microsoft.Identity.Web;
 using StudyConnect.API.Dtos.Requests.Forum;
 using StudyConnect.API.Dtos.Responses.Forum;
 using StudyConnect.API.Dtos.Responses.User;
+using StudyConnect.Core.Interfaces;
 using StudyConnect.Core.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Identity.Web;
 using static StudyConnect.Core.Common.ErrorMessages;
-
 
 namespace StudyConnect.API.Controllers.Forum;
 
@@ -19,7 +18,6 @@ namespace StudyConnect.API.Controllers.Forum;
 [Route("api/v1/posts")]
 public class PostController : BaseController
 {
-
     /// <summary>
     /// The post repository to interact with data.
     /// </summary>
@@ -30,11 +28,11 @@ public class PostController : BaseController
     /// </summary>
     protected readonly ILikeRepository _likeRepository;
 
-
     /// <summary>
     /// Initializes a new instance of the <see cref="PostController"/> class.
     /// </summary>
     /// <param name="postRepository">The post repository to interact with data.</param>
+    /// <param name="likeRepository">The like repository to interact with data.</param>
     public PostController(IPostRepository postRepository, ILikeRepository likeRepository)
     {
         _postRepository = postRepository;
@@ -53,19 +51,21 @@ public class PostController : BaseController
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var post = new ForumPost
-        {
-            Title = createDto.Title,
-            Content = createDto.Content,
-        };
+        var post = new ForumPost { Title = createDto.Title, Content = createDto.Content };
 
         Guid uid = GetIdFromToken();
         Guid pid = createDto.ForumCategoryId;
 
         var result = await _postRepository.AddAsync(uid, pid, post);
         if (!result.IsSuccess || result.Data == null)
-            return BadRequest(result.ErrorMessage);
-
+        {
+            if (result.ErrorMessage!.Contains(GeneralNotFound))
+                return NotFound(result.ErrorMessage);
+            else if (result.ErrorMessage!.Contains(GeneralTaken))
+                return Conflict(result.ErrorMessage);
+            else
+                return BadRequest(result.ErrorMessage);
+        }
         return Ok(GeneratePostDto(result.Data));
     }
 
@@ -110,10 +110,9 @@ public class PostController : BaseController
         if (!posts.IsSuccess)
             return BadRequest(posts.ErrorMessage);
 
-        if (posts.Data == null)
-            return NotFound("Posts not found.");
+        var postsList = posts.Data ?? [];
 
-        var result = posts.Data.Select(p => GeneratePostDto(p));
+        var result = postsList.Select(p => GeneratePostDto(p));
 
         return Ok(result);
     }
@@ -127,11 +126,10 @@ public class PostController : BaseController
     public async Task<IActionResult> GetPostById([FromRoute] Guid pid)
     {
         var result = await _postRepository.GetByIdAsync(pid);
-        if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
-
-        if (result.Data == null)
-            return NotFound("Post not found.");
+        if (!result.IsSuccess || result.Data == null)
+            return result.ErrorMessage!.Contains(GeneralNotFound)
+                ? NotFound(result.ErrorMessage)
+                : BadRequest(result.ErrorMessage);
 
         var postDto = GeneratePostDto(result.Data);
 
@@ -146,24 +144,28 @@ public class PostController : BaseController
     /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
     [HttpPut("{pid:guid}")]
     [Authorize]
-    public async Task<IActionResult> UpdatePost([FromRoute] Guid pid, [FromBody] PostUpdateDto updateDto)
+    public async Task<IActionResult> UpdatePost(
+        [FromRoute] Guid pid,
+        [FromBody] PostUpdateDto updateDto
+    )
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
         var uid = GetIdFromToken();
 
-        var post = new ForumPost
-        {
-            Title = updateDto.Title,
-            Content = updateDto.Content
-        };
+        var post = new ForumPost { Title = updateDto.Title, Content = updateDto.Content };
 
         var result = await _postRepository.UpdateAsync(uid, pid, post);
-        if (!result.IsSuccess)
-            return result.ErrorMessage!.Contains(GeneralNotFound)
-                ? NotFound(result.ErrorMessage)
-                : BadRequest(result.ErrorMessage);
+        if (!result.IsSuccess || result.Data == null)
+        {
+            if (result.ErrorMessage!.Contains(GeneralNotFound))
+                return NotFound(result.ErrorMessage);
+            else if (result.ErrorMessage!.Equals(NotAuthorized))
+                return Unauthorized(result.ErrorMessage);
+            else
+                return BadRequest(result.ErrorMessage);
+        }
 
         return Ok(result.Data);
     }
@@ -191,9 +193,6 @@ public class PostController : BaseController
         return NoContent();
     }
 
-
-
-
     /// <summary>
     /// Deletes an existing post.
     /// </summary>
@@ -208,19 +207,21 @@ public class PostController : BaseController
 
         var result = await _postRepository.DeleteAsync(uid, pid);
         if (!result.IsSuccess || !result.Data)
-            return result.ErrorMessage!.Contains(GeneralNotFound)
-                ? NotFound(result.ErrorMessage)
-                : BadRequest(result.ErrorMessage);
-
+        {
+            if (result.ErrorMessage!.Contains(GeneralNotFound))
+                return NotFound(result.ErrorMessage);
+            else if (result.ErrorMessage!.Equals(NotAuthorized))
+                return Unauthorized(result.ErrorMessage);
+            else
+                return BadRequest(result.ErrorMessage);
+        }
         return NoContent();
     }
 
     private Guid GetIdFromToken()
     {
         var oidClaim = HttpContext.User.GetObjectId();
-        return oidClaim != null
-            ? Guid.Parse(oidClaim)
-            : Guid.Empty;
+        return oidClaim != null ? Guid.Parse(oidClaim) : Guid.Empty;
     }
 
     /// <summary>
@@ -228,30 +229,27 @@ public class PostController : BaseController
     /// </summary>
     /// <param name="user">The user model.</param>
     /// <returns>A UserReadDto.</returns>
-    private UserReadDto GenerateUserReadDto(User user)
-    {
-        return new UserReadDto
+    private UserReadDto GenerateUserReadDto(User user) =>
+        new()
         {
+            Oid = user.UserGuid,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            Email = user.Email
+            Email = user.Email,
         };
-    }
 
     /// <summary>
     /// A helper function to create category Dto from model.
     /// </summary>
     /// <param name="category">The forum category model.</param>
     /// <returns>A CategoryReadDto.</returns>
-    private CategoryReadDto GenerateCategoryReadDto(ForumCategory category)
-    {
-        return new CategoryReadDto
+    private CategoryReadDto GenerateCategoryReadDto(ForumCategory category) =>
+        new()
         {
             ForumCategoryId = category.ForumCategoryId,
             Name = category.Name,
-            Description = category.Description
+            Description = category.Description,
         };
-    }
 
     /// <summary>
     /// A helper function to create post Dto from model.
@@ -269,13 +267,8 @@ public class PostController : BaseController
             Updated = post.UpdatedAt,
             CommentCount = post.CommentCount,
             LikeCount = post.LikeCount,
-            Category = post.Category != null
-                ? GenerateCategoryReadDto(post.Category)
-                : null,
-            Author = post.User != null
-                ? GenerateUserReadDto(post.User)
-                : null,
-
+            Category = post.Category != null ? GenerateCategoryReadDto(post.Category) : null,
+            User = post.User != null ? GenerateUserReadDto(post.User) : null,
         };
     }
 }

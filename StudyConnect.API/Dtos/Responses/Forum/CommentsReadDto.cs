@@ -31,7 +31,7 @@ public class CommentReadDto
     /// The count of the replies to this comment.
     /// </summary>
     public int? ReplyCount { get; set; }
-    
+
     /// <summary>
     /// The number of likes this comment received.
     /// </summary>

@@ -50,6 +50,6 @@ public class PostReadDto
     /// <summary>
     /// The creator of the post as a dto.
     /// </summary>
-    public UserReadDto? Author { get; set; }
+    public UserReadDto? User { get; set; }
 }
 

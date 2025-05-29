@@ -1,8 +1,7 @@
-using System;
 using Microsoft.EntityFrameworkCore;
 using StudyConnect.Core.Common;
-using StudyConnect.Core.Models;
 using StudyConnect.Core.Interfaces;
+using StudyConnect.Core.Models;
 using static StudyConnect.Core.Common.ErrorMessages;
 
 namespace StudyConnect.Data.Repositories;
@@ -20,6 +19,9 @@ public class GroupMemberRepository : BaseRepository, IGroupMemberRepository
         if (!await IsValidGroup(GroupId))
             return OperationResult<GroupMember>.Failure(GroupNotFound);
 
+        if (await IsValidMember(UserId, GroupId))
+            return OperationResult<GroupMember>.Failure(MemberTaken);
+
         var member = new Entities.GroupMember
         {
             MemberId = UserId,
@@ -31,26 +33,14 @@ public class GroupMemberRepository : BaseRepository, IGroupMemberRepository
         {
             await _context.GroupMembers.AddAsync(member);
             await _context.SaveChangesAsync();
-            await _context.GroupMembers.Entry(member)
-                            .Reference(m => m.Member)
-                            .LoadAsync();
+            await _context.GroupMembers.Entry(member).Reference(m => m.Member).LoadAsync();
         }
         catch (Exception ex)
         {
             return OperationResult<GroupMember>.Failure($"Failed to add member: {ex.Message}");
         }
 
-        var result = new GroupMember
-        {
-            MemberId = member.MemberId,
-            GroupId = member.GroupId,
-            JoinedAt = member.JoinedAt,
-            FirstName = member.Member.FirstName,
-            LastName = member.Member.LastName,
-            Email = member.Member.Email
-        };
-
-        return OperationResult<GroupMember>.Success(result);
+        return OperationResult<GroupMember>.Success(member.ToMemberModel());
     }
 
     public async Task<OperationResult<bool>> DeleteMemberAsync(Guid UserId, Guid GroupId)
@@ -60,7 +50,9 @@ public class GroupMemberRepository : BaseRepository, IGroupMemberRepository
         if (GroupId == Guid.Empty)
             return OperationResult<bool>.Failure(InvalidGroupId);
 
-        var entity = await _context.GroupMembers.FirstOrDefaultAsync(g => g.GroupId == GroupId && g.MemberId == UserId);
+        var entity = await _context.GroupMembers.FirstOrDefaultAsync(g =>
+            g.GroupId == GroupId && g.MemberId == UserId
+        );
         if (entity == null)
         {
             return OperationResult<bool>.Failure(MemberNotFound);
@@ -83,4 +75,7 @@ public class GroupMemberRepository : BaseRepository, IGroupMemberRepository
 
     private async Task<bool> IsValidUser(Guid userId) =>
         userId != Guid.Empty && await _context.Users.AnyAsync(u => u.UserGuid == userId);
+
+    private async Task<bool> IsValidMember(Guid userId, Guid groupId) =>
+        await _context.GroupMembers.AnyAsync(m => m.MemberId == userId && m.GroupId == groupId);
 }

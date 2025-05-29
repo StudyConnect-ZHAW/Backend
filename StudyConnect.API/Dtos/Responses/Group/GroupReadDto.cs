@@ -1,4 +1,5 @@
 using System;
+using StudyConnect.API.Dtos.Responses.User;
 
 namespace StudyConnect.API.Dtos.Responses.Group;
 
@@ -13,22 +14,22 @@ public class GroupReadDto
     public Guid GroupId { get; set; }
 
     /// <summary>
-    /// The ID of the user who owns the group.
-    /// </summary>
-    public Guid OwnerId { get; set; }
-
-    /// <summary>
     /// The name of the group.
     /// </summary>
-    public string Name { get; set; } = string.Empty;
+    public string? Name { get; set; } 
 
     /// <summary>
     /// The description of the group.
     /// </summary>
-    public string Description { get; set; } = string.Empty;
+    public string? Description { get; set; } 
 
     /// <summary>
     /// Timestamp when the group was created.
     /// </summary>
     public DateTime CreatedAt { get; set; }
+
+    /// <summary>
+    /// The owner of the group.
+    /// </summary>
+    public UserReadDto? Owner { get; set; }
 }

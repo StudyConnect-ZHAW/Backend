@@ -19,32 +19,30 @@ public class GroupRepository : BaseRepository, IGroupRepository
             return OperationResult<Group?>.Failure("Invalid GUID.");
         }
 
-        var entity = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == groupId);
+        var entity = await _context
+            .Groups.Include(g => g.Owner)
+            .FirstOrDefaultAsync(g => g.GroupId == groupId);
+
         if (entity == null)
         {
             return OperationResult<Group?>.Success(null);
         }
 
-        var groupToReturn = new Group
-        {
-            GroupId = entity.GroupId,
-            OwnerId = entity.OwnerId,
-            Name = entity.Name,
-            Description = entity.Description,
-            CreatedAt = entity.CreatedAt
-        };
-
-        return OperationResult<Group?>.Success(groupToReturn);
+        return OperationResult<Group?>.Success(entity.ToGroupModel());
     }
 
     public async Task<OperationResult<Group>> UpdateAsync(Group group)
     {
-        if (group.GroupId == Guid.Empty || group.OwnerId == Guid.Empty)
-        {
-            return OperationResult<Group>.Failure("Invalid GUID.");
-        }
+        if (group.GroupId == Guid.Empty)
+            return OperationResult<Group>.Failure(InvalidGroupId);
 
-        var existingGroup = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == group.GroupId);
+        if (group.OwnerId == Guid.Empty)
+            return OperationResult<Group>.Failure(InvalidUserId);
+
+        var existingGroup = await _context
+            .Groups.Include(g => g.Owner)
+            .FirstOrDefaultAsync(g => g.GroupId == group.GroupId);
+
         if (existingGroup == null)
         {
             return OperationResult<Group>.Failure(GroupNotFound);
@@ -65,21 +63,24 @@ public class GroupRepository : BaseRepository, IGroupRepository
         }
         catch (Exception ex)
         {
-            return OperationResult<Group>.Failure($"An error occurred while updating the group: {ex.Message}");
+            return OperationResult<Group>.Failure(
+                $"An error occurred while updating the group: {ex.Message}"
+            );
         }
     }
 
     public async Task<OperationResult<bool>> DeleteAsync(Guid userId, Guid groupId)
     {
-        if (groupId == Guid.Empty || userId == Guid.Empty)
-        {
-            return OperationResult<bool>.Failure("Invalid GUID.");
-        }
+        if (groupId == Guid.Empty)
+            return OperationResult<bool>.Failure(InvalidGroupId);
+
+        if (userId == Guid.Empty)
+            return OperationResult<bool>.Failure(InvalidUserId);
 
         var entity = await _context.Groups.FirstOrDefaultAsync(g => g.GroupId == groupId);
         if (entity == null)
         {
-            return OperationResult<bool>.Success(false);
+            return OperationResult<bool>.Failure(GroupNotFound);
         }
 
         if (entity.OwnerId != userId)
@@ -93,7 +94,9 @@ public class GroupRepository : BaseRepository, IGroupRepository
         }
         catch (Exception ex)
         {
-            return OperationResult<bool>.Failure($"An error occurred while deleting the group: {ex.Message}");
+            return OperationResult<bool>.Failure(
+                $"An error occurred while deleting the group: {ex.Message}"
+            );
         }
     }
 
@@ -102,7 +105,7 @@ public class GroupRepository : BaseRepository, IGroupRepository
         var existingGroup = await _context.Groups.FirstOrDefaultAsync(g => g.Name == group.Name);
         if (existingGroup != null)
         {
-            return OperationResult<Group>.Failure("A group with the same name already exists.");
+            return OperationResult<Group>.Failure(NameTaken);
         }
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.UserGuid == group.OwnerId);
@@ -123,6 +126,8 @@ public class GroupRepository : BaseRepository, IGroupRepository
         {
             await _context.Groups.AddAsync(entity);
             await _context.SaveChangesAsync();
+            await _context.Groups.Entry(entity).Reference(g => g.Owner).LoadAsync();
+            return OperationResult<Group>.Success(entity.ToGroupModel());
         }
         catch (Exception ex)
         {
@@ -130,36 +135,15 @@ public class GroupRepository : BaseRepository, IGroupRepository
                 $"An error occurred while fetching groups: {ex.Message}"
             );
         }
-
-
-        // In Domain-/DTO-Modell zurückmappen
-        var model = new Group
-        {
-            GroupId = entity.GroupId,
-            OwnerId = entity.OwnerId,
-            Name = entity.Name,
-            Description = entity.Description,
-            CreatedAt = entity.CreatedAt
-        };
-        return OperationResult<Group>.Success(model);
     }
-
-
 
     public async Task<OperationResult<IEnumerable<Group>>> GetAllAsync()
     {
         try
         {
-            var entities = await _context.Groups.ToListAsync();
+            var entities = await _context.Groups.Include(g => g.Owner).ToListAsync();
 
-            var models = entities.Select(g => new Group
-            {
-                GroupId = g.GroupId,
-                OwnerId = g.OwnerId,
-                Name = g.Name,
-                Description = g.Description,
-                CreatedAt = g.CreatedAt
-            });
+            var models = entities.Select(g => g.ToGroupModel());
 
             return OperationResult<IEnumerable<Group>>.Success(models);
         }
@@ -179,8 +163,8 @@ public class GroupRepository : BaseRepository, IGroupRepository
             {
                 return OperationResult<IEnumerable<GroupMember>>.Failure("Invalid GroupId");
             }
-            var groupmembers = await _context.GroupMembers
-                .AsNoTracking()
+            var groupmembers = await _context
+                .GroupMembers.AsNoTracking()
                 .Include(gm => gm.Member)
                 .Where(gm => gm.GroupId == GroupId)
                 .ToListAsync();
@@ -190,22 +174,15 @@ public class GroupRepository : BaseRepository, IGroupRepository
                 return OperationResult<IEnumerable<GroupMember>>.Failure("Group not found");
             }
 
-            var members = groupmembers.Select(g => new GroupMember
-            {
-                GroupId = g.GroupId,
-                MemberId = g.MemberId,
-                JoinedAt = g.JoinedAt,
-                FirstName = g.Member.FirstName,
-                LastName = g.Member.LastName,
-                Email = g.Member.Email
-            });
+            var members = groupmembers.Select(g => g.ToMemberModel());
 
             return OperationResult<IEnumerable<GroupMember>>.Success(members);
-
         }
         catch (Exception ex)
         {
-            return OperationResult<IEnumerable<GroupMember>>.Failure($"An error occurred while fetching members: {ex.Message}");
+            return OperationResult<IEnumerable<GroupMember>>.Failure(
+                $"An error occurred while fetching members: {ex.Message}"
+            );
         }
     }
 
@@ -213,27 +190,20 @@ public class GroupRepository : BaseRepository, IGroupRepository
     {
         if (userId == Guid.Empty)
         {
-            return OperationResult<IEnumerable<Group>>.Failure("Invalid GUID.");
+            return OperationResult<IEnumerable<Group>>.Failure(InvalidUserId);
         }
 
-        var existingMembers = await _context.GroupMembers
-        .Include(gm => gm.Group)
-        .Where(u => u.MemberId == userId)
-        .ToListAsync();
+        var userGroups = await _context
+            .GroupMembers.Where(gm => gm.MemberId == userId)
+            .Select(gm => gm.Group)
+            .ToListAsync();
 
-        if (existingMembers == null)
+        if (userGroups == null)
         {
-            return OperationResult<IEnumerable<Group>>.Success([]);
+            return OperationResult<IEnumerable<Group>>.Success(new List<Group>());
         }
 
-        var groups = existingMembers.Select(gm => new Group
-        {
-            GroupId = gm.GroupId,
-            OwnerId = gm.Group.OwnerId,
-            Name = gm.Group.Name,
-            Description = gm.Group.Description,
-            CreatedAt = gm.Group.CreatedAt
-        }).ToList();
+        var groups = userGroups.Select(g => g.ToGroupModel()).ToList();
 
         return OperationResult<IEnumerable<Group>>.Success(groups);
     }
@@ -242,27 +212,20 @@ public class GroupRepository : BaseRepository, IGroupRepository
     {
         if (userId == Guid.Empty)
         {
-            return OperationResult<IEnumerable<Group>>.Failure("Invalid GUID.");
+            return OperationResult<IEnumerable<Group>>.Failure(InvalidUserId);
         }
 
-        var existingGroups = await _context.Groups
-        .Include(g => g.Owner)
-        .Where(g => g.OwnerId == userId)
-        .ToListAsync();
+        var existingGroups = await _context
+            .Groups.Include(g => g.Owner)
+            .Where(g => g.OwnerId == userId)
+            .ToListAsync();
 
         if (existingGroups == null)
         {
-            return OperationResult<IEnumerable<Group>>.Success([]);
+            return OperationResult<IEnumerable<Group>>.Success(new List<Group>());
         }
 
-        var groups = existingGroups.Select(gm => new Group
-        {
-            GroupId = gm.GroupId,
-            OwnerId = gm.OwnerId,
-            Name = gm.Name,
-            Description = gm.Description,
-            CreatedAt = gm.CreatedAt
-        }).ToList();
+        var groups = existingGroups.Select(g => g.ToGroupModel()).ToList();
 
         return OperationResult<IEnumerable<Group>>.Success(groups);
     }
