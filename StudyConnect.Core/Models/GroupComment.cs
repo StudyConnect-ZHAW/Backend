@@ -14,8 +14,5 @@ public class GroupComment
 
     public Guid GroupPostId { get; set; }
 
-    public GroupMember? groupMember { get; set; }
-
-
-
+    public GroupMember? GroupMember { get; set; }
 }
