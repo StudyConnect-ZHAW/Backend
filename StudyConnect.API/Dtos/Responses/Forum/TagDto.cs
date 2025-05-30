@@ -1,4 +1,4 @@
-namespace StudyConnect.API.Dtos.Responses
+namespace StudyConnect.API.Dtos.Responses.Forum
 {
     /// <summary>
     /// Data Transfer Object (DTO) for representing a tag in the API response.
