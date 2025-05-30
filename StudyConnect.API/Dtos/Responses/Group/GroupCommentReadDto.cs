@@ -1,3 +1,5 @@
+using StudyConnect.API.Dtos.Responses.User;
+
 namespace StudyConnect.API.Dtos.Responses.Group;
 
 /// <summary>
@@ -38,5 +40,5 @@ public class GroupCommentReadDto
     /// <summary>
     /// The creator of this forum comment.
     /// </summary>
-    public GroupMemberReadDto? Member { get; set; }
+    public UserReadDto? Member { get; set; }
 }

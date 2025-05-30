@@ -186,6 +186,6 @@ public class GroupPostController : BaseController
             Created = post.CreatedAt,
             Updated = post.UpdatedAt,
             CommentCount = post.CommentCount,
-            Member = post.GroupMember != null ? post.GroupMember.ToGroupMemberReadDto() : null,
+            Member = post.GroupMember != null ? post.GroupMember.Member.ToUserReadDto() : null,
         };
 }

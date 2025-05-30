@@ -1,3 +1,5 @@
+using StudyConnect.API.Dtos.Responses.User;
+
 namespace StudyConnect.API.Dtos.Responses.Group;
 
 /// <summary>
@@ -21,7 +23,7 @@ public class GroupPostReadDto
     public string? Content { get; set; }
 
     /// <summary>
-    /// The date and time when post was created. 
+    /// The date and time when post was created.
     /// </summary>
     public DateTime? Created { get; set; }
 
@@ -38,8 +40,5 @@ public class GroupPostReadDto
     /// <summary>
     /// The creator of this forum post.
     /// </summary>
-    public GroupMemberReadDto? Member { get; set; }
-
-
+    public UserReadDto? Member { get; set; }
 }
-
