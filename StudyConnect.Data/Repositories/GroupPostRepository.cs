@@ -24,10 +24,6 @@ public class GroupPostRepository : BaseRepository, IGroupPostRepository
         if (post == null)
             return OperationResult<GroupPost>.Failure(PostContentEmpty);
 
-        bool isTitleTaken = await _context.GroupPosts.AnyAsync(gp => gp.Title == post.Title);
-        if (isTitleTaken)
-            return OperationResult<GroupPost>.Failure(TitleTaken);
-
         var newPost = new Entities.GroupPost
         {
             Title = post.Title,

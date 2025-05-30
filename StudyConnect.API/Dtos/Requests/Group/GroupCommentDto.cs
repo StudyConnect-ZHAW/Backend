@@ -11,5 +11,6 @@ public class GroupCommentDto
     /// The Content of the forum comment.
     /// </summary>
     [Required(ErrorMessage = "Content is required.")]
-    public required string Content { get; set; } 
+    [StringLength(500)]
+    public required string Content { get; set; }
 }

@@ -1,7 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace StudyConnect.Core.Models;
 
 public class GroupComment
 {
+    [MaxLength(500)]
     public required string Content { get; set; }
 
     public Guid GroupCommentId { get; set; }

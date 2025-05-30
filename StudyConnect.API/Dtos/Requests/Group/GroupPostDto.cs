@@ -17,6 +17,6 @@ public class GroupPostDto
     /// <summary>
     /// The content of the post.
     /// </summary>
+    [StringLength(500)]
     public string? Content { get; set; }
 }
-
