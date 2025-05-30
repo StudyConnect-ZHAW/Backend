@@ -18,6 +18,7 @@ builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IGroupMemberRepository, GroupMemberRepository>();
 builder.Services.AddScoped<ILikeRepository, LikeRepository>();
+builder.Services.AddScoped<ITagRepository, TagRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -74,10 +75,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSameDomain", policy =>
     {
-        policy.WithOrigins("https://api-scmy-studyconnect-staging.pm4.init-lab.ch", "http://localhost:3000","http://localhost:5000")
+        policy.WithOrigins("https://api-scmy-studyconnect-staging.pm4.init-lab.ch", "http://localhost:3000", "http://localhost:5000")
               .AllowAnyMethod()
               .AllowAnyHeader()
-              .AllowCredentials();              
+              .AllowCredentials();
     });
 });
 

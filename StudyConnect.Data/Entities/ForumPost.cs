@@ -58,4 +58,9 @@ public class ForumPost
     /// Collection of likes associated with this post.
     /// </summary>
     public virtual ICollection<ForumLike> ForumLikes { get; set; } = [];
+
+    /// <summary>
+    /// Collection of tags associated with this post.
+    /// </summary>
+    public virtual ICollection<PostTag> PostTags { get; set; } = [];
 }
