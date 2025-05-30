@@ -217,115 +217,30 @@ namespace StudyConnect.Data.Migrations
                     b.ToTable("Group", (string)null);
                 });
 
-            modelBuilder.Entity("StudyConnect.Data.Entities.GroupComment", b =>
-                {
-                    b.Property<Guid>("GroupCommentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("GroupId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("GroupMemberId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("GroupPostId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsEdited")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("GroupCommentId");
-
-                    b.HasIndex("GroupId");
-
-                    b.HasIndex("GroupMemberId");
-
-                    b.HasIndex("GroupPostId");
-
-                    b.ToTable("GroupComment", (string)null);
-                });
-
             modelBuilder.Entity("StudyConnect.Data.Entities.GroupMember", b =>
                 {
-                    b.Property<Guid>("GroupMemberId")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("MemberId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("GroupId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("JoinedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<Guid>("MemberId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("MemberRoleId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("GroupMemberId");
+                    b.HasKey("MemberId", "GroupId");
 
                     b.HasIndex("GroupId");
-
-                    b.HasIndex("MemberId");
 
                     b.HasIndex("MemberRoleId");
 
                     b.ToTable("GroupMember", (string)null);
-                });
-
-            modelBuilder.Entity("StudyConnect.Data.Entities.GroupPost", b =>
-                {
-                    b.Property<Guid>("GroupPostId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("CommentCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("GroupId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("GroupMemberId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("GroupPostId");
-
-                    b.HasIndex("GroupId");
-
-                    b.HasIndex("GroupMemberId");
-
-                    b.ToTable("GroupPost", (string)null);
                 });
 
             modelBuilder.Entity("StudyConnect.Data.Entities.MemberRole", b =>
@@ -567,29 +482,6 @@ namespace StudyConnect.Data.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("StudyConnect.Data.Entities.GroupComment", b =>
-                {
-                    b.HasOne("StudyConnect.Data.Entities.Group", null)
-                        .WithMany("GroupComments")
-                        .HasForeignKey("GroupId");
-
-                    b.HasOne("StudyConnect.Data.Entities.GroupMember", "GroupMember")
-                        .WithMany("GroupComments")
-                        .HasForeignKey("GroupMemberId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("StudyConnect.Data.Entities.GroupPost", "GroupPost")
-                        .WithMany("GroupComments")
-                        .HasForeignKey("GroupPostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("GroupMember");
-
-                    b.Navigation("GroupPost");
-                });
-
             modelBuilder.Entity("StudyConnect.Data.Entities.GroupMember", b =>
                 {
                     b.HasOne("StudyConnect.Data.Entities.Group", "Group")
@@ -670,23 +562,7 @@ namespace StudyConnect.Data.Migrations
 
             modelBuilder.Entity("StudyConnect.Data.Entities.Group", b =>
                 {
-                    b.Navigation("GroupComments");
-
                     b.Navigation("GroupMembers");
-
-                    b.Navigation("GroupPosts");
-                });
-
-            modelBuilder.Entity("StudyConnect.Data.Entities.GroupMember", b =>
-                {
-                    b.Navigation("GroupComments");
-
-                    b.Navigation("GroupPosts");
-                });
-
-            modelBuilder.Entity("StudyConnect.Data.Entities.GroupPost", b =>
-                {
-                    b.Navigation("GroupComments");
                 });
 
             modelBuilder.Entity("StudyConnect.Data.Entities.MemberRole", b =>
