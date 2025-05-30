@@ -32,14 +32,10 @@ public class Group
     /// Owner of the group.
     /// </summary>
     [ForeignKey("OwnerId")]
-    public required virtual User Owner { get; set; }
+    public virtual required User Owner { get; set; }
 
     /// <summary>
     /// Collection of members in the group.
     /// </summary>
     public virtual ICollection<GroupMember> GroupMembers { get; set; } = [];
-
-    public virtual ICollection<GroupPost> GroupPosts { get; set; } = [];
-
-    public virtual ICollection<GroupComment> GroupComments { get; set; } = [];
 }

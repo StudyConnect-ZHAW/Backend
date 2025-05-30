@@ -110,17 +110,9 @@ public class StudyConnectDbContext : DbContext
             .WithOne(fp => fp.User)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Configure Group-GroupPost relationship
-        modelBuilder
-            .Entity<Group>()
-            .HasMany(g => g.GroupPosts)
-            .WithOne(p => p.Group)
-            .HasForeignKey(p => p.GroupId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         // Configure GroupMembers-GroupPost relationship
         modelBuilder
-            .Entity<GroupMembers>()
+            .Entity<GroupMember>()
             .HasMany(gm => gm.GroupPosts)
             .WithOne(p => p.GroupMember)
             .HasForeignKey(p => p.GroupMemberId)
@@ -162,17 +154,9 @@ public class StudyConnectDbContext : DbContext
             .WithOne(fc => fc.User)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Configure Group-GroupComments relationship
-        modelBuilder
-            .Entity<Group>()
-            .HasMany(g => g.GroupComments)
-            .WithOne(p => p.Group)
-            .HasForeignKey(p => p.GroupId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         // Configure GroupMembers-GroupComments relationship
         modelBuilder
-            .Entity<GroupMembers>()
+            .Entity<GroupMember>()
             .HasMany(gm => gm.GroupComments)
             .WithOne(gc => gc.GroupMember)
             .HasForeignKey(p => p.GroupMemberId)
