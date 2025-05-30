@@ -16,7 +16,7 @@ public class GroupRepository : BaseRepository, IGroupRepository
     {
         if (groupId == Guid.Empty)
         {
-            return OperationResult<Group?>.Failure("Invalid GUID.");
+            return OperationResult<Group?>.Failure(InvalidGroupId);
         }
 
         var entity = await _context
@@ -161,7 +161,7 @@ public class GroupRepository : BaseRepository, IGroupRepository
         {
             if (GroupId == Guid.Empty)
             {
-                return OperationResult<IEnumerable<GroupMember>>.Failure("Invalid GroupId");
+                return OperationResult<IEnumerable<GroupMember>>.Failure(InvalidGroupId);
             }
             var groupmembers = await _context
                 .GroupMembers.AsNoTracking()
@@ -171,7 +171,7 @@ public class GroupRepository : BaseRepository, IGroupRepository
 
             if (groupmembers == null)
             {
-                return OperationResult<IEnumerable<GroupMember>>.Failure("Group not found");
+                return OperationResult<IEnumerable<GroupMember>>.Failure(GroupNotFound);
             }
 
             var members = groupmembers.Select(g => g.ToMemberModel());

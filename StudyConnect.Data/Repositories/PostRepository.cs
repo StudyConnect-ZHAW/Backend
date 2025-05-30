@@ -26,10 +26,6 @@ public class PostRepository : BaseRepository, IPostRepository
         if (post == null)
             return OperationResult<ForumPost>.Failure(PostContentEmpty);
 
-        bool isTitleTaken = await _context.ForumPosts.AnyAsync(fp => fp.Title == post.Title);
-        if (isTitleTaken)
-            return OperationResult<ForumPost>.Failure(TitleTaken);
-
         var newPost = new Entities.ForumPost
         {
             Title = post.Title,
