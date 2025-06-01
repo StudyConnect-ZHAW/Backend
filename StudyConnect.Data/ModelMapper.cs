@@ -81,6 +81,7 @@ public static class ModelMapper
             UserId = like.UserId,
             ForumPostId = like.ForumPostId ?? Guid.Empty,
             ForumCommentId = like.ForumCommentId ?? Guid.Empty,
+            LikedAt = like.LikedAt.ToUniversalTime(),
         };
     }
 }
