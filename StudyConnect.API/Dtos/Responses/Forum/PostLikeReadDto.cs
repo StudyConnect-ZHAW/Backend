@@ -23,5 +23,5 @@ public class PostLikeReadDto
     /// <summary>
     /// The date and time when the post was liked.
     /// </summary>
-    public DateTime? LidedAt { get; set; }
+    public DateTime? LikedAt { get; set; }
 }
