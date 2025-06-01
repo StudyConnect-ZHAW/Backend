@@ -192,6 +192,29 @@ public class PostController : BaseController
     }
 
     /// <summary>
+    /// Get all likes for the current post for the current user.
+    /// </summary>
+    /// <param name="pid">The unique identifier of the post.</param>
+    /// <returns>On success a HTTP 200 status code, or an appropriate error status code on failure.</returns>
+    [HttpGet("pid:guid/likes")]
+    [Authorize]
+    public async Task<IActionResult> GetLikesForCurrentUser([FromRoute] Guid pid)
+    {
+        var uid = GetIdFromToken();
+
+        var likes = await _likeRepository.GetPostLikesForUser(uid, pid);
+
+        if (!likes.IsSuccess && !string.IsNullOrEmpty(likes.ErrorMessage))
+            return likes.ErrorMessage.Contains(GeneralNotFound)
+                ? NotFound(likes.ErrorMessage)
+                : BadRequest(likes.ErrorMessage);
+
+        var likesList = likes.Data ?? [];
+
+        return Ok(likesList.Select(ToPostLikeDto));
+    }
+
+    /// <summary>
     /// Deletes an existing post.
     /// </summary>
     /// <param name="pid">The unique identifier of the post.</param>
@@ -247,6 +270,20 @@ public class PostController : BaseController
             ForumCategoryId = category.ForumCategoryId,
             Name = category.Name,
             Description = category.Description,
+        };
+
+    /// <summary>
+    /// A helper function to create postlike Dto from model.
+    /// </summary>
+    /// <param name="like">The forum like model.</param>
+    /// <returns>A CategoryReadDto.</returns>
+    private PostLikeReadDto ToPostLikeDto(ForumLike like) =>
+        new()
+        {
+            LikeId = like.LikeId,
+            UserId = like.UserId,
+            ForumPostId = like.ForumPostId,
+            LidedAt = like.LikedAt,
         };
 
     /// <summary>

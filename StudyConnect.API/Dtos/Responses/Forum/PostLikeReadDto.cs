@@ -18,10 +18,10 @@ public class PostLikeReadDto
     /// <summary>
     /// The unique identifier of the current forum post.
     /// </summary>
-    public Guid ForumPostId { get; set; }
+    public Guid? ForumPostId { get; set; }
 
     /// <summary>
     /// The date and time when the post was liked.
     /// </summary>
-    public DateTime LidedAt { get; set; }
+    public DateTime? LidedAt { get; set; }
 }

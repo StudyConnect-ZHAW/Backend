@@ -117,46 +117,24 @@ public class LikeRepository : BaseRepository, ILikeRepository
         return OperationResult<bool>.Success(false);
     }
 
-    public async Task<OperationResult<IEnumerable<ForumLike>>> GetPostLikesForUser(
-        Guid userId,
-        Guid postId
-    )
+    public async Task<OperationResult<IEnumerable<ForumLike>>> GetPostLikesForUser(Guid userId)
     {
         if (userId == Guid.Empty || !await _context.Users.AnyAsync(u => u.UserGuid == userId))
             return OperationResult<IEnumerable<ForumLike>>.Failure(UserNotFound);
 
-        if (
-            postId == Guid.Empty
-            || !await _context.ForumPosts.AnyAsync(p => p.ForumPostId == postId)
-        )
-            return OperationResult<IEnumerable<ForumLike>>.Failure(PostNotFound);
-
-        var likes = await _context
-            .ForumLikes.Where(l => l.UserId == userId && l.ForumPostId == postId)
-            .ToListAsync();
+        var likes = await _context.ForumLikes.Where(l => l.UserId == userId).ToListAsync();
 
         return OperationResult<IEnumerable<ForumLike>>.Success(
             likes.Select(l => l.ToForumLikeModel())
         );
     }
 
-    public async Task<OperationResult<IEnumerable<ForumLike>>> GetCommentLikesForUser(
-        Guid userId,
-        Guid commentId
-    )
+    public async Task<OperationResult<IEnumerable<ForumLike>>> GetCommentLikesForUser(Guid userId)
     {
         if (userId == Guid.Empty || !await _context.Users.AnyAsync(u => u.UserGuid == userId))
             return OperationResult<IEnumerable<ForumLike>>.Failure(UserNotFound);
 
-        if (
-            commentId == Guid.Empty
-            || !await _context.ForumComments.AnyAsync(p => p.ForumPostId == commentId)
-        )
-            return OperationResult<IEnumerable<ForumLike>>.Failure(PostNotFound);
-
-        var likes = await _context
-            .ForumLikes.Where(l => l.UserId == userId && l.ForumPostId == commentId)
-            .ToListAsync();
+        var likes = await _context.ForumLikes.Where(l => l.UserId == userId).ToListAsync();
 
         return OperationResult<IEnumerable<ForumLike>>.Success(
             likes.Select(l => l.ToForumLikeModel())

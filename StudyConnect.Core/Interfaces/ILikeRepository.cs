@@ -44,12 +44,11 @@ public interface ILikeRepository
     Task<int> GetPostLikeCountAsync(Guid postId);
 
     /// <summary>
-    /// Get the likes for a given forum post and user.
+    /// Get the likes for a given user.
     /// </summary>
-    /// <param name="postId">The unique identifier of the post.</param>
     /// <param name="userId">the unique identifier of the current user.</param>
     /// <returns>Tne number of likes for the post.</returns>
-    Task<OperationResult<IEnumerable<ForumLike>>> GetPostLikesForUser(Guid userId, Guid postId);
+    Task<OperationResult<IEnumerable<ForumLike>>> GetPostLikesForUser(Guid userId);
 
     /// <summary>
     /// Get the amount of likes for a given forum comment.
@@ -59,15 +58,11 @@ public interface ILikeRepository
     Task<int> GetCommentLikeCountAsync(Guid commentId);
 
     /// <summary>
-    /// Get the likes for a given forum comment and user.
+    /// Get the likes for a given user.
     /// </summary>
-    /// <param name="commentId">The unique identifier of the comment.</param>
     /// <param name="userId">the unique identifier of the current user.</param>
     /// <returns>Tne number of likes for the post.</returns>
-    Task<OperationResult<IEnumerable<ForumLike>>> GetCommentLikesForUser(
-        Guid userId,
-        Guid commentId
-    );
+    Task<OperationResult<IEnumerable<ForumLike>>> GetCommentLikesForUser(Guid userId);
 
     /// <summary>
     /// Checks whether a like for a post was already made.
