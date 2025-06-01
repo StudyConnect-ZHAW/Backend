@@ -68,4 +68,19 @@ public static class ModelMapper
             Member = member.Member.ToUserModel(),
         };
     }
+
+    /// <summary>
+    /// A helper function to map a forum like entity to its model representation.
+    /// </summary>
+    /// <returns>A GroupMember model object.</returns>
+    public static Core.Models.ForumLike ToForumLikeModel(this ForumLike like)
+    {
+        return new()
+        {
+            LikeId = like.LikeId,
+            UserId = like.UserId,
+            ForumPostId = like.ForumPostId ?? Guid.Empty,
+            ForumCommentId = like.ForumCommentId ?? Guid.Empty,
+        };
+    }
 }
