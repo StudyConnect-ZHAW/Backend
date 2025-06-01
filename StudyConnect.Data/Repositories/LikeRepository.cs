@@ -90,7 +90,7 @@ public class LikeRepository : BaseRepository, ILikeRepository
             await _context.SaveChangesAsync();
         }
 
-        return OperationResult<bool>.Success(true);
+        return OperationResult<bool>.Success(false);
     }
 
     public async Task<OperationResult<bool>> UnlikePostAsync(Guid userId, Guid postId)
@@ -114,7 +114,7 @@ public class LikeRepository : BaseRepository, ILikeRepository
             await _context.SaveChangesAsync();
         }
 
-        return OperationResult<bool>.Success(true);
+        return OperationResult<bool>.Success(false);
     }
 
     public async Task<OperationResult<IEnumerable<ForumLike>>> GetPostLikesForUser(

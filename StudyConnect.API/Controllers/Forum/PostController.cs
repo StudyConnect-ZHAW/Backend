@@ -188,7 +188,7 @@ public class PostController : BaseController
                 ? NotFound(result.ErrorMessage)
                 : BadRequest(result.ErrorMessage);
 
-        return NoContent();
+        return Ok(result.Data);
     }
 
     /// <summary>
