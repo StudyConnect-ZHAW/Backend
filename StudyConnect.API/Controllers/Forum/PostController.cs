@@ -192,7 +192,7 @@ public class PostController : BaseController
     }
 
     /// <summary>
-    /// Get all likes for the current post for the current user.
+    /// Get all likes for the current user.
     /// </summary>
     /// <returns>On success a HTTP 200 status code, or an appropriate error status code on failure.</returns>
     [HttpGet("likes")]
