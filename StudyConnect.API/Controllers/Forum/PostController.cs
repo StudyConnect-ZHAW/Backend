@@ -194,15 +194,14 @@ public class PostController : BaseController
     /// <summary>
     /// Get all likes for the current post for the current user.
     /// </summary>
-    /// <param name="pid">The unique identifier of the post.</param>
     /// <returns>On success a HTTP 200 status code, or an appropriate error status code on failure.</returns>
-    [HttpGet("pid:guid/likes")]
+    [HttpGet("likes")]
     [Authorize]
-    public async Task<IActionResult> GetLikesForCurrentUser([FromRoute] Guid pid)
+    public async Task<IActionResult> GetLikesForCurrentUser()
     {
         var uid = GetIdFromToken();
 
-        var likes = await _likeRepository.GetPostLikesForUser(uid, pid);
+        var likes = await _likeRepository.GetPostLikesForUser(uid);
 
         if (!likes.IsSuccess && !string.IsNullOrEmpty(likes.ErrorMessage))
             return likes.ErrorMessage.Contains(GeneralNotFound)
