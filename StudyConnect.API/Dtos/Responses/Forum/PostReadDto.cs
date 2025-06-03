@@ -33,6 +33,11 @@ public class PostReadDto
     public int? LikeCount { get; set; }
 
     /// <summary>
+    /// Indicates whether the currently authenticated user has liked this post.
+    /// </summary>
+    public bool LikedByCurrentUser { get; set; }
+
+    /// <summary>
     /// The date and time when post was created.
     /// </summary>
     public DateTime? Created { get; set; }
