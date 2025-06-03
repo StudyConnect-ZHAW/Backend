@@ -38,6 +38,11 @@ public class CommentReadDto
     public int? LikeCount { get; set; }
 
     /// <summary>
+    /// Indicates whether the currently authenticated user has liked this comment.
+    /// </summary>
+    public bool CurrentUserLiked { get; set; }
+
+    /// <summary>
     /// A state indicating that the comment was modified.
     /// </summary>
     public bool Edited { get; set; }
@@ -61,11 +66,6 @@ public class CommentReadDto
     /// The creator of this forum comment.
     /// </summary>
     public UserReadDto? User { get; set; }
-
-    /// <summary>
-    /// Indicates whether the currently authenticated user has liked this comment.
-    /// </summary>
-    public bool CurrentUserLiked { get; set; }
 
     /// <summary>
     /// A list of replies to this comment as dtos.

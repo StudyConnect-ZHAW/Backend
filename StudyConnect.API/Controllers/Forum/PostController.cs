@@ -324,7 +324,7 @@ public class PostController : BaseController
     /// A helper function to create post Dto from model.
     /// </summary>
     /// <param name="post">The forum post model.</param>
-    /// <param name="liked">A boolean indicating whether the current user has liked the content.</param>
+    /// <param name="liked">A boolean indicating whether the current user has liked the post.</param>
     /// <returns>A PostReadDto.</returns>
     private PostReadDto GeneratePostDto(ForumPost post, bool liked)
     {
