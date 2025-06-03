@@ -16,7 +16,7 @@ public class CommentLikeReadDto
     public Guid UserId { get; set; }
 
     /// <summary>
-    /// The unique identifier of the current forum post.
+    /// The unique identifier of the current forum comment.
     /// </summary>
     public Guid? ForumCommentId { get; set; }
 
