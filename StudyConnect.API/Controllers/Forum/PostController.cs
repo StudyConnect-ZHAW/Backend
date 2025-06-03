@@ -64,7 +64,8 @@ public class PostController : BaseController
             else
                 return BadRequest(result.ErrorMessage);
         }
-        return Ok(GeneratePostDto(result.Data));
+
+        return Ok(GeneratePostDto(result.Data, false));
     }
 
     /// <summary>
@@ -77,6 +78,7 @@ public class PostController : BaseController
     /// <param name="toDate">The end date to filter posts created on or before this date (optional).</param>
     /// <returns>On success a list of Dtoa with information about the post, on failure HTTP 400/404 status code.</returns>
     [HttpGet("search")]
+    [Authorize]
     public async Task<IActionResult> SearchPosts(
         [FromQuery] Guid? uid,
         [FromQuery] string? categoryName,
@@ -92,7 +94,8 @@ public class PostController : BaseController
         if (posts.Data == null)
             return NotFound("Queries not found.");
 
-        var result = posts.Data.Select(p => GeneratePostDto(p));
+        var userId = GetIdFromToken();
+        var result = await GeneratePostDtosWithLikesAsync(posts.Data, userId);
 
         return Ok(result);
     }
@@ -102,6 +105,7 @@ public class PostController : BaseController
     /// </summary>
     /// <returns>On success a list of Dtos with information about the post, on failure HTTP 400/404 status code.</returns>
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetAllPosts()
     {
         var posts = await _postRepository.GetAllAsync();
@@ -110,7 +114,8 @@ public class PostController : BaseController
 
         var postsList = posts.Data ?? [];
 
-        var result = postsList.Select(p => GeneratePostDto(p));
+        var uid = GetIdFromToken();
+        var result = await GeneratePostDtosWithLikesAsync(postsList, uid);
 
         return Ok(result);
     }
@@ -121,6 +126,7 @@ public class PostController : BaseController
     /// <param name="pid">The unique identifier of the post.</param>
     /// <returns>On success a DTO with information about the post, on failure HTTP 400/404 status code.</returns>
     [HttpGet("{pid:guid}")]
+    [Authorize]
     public async Task<IActionResult> GetPostById([FromRoute] Guid pid)
     {
         var result = await _postRepository.GetByIdAsync(pid);
@@ -129,7 +135,10 @@ public class PostController : BaseController
                 ? NotFound(result.ErrorMessage)
                 : BadRequest(result.ErrorMessage);
 
-        var postDto = GeneratePostDto(result.Data);
+        var uid = GetIdFromToken();
+        var liked = await _likeRepository.PostLikeExistsAsync(uid, pid);
+
+        var postDto = GeneratePostDto(result.Data, liked);
 
         return Ok(postDto);
     }
@@ -247,6 +256,30 @@ public class PostController : BaseController
     }
 
     /// <summary>
+    /// Generates a list of <see cref="PostReadDto"/> objects from the given posts,
+    /// including information on whether the specified user has liked each post.
+    /// </summary>
+    /// <param name="posts">A collection of <see cref="ForumPost"/> entities to convert.</param>
+    /// <param name="userId">The ID of the current user used to check like status.</param>
+    /// <returns>A list of <see cref="PostReadDto"/>.</returns>
+    private async Task<List<PostReadDto>> GeneratePostDtosWithLikesAsync(
+        IEnumerable<ForumPost> posts,
+        Guid userId
+    )
+    {
+        var result = new List<PostReadDto>();
+
+        foreach (var post in posts)
+        {
+            var liked = await _likeRepository.PostLikeExistsAsync(userId, post.ForumPostId);
+            var dto = GeneratePostDto(post, liked);
+            result.Add(dto);
+        }
+
+        return result;
+    }
+
+    /// <summary>
     /// A helper function to create user Dto from model.
     /// </summary>
     /// <param name="user">The user model.</param>
@@ -291,8 +324,9 @@ public class PostController : BaseController
     /// A helper function to create post Dto from model.
     /// </summary>
     /// <param name="post">The forum post model.</param>
+    /// <param name="liked">A boolean indicating whether the current user has liked the content.</param>
     /// <returns>A PostReadDto.</returns>
-    private PostReadDto GeneratePostDto(ForumPost post)
+    private PostReadDto GeneratePostDto(ForumPost post, bool liked)
     {
         return new PostReadDto
         {
@@ -305,6 +339,7 @@ public class PostController : BaseController
             LikeCount = post.LikeCount,
             Category = post.Category != null ? GenerateCategoryReadDto(post.Category) : null,
             User = post.User != null ? GenerateUserReadDto(post.User) : null,
+            LikedByCurrentUser = liked,
         };
     }
 }
