@@ -72,7 +72,7 @@ public static class ModelMapper
     /// <summary>
     /// A helper function to map a forum like entity to its model representation.
     /// </summary>
-    /// <returns>A GroupMember model object.</returns>
+    /// <returns>A ForumLike model object.</returns>
     public static Core.Models.ForumLike ToForumLikeModel(this ForumLike like)
     {
         return new()
