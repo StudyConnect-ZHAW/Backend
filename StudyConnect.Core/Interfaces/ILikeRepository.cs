@@ -47,7 +47,7 @@ public interface ILikeRepository
     /// Get the likes for a given user.
     /// </summary>
     /// <param name="userId">the unique identifier of the current user.</param>
-    /// <returns>The number of likes for the post.</returns>
+    /// <returns>A list of post likes the user left.</returns>
     Task<OperationResult<IEnumerable<ForumLike>>> GetPostLikesForUser(Guid userId);
 
     /// <summary>
@@ -61,7 +61,7 @@ public interface ILikeRepository
     /// Get the likes for a given user.
     /// </summary>
     /// <param name="userId">the unique identifier of the current user.</param>
-    /// <returns>The number of likes for the post.</returns>
+    /// <returns>A List of comment likes the user left.</returns>
     Task<OperationResult<IEnumerable<ForumLike>>> GetCommentLikesForUser(Guid userId);
 
     /// <summary>

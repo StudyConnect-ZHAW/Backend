@@ -187,7 +187,7 @@ public class CommentController : BaseController
                 ? NotFound(likes.ErrorMessage)
                 : BadRequest(likes.ErrorMessage);
 
-        var likesList = likes.Data ?? [];
+        var likesList = likes.Data ?? Array.Empty<ForumLike>();
 
         return Ok(likesList.Select(ToCommentLikeDto));
     }
