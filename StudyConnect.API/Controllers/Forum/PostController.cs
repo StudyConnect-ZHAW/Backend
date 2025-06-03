@@ -275,14 +275,14 @@ public class PostController : BaseController
     /// A helper function to create postlike Dto from model.
     /// </summary>
     /// <param name="like">The forum like model.</param>
-    /// <returns>A CategoryReadDto.</returns>
+    /// <returns>A PostLikeReadDto.</returns>
     private PostLikeReadDto ToPostLikeDto(ForumLike like) =>
         new()
         {
             LikeId = like.LikeId,
             UserId = like.UserId,
             ForumPostId = like.ForumPostId,
-            LidedAt = like.LikedAt,
+            LikedAt = like.LikedAt,
         };
 
     /// <summary>

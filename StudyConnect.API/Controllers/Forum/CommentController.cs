@@ -203,6 +203,20 @@ public class CommentController : BaseController
     }
 
     /// <summary>
+    /// A helper function to create commentlike Dto from model.
+    /// </summary>
+    /// <param name="like">The forum like model.</param>
+    /// <returns>A CommentLikeReadDto.</returns>
+    private CommentLikeReadDto ToCommentLikeDto(ForumLike like) =>
+        new()
+        {
+            LikeId = like.LikeId,
+            UserId = like.UserId,
+            ForumCommentId = like.ForumCommentId,
+            LikedAt = like.LikedAt,
+        };
+
+    /// <summary>
     /// A helper function to map a User model to a UserReadDto.
     /// </summary>
     /// <param name="user">The user model.</param>
