@@ -9,20 +9,21 @@ namespace StudyConnect.Data.Entities;
 /// </summary>
 public class GroupMember
 {
-    [Required]
     [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Required]
+    public Guid GroupMemberId { get; set; }
+
+    [Required]
     public Guid MemberId { get; set; }
 
     [Required]
-    [Key]
     public Guid GroupId { get; set; }
 
     [Required]
     public Guid MemberRoleId { get; set; }
 
     public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
-
-    public bool IsActive { get; set; } = true;
 
     /// <summary>
     /// Unique identifier for the group member.
@@ -42,4 +43,8 @@ public class GroupMember
     /// </summary>
     [ForeignKey("MemberRoleId")]
     public MemberRole MemberRole { get; set; } = null!;
+
+    public virtual ICollection<GroupPost> GroupPosts { get; set; } = [];
+
+    public virtual ICollection<GroupComment> GroupComments { get; set; } = [];
 }

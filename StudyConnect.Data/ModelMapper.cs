@@ -11,7 +11,7 @@ public static class ModelMapper
     /// <returns>A User model object.</returns>
     public static Core.Models.User ToUserModel(this User user)
     {
-        return new Core.Models.User
+        return new()
         {
             UserGuid = user.UserGuid,
             FirstName = user.FirstName,
@@ -27,7 +27,7 @@ public static class ModelMapper
     /// <returns>A forumCategory model object.</returns>
     public static Core.Models.ForumCategory ToCategoryModel(this ForumCategory category)
     {
-        return new Core.Models.ForumCategory
+        return new()
         {
             ForumCategoryId = category.ForumCategoryId,
             Name = category.Name,
@@ -56,6 +56,7 @@ public static class ModelMapper
     /// <summary>
     /// A helper function to map a member entity to its model representation.
     /// </summary>
+    /// <param name="member">A group member entity to transform.</param>
     /// <returns>A GroupMember model object.</returns>
     public static Core.Models.GroupMember ToMemberModel(this GroupMember member)
     {

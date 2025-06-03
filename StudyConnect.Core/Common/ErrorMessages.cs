@@ -7,6 +7,7 @@ namespace StudyConnect.Core.Common
         public const string NotFound = "The requested resource was not found.";
         public const string NotAuthorized = "Not authorized to perform this action.";
         public const string NameRequired = "Name cannot be null, empty or whitespace.";
+        public const string FailedRetrieve = "Failed to retrieve the newly created object";
 
         public const string GeneralTaken = "already";
         public const string TitleTaken = "Title already in use.";
@@ -33,10 +34,10 @@ namespace StudyConnect.Core.Common
         public const string CommentsNotFound = "Comments with specified ID does not exist.";
         public const string PostNotFound = "Post with specified ID does not exist.";
         public const string UserNotFound = "User with specified ID does not exist.";
-        public const string ParentCommentNotFound = "Parent comment with specified ID does not exist.";
-        public const string LikeNotFound = "Like with specified ID does not exist.";
         public const string GroupNotFound = "Group with specified ID does not exist.";
+        public const string ParentCommentNotFound =
+            "Parent comment with specified ID does not exist.";
+        public const string LikeNotFound = "Like with specified ID does not exist.";
         public const string MemberNotFound = "GroupMember with specified ID does not exist.";
     }
 }
-
