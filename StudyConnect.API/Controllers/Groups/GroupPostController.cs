@@ -35,7 +35,7 @@ public class GroupPostController : BaseController
     /// Creates a new post.
     /// </summary>
     /// <param name="gid">The unique identifier of the group the post belongs to.</param>
-    /// <param name="createDto">A Date Transfer Object containing information for post creating.</param>
+    /// <param name="createDto">A Data Transfer Object containing information for post creating.</param>
     /// <returns>On success a HTTP 200 status code, on failure a HTTP 400 status code.</returns>
     [Route("v1/groups/{gid:guid}/posts")]
     [HttpPost]

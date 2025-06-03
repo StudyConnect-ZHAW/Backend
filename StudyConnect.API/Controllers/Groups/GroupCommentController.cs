@@ -34,8 +34,8 @@ public class GroupCommentController : BaseController
     /// <summary>
     /// Creates a new comment.
     /// </summary>
-    /// <param name="gid">The unique identifier of the post.</param>
-    /// <param name="pid"></param>
+    /// <param name="gid">The unique identifier of the group.</param>
+    /// <param name="pid">The unique identifier of the post.</param>
     /// <param name="createDto">A Data Transfer Object containing information for comment creation.</param>
     /// <returns>Returns HTTP 200 OK on success, or 400 Bad Request on failure.</returns>
     [Route("v1/groups/{gid:guid}/posts/{pid:guid}/comments")]
