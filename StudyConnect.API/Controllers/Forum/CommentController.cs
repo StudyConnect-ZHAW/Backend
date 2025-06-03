@@ -169,6 +169,28 @@ public class CommentController : BaseController
     }
 
     /// <summary>
+    /// Get all likes for the current user.
+    /// </summary>
+    /// <returns>On success a HTTP 200 status code, or an appropriate error status code on failure.</returns>
+    [HttpGet("likes")]
+    [Authorize]
+    public async Task<IActionResult> GetCommentLikesForCurrentUser()
+    {
+        var uid = GetIdFromToken();
+
+        var likes = await _likeRepository.GetCommentLikesForUser(uid);
+
+        if (!likes.IsSuccess && !string.IsNullOrEmpty(likes.ErrorMessage))
+            return likes.ErrorMessage.Contains(GeneralNotFound)
+                ? NotFound(likes.ErrorMessage)
+                : BadRequest(likes.ErrorMessage);
+
+        var likesList = likes.Data ?? [];
+
+        return Ok(likesList.Select(ToCommentLikeDto));
+    }
+
+    /// <summary>
     /// Deletes an existing comment.
     /// </summary>
     /// <param name="cmid">The unique identifier of the comment.</param>
