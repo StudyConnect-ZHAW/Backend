@@ -6,7 +6,7 @@ namespace StudyConnect.API.Dtos.Responses.Forum;
 public class ToggleLikeDto
 {
     /// <summary>
-    /// A boolean to show if a pos/comment is liked.
+    /// A boolean to show if a post/comment is liked.
     /// </summary>
     public bool AddedLike { get; set; }
 }

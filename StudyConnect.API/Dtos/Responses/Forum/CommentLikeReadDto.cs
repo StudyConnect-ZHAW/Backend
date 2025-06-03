@@ -1,7 +1,7 @@
 namespace StudyConnect.API.Dtos.Responses.Forum;
 
 /// <summary>
-/// Data transfer object for reading forum post like information.
+/// Data transfer object for reading forum comment like information.
 /// </summary>
 public class CommentLikeReadDto
 {
