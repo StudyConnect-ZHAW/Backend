@@ -51,4 +51,9 @@ public class PostReadDto
     /// The creator of the post as a dto.
     /// </summary>
     public UserReadDto? User { get; set; }
+
+    /// <summary>
+    /// Indicates whether the currently authenticated user has liked this post.
+    /// </summary>
+    public bool CurrentUserLiked { get; set; }
 }

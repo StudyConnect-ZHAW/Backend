@@ -63,6 +63,11 @@ public class CommentReadDto
     public UserReadDto? User { get; set; }
 
     /// <summary>
+    /// Indicates whether the currently authenticated user has liked this comment.
+    /// </summary>
+    public bool CurrentUserLiked { get; set; }
+
+    /// <summary>
     /// A list of replies to this comment as dtos.
     /// </summary>
     public ICollection<CommentReadDto>? Replies { get; set; }
