@@ -94,7 +94,7 @@ public class PostController : BaseController
         if (posts.Data == null)
             return NotFound("Queries not found.");
 
-        var userId = GetIdFromToken();
+        var userId = GetOIdFromToken();
         var result = await GeneratePostDtosWithLikesAsync(posts.Data, userId);
 
         return Ok(result);
@@ -114,7 +114,7 @@ public class PostController : BaseController
 
         var postsList = posts.Data ?? [];
 
-        var uid = GetIdFromToken();
+        var uid = GetOIdFromToken();
         var result = await GeneratePostDtosWithLikesAsync(postsList, uid);
 
         return Ok(result);
@@ -135,7 +135,7 @@ public class PostController : BaseController
                 ? NotFound(result.ErrorMessage)
                 : BadRequest(result.ErrorMessage);
 
-        var uid = GetIdFromToken();
+        var uid = GetOIdFromToken();
         var liked = await _likeRepository.PostLikeExistsAsync(uid, pid);
 
         var postDto = GeneratePostDto(result.Data, liked);
@@ -210,7 +210,7 @@ public class PostController : BaseController
     [Authorize]
     public async Task<IActionResult> GetPostLikesForCurrentUser()
     {
-        var uid = GetIdFromToken();
+        var uid = GetOIdFromToken();
 
         var likes = await _likeRepository.GetPostLikesForUser(uid);
 

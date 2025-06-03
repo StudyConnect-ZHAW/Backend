@@ -87,7 +87,7 @@ public class CommentController : BaseController
                 ? NotFound(comments.ErrorMessage)
                 : BadRequest(comments.ErrorMessage);
 
-        var uid = GetIdFromToken();
+        var uid = GetOIdFromToken();
         var result = await GenerateCommentDtosWithLikesAsync(comments.Data, uid);
         return Ok(result);
     }
@@ -108,7 +108,7 @@ public class CommentController : BaseController
                 ? NotFound(comment.ErrorMessage)
                 : BadRequest(comment.ErrorMessage);
 
-        var uid = GetIdFromToken();
+        var uid = GetOIdFromToken();
         var liked = await _likeRepository.CommentLikeExistsAsync(uid, cmid);
         var result = await MapToCommentDtoAsync(comment.Data, uid);
 
@@ -183,7 +183,7 @@ public class CommentController : BaseController
     [Authorize]
     public async Task<IActionResult> GetCommentLikesForCurrentUser()
     {
-        var uid = GetIdFromToken();
+        var uid = GetOIdFromToken();
 
         var likes = await _likeRepository.GetCommentLikesForUser(uid);
 
