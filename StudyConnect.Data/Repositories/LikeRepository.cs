@@ -122,7 +122,9 @@ public class LikeRepository : BaseRepository, ILikeRepository
         if (userId == Guid.Empty || !await _context.Users.AnyAsync(u => u.UserGuid == userId))
             return OperationResult<IEnumerable<ForumLike>>.Failure(UserNotFound);
 
-        var likes = await _context.ForumLikes.Where(l => l.UserId == userId).ToListAsync();
+        var likes = await _context
+            .ForumLikes.Where(l => l.UserId == userId && l.ForumPostId != null)
+            .ToListAsync();
 
         return OperationResult<IEnumerable<ForumLike>>.Success(
             likes.Select(l => l.ToForumLikeModel())
@@ -134,7 +136,9 @@ public class LikeRepository : BaseRepository, ILikeRepository
         if (userId == Guid.Empty || !await _context.Users.AnyAsync(u => u.UserGuid == userId))
             return OperationResult<IEnumerable<ForumLike>>.Failure(UserNotFound);
 
-        var likes = await _context.ForumLikes.Where(l => l.UserId == userId).ToListAsync();
+        var likes = await _context
+            .ForumLikes.Where(l => l.UserId == userId && l.ForumCommentId != null)
+            .ToListAsync();
 
         return OperationResult<IEnumerable<ForumLike>>.Success(
             likes.Select(l => l.ToForumLikeModel())
