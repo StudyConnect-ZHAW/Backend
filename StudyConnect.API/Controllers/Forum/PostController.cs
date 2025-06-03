@@ -188,7 +188,7 @@ public class PostController : BaseController
                 ? NotFound(result.ErrorMessage)
                 : BadRequest(result.ErrorMessage);
 
-        return Ok(result.Data);
+        return Ok($"liked:{result.Data}");
     }
 
     /// <summary>
