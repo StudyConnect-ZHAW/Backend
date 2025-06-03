@@ -165,7 +165,9 @@ public class CommentController : BaseController
                 ? NotFound(result.ErrorMessage)
                 : BadRequest(result.ErrorMessage);
 
-        return Ok($"liked:{result.Data}");
+        var dto = new ToggleLikeDto { AddedLike = result.Data };
+
+        return Ok(dto);
     }
 
     /// <summary>
