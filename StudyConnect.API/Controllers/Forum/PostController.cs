@@ -197,7 +197,7 @@ public class PostController : BaseController
     /// <returns>On success a HTTP 200 status code, or an appropriate error status code on failure.</returns>
     [HttpGet("likes")]
     [Authorize]
-    public async Task<IActionResult> GetLikesForCurrentUser()
+    public async Task<IActionResult> GetPostLikesForCurrentUser()
     {
         var uid = GetIdFromToken();
 
