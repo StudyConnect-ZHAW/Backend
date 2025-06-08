@@ -179,7 +179,7 @@ public class CommentController : BaseController
     /// Get all likes for the current user.
     /// </summary>
     /// <returns>On success a HTTP 200 status code, or an appropriate error status code on failure.</returns>
-    [HttpGet("likes")]
+    [HttpGet("v1/comments/likes")]
     [Authorize]
     public async Task<IActionResult> GetCommentLikesForCurrentUser()
     {
