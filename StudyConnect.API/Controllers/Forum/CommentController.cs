@@ -66,7 +66,7 @@ public class CommentController : BaseController
                 ? NotFound(result.ErrorMessage)
                 : BadRequest(result.ErrorMessage);
 
-        var createdComment = MapToCommentDto(result.Data);
+        var createdComment = await MapToCommentDtoAsync(result.Data, uid);
 
         return Ok(createdComment);
     }
@@ -78,6 +78,7 @@ public class CommentController : BaseController
     /// <returns>Returns a list of comments on success, or HTTP 400/404 on failure.</returns>
     [Route("v1/posts/{pid:guid}/comments")]
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetAllCommentsOfPost([FromRoute] Guid pid)
     {
         var comments = await _commentRepository.GetAllofPostAsync(pid);
@@ -86,7 +87,8 @@ public class CommentController : BaseController
                 ? NotFound(comments.ErrorMessage)
                 : BadRequest(comments.ErrorMessage);
 
-        var result = comments.Data.Select(MapToCommentDto);
+        var uid = GetOIdFromToken();
+        var result = await GenerateCommentDtosWithLikesAsync(comments.Data, uid);
         return Ok(result);
     }
 
@@ -97,6 +99,7 @@ public class CommentController : BaseController
     /// <returns>Returns the comment details on success, or HTTP 400/404 on failure.</returns>
     [Route("v1/comments/{cmid:guid}")]
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetCommentById([FromRoute] Guid cmid)
     {
         var comment = await _commentRepository.GetByIdAsync(cmid);
@@ -105,7 +108,8 @@ public class CommentController : BaseController
                 ? NotFound(comment.ErrorMessage)
                 : BadRequest(comment.ErrorMessage);
 
-        var result = MapToCommentDto(comment.Data);
+        var uid = GetOIdFromToken();
+        var result = await MapToCommentDtoAsync(comment.Data, uid);
 
         return Ok(result);
     }
@@ -141,7 +145,7 @@ public class CommentController : BaseController
                 return BadRequest(result.ErrorMessage);
         }
 
-        return Ok(MapToCommentDto(result.Data));
+        return Ok(await MapToCommentDtoAsync(result.Data, uid));
     }
 
     /// <summary>
@@ -165,7 +169,31 @@ public class CommentController : BaseController
                 ? NotFound(result.ErrorMessage)
                 : BadRequest(result.ErrorMessage);
 
-        return NoContent();
+        var dto = new ToggleLikeDto { AddedLike = result.Data };
+
+        return Ok(dto);
+    }
+
+    /// <summary>
+    /// Get all likes for the current user.
+    /// </summary>
+    /// <returns>On success a HTTP 200 status code, or an appropriate error status code on failure.</returns>
+    [HttpGet("v1/comments/likes")]
+    [Authorize]
+    public async Task<IActionResult> GetCommentLikesForCurrentUser()
+    {
+        var uid = GetOIdFromToken();
+
+        var likes = await _likeRepository.GetCommentLikesForUser(uid);
+
+        if (!likes.IsSuccess && !string.IsNullOrEmpty(likes.ErrorMessage))
+            return likes.ErrorMessage.Contains(GeneralNotFound)
+                ? NotFound(likes.ErrorMessage)
+                : BadRequest(likes.ErrorMessage);
+
+        var likesList = likes.Data ?? Array.Empty<ForumLike>();
+
+        return Ok(likesList.Select(ToCommentLikeDto));
     }
 
     /// <summary>
@@ -203,6 +231,43 @@ public class CommentController : BaseController
     }
 
     /// <summary>
+    /// Generates a list of <see cref="CommentReadDto"/> objects from the given comments,
+    /// including information on whether the specified user has liked each post.
+    /// </summary>
+    /// <param name="comments">A collection of <see cref="ForumComment"/> entities to convert.</param>
+    /// <param name="userId">The ID of the current user used to check like status.</param>
+    /// <returns>A list of <see cref="CommentReadDto"/>.</returns>
+    private async Task<List<CommentReadDto>> GenerateCommentDtosWithLikesAsync(
+        IEnumerable<ForumComment> comments,
+        Guid userId
+    )
+    {
+        var result = new List<CommentReadDto>();
+
+        foreach (var comment in comments)
+        {
+            var dto = await MapToCommentDtoAsync(comment, userId);
+            result.Add(dto);
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// A helper function to create commentlike Dto from model.
+    /// </summary>
+    /// <param name="like">The forum like model.</param>
+    /// <returns>A CommentLikeReadDto.</returns>
+    private CommentLikeReadDto ToCommentLikeDto(ForumLike like) =>
+        new()
+        {
+            LikeId = like.LikeId,
+            UserId = like.UserId,
+            ForumCommentId = like.ForumCommentId,
+            LikedAt = like.LikedAt,
+        };
+
+    /// <summary>
     /// A helper function to map a User model to a UserReadDto.
     /// </summary>
     /// <param name="user">The user model.</param>
@@ -220,10 +285,20 @@ public class CommentController : BaseController
     /// A helper function to map a forumComment model to a CommentReadDto.
     /// </summary>
     /// <param name="comment">The comment model.</param>
+    /// <param name="userId">The unique identifier of current user.</param>
+    /// <param name="depth">The current nesting depth.</param>
+    /// <param name="maxDepth">The maximal nesting depth.</param>
     /// <returns>A CommentReadDto containing comment details and nested replies, if any.</returns>
-    private CommentReadDto MapToCommentDto(ForumComment comment)
+    private async Task<CommentReadDto> MapToCommentDtoAsync(
+        ForumComment comment,
+        Guid userId,
+        int depth = 0,
+        int maxDepth = 10
+    )
     {
-        var result = new CommentReadDto
+        var liked = await _likeRepository.CommentLikeExistsAsync(userId, comment.ForumCommentId);
+
+        var dto = new CommentReadDto
         {
             ForumCommentId = comment.ForumCommentId,
             Content = comment.Content,
@@ -236,13 +311,19 @@ public class CommentController : BaseController
             User = comment.User != null ? MapUserToDto(comment.User) : null,
             PostId = comment.PostId,
             ParentCommentId = comment.ParentCommentId,
+            CurrentUserLiked = liked,
+            Replies = new List<CommentReadDto>(),
         };
 
-        if (comment.Replies != null && comment.Replies.Count > 0)
+        if (depth < maxDepth && comment.Replies != null && comment.Replies.Count > 0)
         {
-            result.Replies = comment.Replies.Select(MapToCommentDto).ToList();
+            foreach (var reply in comment.Replies)
+            {
+                var replyDto = await MapToCommentDtoAsync(reply, userId, depth + 1, maxDepth);
+                dto.Replies.Add(replyDto);
+            }
         }
 
-        return result;
+        return dto;
     }
 }

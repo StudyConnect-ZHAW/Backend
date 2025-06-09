@@ -1,6 +1,6 @@
-using StudyConnect.Core.Models;
 using StudyConnect.Core.Common;
 using StudyConnect.Core.Interfaces;
+using StudyConnect.Core.Models;
 
 namespace StudyConnect.Core.Interfaces;
 
@@ -40,15 +40,29 @@ public interface ILikeRepository
     /// Get the amount of likes for a given forum post.
     /// </summary>
     /// <param name="postId">The unique identifier of the post.</param>
-    /// <returns>Tne number of likes for the post.</returns>
+    /// <returns>The number of likes for the post.</returns>
     Task<int> GetPostLikeCountAsync(Guid postId);
+
+    /// <summary>
+    /// Get the likes for a given user.
+    /// </summary>
+    /// <param name="userId">the unique identifier of the current user.</param>
+    /// <returns>A list of post likes the user left.</returns>
+    Task<OperationResult<IEnumerable<ForumLike>>> GetPostLikesForUser(Guid userId);
 
     /// <summary>
     /// Get the amount of likes for a given forum comment.
     /// </summary>
     /// <param name="commentId">The unique identifier of the comment.</param>
-    /// <returns>Tne number of likes for the comment.</returns>
+    /// <returns>The number of likes for the comment.</returns>
     Task<int> GetCommentLikeCountAsync(Guid commentId);
+
+    /// <summary>
+    /// Get the likes for a given user.
+    /// </summary>
+    /// <param name="userId">the unique identifier of the current user.</param>
+    /// <returns>A List of comment likes the user left.</returns>
+    Task<OperationResult<IEnumerable<ForumLike>>> GetCommentLikesForUser(Guid userId);
 
     /// <summary>
     /// Checks whether a like for a post was already made.

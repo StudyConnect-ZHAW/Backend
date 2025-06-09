@@ -38,6 +38,11 @@ public class CommentReadDto
     public int? LikeCount { get; set; }
 
     /// <summary>
+    /// Indicates whether the currently authenticated user has liked this comment.
+    /// </summary>
+    public bool CurrentUserLiked { get; set; }
+
+    /// <summary>
     /// A state indicating that the comment was modified.
     /// </summary>
     public bool Edited { get; set; }
