@@ -37,7 +37,7 @@ public class LikeRepository : BaseRepository, ILikeRepository
             return OperationResult<bool>.Failure(CommentNotFound);
 
         if (await CommentLikeExistsAsync(userId, commentId))
-            return OperationResult<bool>.Failure("Like already exists.");
+            return OperationResult<bool>.Failure(LikeExists);
 
         var newLike = new Entities.ForumLike { UserId = userId, ForumCommentId = commentId };
 
@@ -58,8 +58,8 @@ public class LikeRepository : BaseRepository, ILikeRepository
         )
             return OperationResult<bool>.Failure(PostNotFound);
 
-        if (await CommentLikeExistsAsync(userId, postId))
-            return OperationResult<bool>.Failure("Like already exists.");
+        if (await PostLikeExistsAsync(userId, postId))
+            return OperationResult<bool>.Failure(LikeExists);
 
         var newLike = new Entities.ForumLike { UserId = userId, ForumPostId = postId };
 
