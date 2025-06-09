@@ -109,7 +109,6 @@ public class CommentController : BaseController
                 : BadRequest(comment.ErrorMessage);
 
         var uid = GetOIdFromToken();
-        var liked = await _likeRepository.CommentLikeExistsAsync(uid, cmid);
         var result = await MapToCommentDtoAsync(comment.Data, uid);
 
         return Ok(result);
@@ -287,8 +286,15 @@ public class CommentController : BaseController
     /// </summary>
     /// <param name="comment">The comment model.</param>
     /// <param name="userId">The unique identifier of current user.</param>
+    /// <param name="depth">The current nesting depth.</param>
+    /// <param name="maxDepth">The maximal nesting depth.</param>
     /// <returns>A CommentReadDto containing comment details and nested replies, if any.</returns>
-    private async Task<CommentReadDto> MapToCommentDtoAsync(ForumComment comment, Guid userId)
+    private async Task<CommentReadDto> MapToCommentDtoAsync(
+        ForumComment comment,
+        Guid userId,
+        int depth = 0,
+        int maxDepth = 10
+    )
     {
         var liked = await _likeRepository.CommentLikeExistsAsync(userId, comment.ForumCommentId);
 
@@ -306,15 +312,14 @@ public class CommentController : BaseController
             PostId = comment.PostId,
             ParentCommentId = comment.ParentCommentId,
             CurrentUserLiked = liked,
+            Replies = new List<CommentReadDto>(),
         };
 
-        if (comment.Replies != null && comment.Replies.Count > 0)
+        if (depth < maxDepth && comment.Replies != null && comment.Replies.Count > 0)
         {
-            dto.Replies = new List<CommentReadDto>();
-
             foreach (var reply in comment.Replies)
             {
-                var replyDto = await MapToCommentDtoAsync(reply, userId); // recursive!
+                var replyDto = await MapToCommentDtoAsync(reply, userId, depth + 1, maxDepth);
                 dto.Replies.Add(replyDto);
             }
         }

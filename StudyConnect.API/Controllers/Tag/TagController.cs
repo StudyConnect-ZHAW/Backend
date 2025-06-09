@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StudyConnect.API.Dtos.Responses;
 using StudyConnect.Core.Common;
-using StudyConnect.Data.Repositories;
 using StudyConnect.Core.Interfaces;
+using StudyConnect.Data.Repositories;
 
 namespace StudyConnect.API.Controllers
 {
@@ -15,6 +15,9 @@ namespace StudyConnect.API.Controllers
     [Route("v1/tags")]
     public class TagController : BaseController
     {
+        /// <summary>
+        /// The tag repository to interact with data.
+        /// </summary>
         protected readonly ITagRepository _tagRepository;
 
         /// <summary>
@@ -45,9 +48,10 @@ namespace StudyConnect.API.Controllers
             {
                 Id = t.TagId,
                 Name = t.Name,
-                Description = t.Description
+                Description = t.Description,
             });
             return Ok(tagsDtoList);
         }
     }
 }
+
