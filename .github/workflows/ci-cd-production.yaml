@@ -1,0 +1,106 @@
+name: Backend CI/CD - Production
+# This workflow builds and pushes the backend Docker image to the GitHub Container Registry
+# and updates the deployment manifest in the GitOps repository.
+# It is triggered manually and uses the latest closed PR labels to determine version bumps.
+# The versioning follows semantic versioning principles:
+# - Major version bump for breaking changes
+# - Minor version bump for new features
+# - Patch version bump for bug fixes
+# The workflow also creates a new tag in the repository for the new version.
+# The deployment manifest is updated to use the new image version.
+# The GitOps repository is updated with the new image version in the deployment manifest.
+
+on:
+  workflow_dispatch: # enables manual trigger
+
+permissions:
+  packages: write
+  contents: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Required to fetch tags for versioning
+
+      - name: Get Latest Version
+        id: get_version
+        run: |
+          # Fetch latest tag and sanitize
+          LATEST_TAG=$(git tag --sort=-v:refname | head -n 1 || echo "0.0.0")
+          LATEST_TAG=$(echo "$LATEST_TAG" | sed 's/[^0-9.]//g') # Sanitize again just in case
+          echo "LATEST_TAG: $LATEST_TAG"
+
+          # Extract version components with defaults
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$LATEST_TAG"
+          MAJOR=${MAJOR:-0}
+          MINOR=${MINOR:-0}
+          PATCH=${PATCH:-0}
+      
+          # Fetch the latest closed PR labels
+          PR_LABEL=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/pulls?state=closed" | \
+          jq -r '.[0].labels[].name // empty' | grep -E 'major|minor' | head -n 1)
+          echo "PR_LABEL: $PR_LABEL"
+
+          # Determine version bump
+          if echo "$PR_LABEL" | grep -q "major"; then
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+          elif echo "$PR_LABEL" | grep -q "minor"; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+          else
+            PATCH=$((PATCH + 1))
+          fi
+      
+          # Set new version
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "New version: $NEW_VERSION"
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.PAT_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and push backend image
+        env: 
+          NEW_VERSION: ${{ env.NEW_VERSION }}
+        run: |
+          docker build -t ghcr.io/studyconnect-zhaw/backend/production:${{ env.NEW_VERSION }} -f Dockerfile .
+          docker push ghcr.io/studyconnect-zhaw/backend/production:${{ env.NEW_VERSION }}
+
+      - name: Create and push version tag
+        env: 
+          NEW_VERSION: ${{ env.NEW_VERSION }}
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git tag ${{ env.NEW_VERSION }}
+          git push origin ${{ env.NEW_VERSION }}
+
+      - name: Clone StudyConnect-ZHAW GitOps repository
+        run:
+          git clone https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/StudyConnect-ZHAW/StudyConnect.git gitops-repo
+
+      - name: Update deployment manifest
+        env: 
+          NEW_VERSION: ${{ env.NEW_VERSION }}
+        run: |
+          sed -i 's|image: ghcr.io/studyconnect-zhaw/backend/production:.*|image: ghcr.io/studyconnect-zhaw/backend/production:${{ env.NEW_VERSION }}|' gitops-repo/deployment/backend/K8s/production/deployment.yaml
+     
+      - name: Commit and push changes
+        env: 
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          NEW_VERSION: ${{ env.NEW_VERSION }}
+        run: |
+          cd gitops-repo
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add deployment/backend/K8s/production/deployment.yaml
+          git commit -m "Update backend image to version ${{ env.NEW_VERSION }}"
+          git push
